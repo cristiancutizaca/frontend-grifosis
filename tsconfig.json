@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "types": ["react-router-dom"],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/homeContent/Courses.jsx", "components/home/Header1.jsx", "components/home/ContactForm.tsx", "components/home/NuestrasRedes.jsx", "app/diplomados/page.jsx", "components/diplomadosComponents/diplomadosCivil.jsx", "app/certs/page.jsx", "app/certs/test.jsx", "components/diplomadosComponents/diplomadosNav.tsx", "app/page.jsx", "app/page.jsx", "app/login/page.jsx"],
+  "exclude": ["node_modules"]
+}
