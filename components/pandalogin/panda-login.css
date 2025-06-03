@@ -1,0 +1,230 @@
+/* 📁 components/panda-login.css */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+
+.panda {
+  position: relative;
+  width: 300px;
+  margin: 0 auto;
+}
+
+.face {
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  border-radius: 100%;
+  margin: 0 auto;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  z-index: 30;
+  position: relative;
+}
+
+.ear {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: #000;
+  z-index: 5;
+  border: 10px solid #fff;
+  border-radius: 100%;
+  top: -25px;
+  left: -20px;
+}
+
+.ear::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: #000;
+  border: 10px solid #fff;
+  border-radius: 100%;
+  top: 0;
+  left: 120px;
+}
+
+.eye-shade {
+  position: absolute;
+  background: #000;
+  width: 50px;
+  height: 80px;
+  top: 35px;
+  left: 25px;
+  border-radius: 25px / 20px 30px 35px 40px;
+  transform: rotate(220deg);
+}
+
+.eye-shade.rgt {
+  left: 105px;
+  transform: rotate(140deg);
+}
+
+.eye-white {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: #fff;
+  border-radius: 100%;
+  z-index: 50;
+  left: 40px;
+  top: 80px;
+  overflow: hidden;
+}
+
+.eye-white.rgt {
+  left: auto;
+  right: 40px;
+}
+
+.eye-ball {
+  position: absolute;
+}
+
+.eye-ball::after {
+  content: '';
+  background: #000;
+  position: absolute;
+  border-radius: 100%;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.nose {
+  position: absolute;
+  height: 20px;
+  width: 35px;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 50px 20px / 30px 15px;
+  transform: rotate(15deg);
+  background: #000;
+}
+
+.body {
+  background: #fff;
+  position: absolute;
+  top: 180px;
+  left: -20px;
+  border-radius: 100px 100px 100px 100px / 126px 126px 96px 96px;
+  width: 260px;
+  height: 260px;
+  z-index: 10;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hand {
+  width: 40px;
+  height: 30px;
+  border-radius: 50px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+  background: #000;
+  position: absolute;
+  top: -20px;
+  left: -25px;
+  z-index: 40;
+}
+
+.hand.rgt {
+  left: auto;
+  right: -25px;
+}
+
+.foot {
+  top: 380px;
+  left: -80px;
+  position: absolute;
+  background: #000;
+  z-index: 50;
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 40px 40px 39px 40px / 26px 26px 63px 63px;
+  width: 82px;
+  height: 120px;
+}
+
+.foot.rgt {
+  left: auto;
+  right: -80px;
+}
+
+.finger {
+  position: absolute;
+  width: 25px;
+  height: 35px;
+  background: #222;
+  border-radius: 100%;
+  top: 10px;
+  right: 5px;
+}
+
+form {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 270px;
+  z-index: 20;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease-in-out;
+}
+
+form.up {
+  transform: translate(-50%, -60px);
+}
+
+.alert {
+  position: absolute;
+  color: #f00;
+  font-size: 16px;
+  right: -180px;
+  top: -300px;
+  z-index: 200;
+  padding: 30px 25px;
+  background: #fff;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition: 0.4s 0.6s linear;
+}
+
+.wrong-entry .alert {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.form-label {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 5px;
+  transition: 0.3s;
+}
+
+.form-control:focus + .form-label,
+.form-control:valid + .form-label {
+  font-size: 12px;
+  color: #ec4899;
+  transform: translateY(-15px);
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(10px);
+  }
+  40%, 80% {
+    transform: translateX(-10px);
+  }
+}
+
+.wrong-entry {
+  animation: shake 0.3s;
+}
