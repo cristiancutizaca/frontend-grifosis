@@ -25,17 +25,6 @@ function ScrollToTopButton() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
-    return (
-        <button
-            className={` animate-bounce mr-5 fixed bottom-10 right-0 bg-primaryblue text-white rounded-full px-4 py-2 mb-[71px] z-50 items-center text-xs flex gap-2 transition-opacity duration-500 ${
-                isVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-            onClick={scrollToTop}
-        >
-            <IoIosArrowUp className="inline-block h-8 w-8 " />
-        </button>
-    );
 }
 
 export default ScrollToTopButton;
