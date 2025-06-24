@@ -27,7 +27,7 @@ export default function PandaLogin() {
       )
       if (response.data.token) {
         localStorage.setItem("token", response.data.token)
-        window.location.href = "/student"
+        window.location.href = "/grifo"
       } else {
         setWrongEntry(true)
       }

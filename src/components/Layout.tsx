@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react';
 import {
   Home,
@@ -17,6 +19,7 @@ import {
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface NavItem {
   name: string;
@@ -29,8 +32,9 @@ interface LayoutProps {
   currentPage?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard' }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const pathname = usePathname();
 
   const navItems: NavItem[] = [
     { name: 'Dashboard', icon: Home, path: '/grifo' },
@@ -38,10 +42,10 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard' }) 
     { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
     { name: 'Créditos', icon: CreditCard, path: '/grifo-creditos' },
     { name: 'Inventario', icon: Package, path: '/grifo-inventario'},
-    { name: 'Reportes', icon: BarChart3, path: '/reports' },
-    { name: 'Empleados', icon: User, path: '/employees' },
-    { name: 'Turnos', icon: Clock, path: '/shifts' },
-    { name: 'Configuración', icon: Settings, path: '/settings' },
+    { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
+    { name: 'Empleados', icon: User, path: '/grifo-empleados' },
+    { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
+    { name: 'Configuración', icon: Settings, path: '/grifo-configuracion' },
   ];
 
   return (
@@ -67,7 +71,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage = 'dashboard' }) 
                     href={item.path}
                     className={`w-full flex items-center p-2 rounded-lg hover:bg-slate-700 transition-colors
                       ${
-                        currentPage === item.name.toLowerCase()
+                          pathname === item.path
                           ? 'bg-orange-500 text-white'
                           : 'text-slate-300'
                       }`}
