@@ -6,4 +6,4 @@ const Whatsapp = () => {
   
 };
 
-export default Whatsapp;
+export default Whatsapp;    
