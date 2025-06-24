@@ -15,11 +15,13 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Fuel
+  Fuel,
+  AmpersandIcon
 } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AcademicCapIcon } from '@heroicons/react/solid';
 
 interface NavItem {
   name: string;
@@ -46,6 +48,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Empleados', icon: User, path: '/grifo-empleados' },
     { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
     { name: 'Configuración', icon: Settings, path: '/grifo-configuracion' },
+    { name: 'Super Admin', icon: User, path: '/super-admin'},
   ];
 
   return (
