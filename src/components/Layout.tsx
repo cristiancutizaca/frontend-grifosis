@@ -99,16 +99,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        <header className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Sistema de Gestión</h2>
-          <div className="flex items-center">
-            <div className="bg-red-500 text-white px-2 py-1 rounded-full text-sm mr-3">
+      <main className="flex-1 p-19 overflow-y-auto bg-slate-900">
+        <header className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
+          {/* Lado izquierdo - Menú hamburguesa y título */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 text-white hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+            <h1 className="text-xl font-semibold text-white">Super Admin</h1>
+          </div>
+
+          {/* Lado derecho - Notificaciones y usuario */}
+          <div className="flex items-center space-x-4">
+            {/* Badge de notificaciones */}
+            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
               10
             </div>
-            <span className="mr-3 text-slate-300">Vendedor</span>
+            
+            {/* Texto Vendedor */}
+            <span className="text-slate-300 text-sm">Vendedor</span>
+
+            {/* Avatar usuario */}
             <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-              <User size={24} />
+              <User size={20} className="text-white" />
             </div>
           </div>
         </header>

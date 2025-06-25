@@ -39,29 +39,29 @@ const GrifoReportes: React.FC = () => {
     }, [])
 
     return (
-        <Layout currentPage="reportes">
-            <div className="p-6 bg-white min-h-screen">
-                <div className="grid grid-cols-12 gap-4 mb-6">
-                    <div className="col-span-4 flex flex-col h-full space-y-4">
+        <Layout currentPage="inventario">
+            <div className="p-3 sm:p-4 lg:p-6 bg-white min-h-screen">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 mb-4 lg:mb-6">
+                    <div className="lg:col-span-4 flex flex-col lg:h-full space-y-3 lg:space-y-4">
                         {/* Hora */}
-                        <div className="flex-1 bg-slate-800 p-4 rounded-lg flex flex-col justify-center items-center">
-                        <h2 className="text-white text-xl font-bold">HORA</h2>
-                        <p className="text-white text-4xl font-bold mt-2">{ currentTime ?? 'Cargando...' }</p>
+                        <div className="flex-1 bg-slate-800 p-3 lg:p-4 rounded-lg flex flex-col justify-center items-center">
+                        <h2 className="text-white text-lg lg:text-xl font-bold">HORA</h2>
+                        <p className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold mt-2">{ currentTime ?? 'Cargando...' }</p>
                         </div>
                         {/* Inventario */}
-                        <div className="flex-1 bg-slate-800 p-4 rounded-lg flex flex-col justify-center items-center">
-                        <h2 className="text-white text-xl font-bold">INVENTARIO</h2>
+                        <div className="flex-1 bg-slate-800 p-3 lg:p-4 rounded-lg flex flex-col justify-center items-center">
+                        <h2 className="text-white text-lg lg:text-xl font-bold">INVENTARIO</h2>
                         </div>
                     </div>
 
                     {/* Calendario */}
-                    <div className="col-span-8 bg-slate-800 p-4 rounded-lg">
-                        <h2 className="text-green-400 text-center text-xl font-bold mb-4 ">
+                    <div className="lg:col-span-8 bg-slate-800 p-3 lg:p-4 rounded-lg">
+                        <h2 className="text-green-400 text-center text-lg lg:text-xl font-bold mb-3 lg:mb-4">
                           { currentMonth.format('MMMM').toUpperCase() }
                         </h2>
-                        <div className="grid grid-cols-7 gap-1 text-center text-white text-sm">
+                        <div className="grid grid-cols-7 gap-1 text-center text-white text-xs sm:text-sm">
                           {['DOM', 'LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB'].map(day => (
-                            <div key={ day } className="font-bold text-green-400">{ day }</div>
+                            <div key={ day } className="font-bold text-green-400 p-1">{ day }</div>
                           ))}
 
                           {Array(startDay).fill(null).map((_, i) => (
@@ -73,7 +73,7 @@ const GrifoReportes: React.FC = () => {
                             const day = i + 1;
                             const isToday = moment().date() === day && moment().month() === currentMonth.month();
                             return (
-                              <div key={day} className={`p-1 rounded-full text-yellow-400 ${isToday ? 'bg-green-700' : ''}`} >
+                              <div key={day} className={`p-1 lg:p-2 rounded-full text-yellow-400 ${isToday ? 'bg-green-700' : ''}`} >
                                 {day}
                               </div>
                             );
@@ -83,22 +83,22 @@ const GrifoReportes: React.FC = () => {
                 </div>
 
                 {/* Sección Central: Combustible y Entrada de Galones */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 lg:gap-4 mb-4 lg:mb-6">
                     {/* Combustible */}
-                    <div className="md:col-span-8 bg-slate-800 p-4 rounded-lg">
-                        <h2 className="text-white text-center text-xl font-bold mb-4">COMBUSTIBLE</h2>
-                        <div className="space-y-4">
+                    <div className="xl:col-span-8 bg-slate-800 p-3 lg:p-4 rounded-lg">
+                        <h2 className="text-white text-center text-lg lg:text-xl font-bold mb-3 lg:mb-4">COMBUSTIBLE</h2>
+                        <div className="space-y-3 lg:space-y-4">
                           {combustibles.map((comb, i) => {
                             const porcentaje = Math.max((comb.cantidad / 200000) * 100, 5);
                             return (
                               <div key={i}>
-                                <p className="text-white text-lg mb-1">{comb.nombre}</p>
-                                <div className="bg-gray-700 rounded-full h-12 flex items-center p-1">
+                                <p className="text-white text-base lg:text-lg mb-1 lg:mb-2">{comb.nombre}</p>
+                                <div className="bg-gray-700 rounded-full h-10 lg:h-12 flex items-center p-1">
                                   <div
-                                    className={`${comb.color} h-10 rounded-full flex items-center justify-center`}
+                                    className={`${comb.color} h-8 lg:h-10 rounded-full flex items-center justify-center`}
                                     style={{ width: `${porcentaje}%` }}
                                   >
-                                    <span className="text-white font-bold">
+                                    <span className="text-white font-bold text-sm lg:text-base">
                                       {comb.cantidad.toLocaleString()}K
                                     </span>
                                   </div>
@@ -110,25 +110,25 @@ const GrifoReportes: React.FC = () => {
                     </div>
 
                     {/* Entrada de Galones */}
-                    <div className="md:col-span-4 bg-slate-800 p-4 rounded-lg flex flex-col">
-                      <div className="bg-gray-700 p-4 rounded-lg text-white text-center text-4xl font-bold mb-4 flex justify-center items-center">
-                        {galonesActuales.toLocaleString()} <span className="text-lg ml-2">GAL</span>
+                    <div className="xl:col-span-4 bg-slate-800 p-3 lg:p-4 rounded-lg flex flex-col">
+                      <div className="bg-gray-700 p-3 lg:p-4 rounded-lg text-white text-center text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 flex justify-center items-center">
+                        {galonesActuales.toLocaleString()} <span className="text-sm lg:text-lg ml-2">GAL</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-2 text-center flex-grow">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1 lg:gap-2 text-center flex-grow">
                         {botonesGalones.map((amount, i) => (
                           <button
                             key={i}
-                            className="bg-gray-700 text-white p-3 rounded-lg text-lg font-bold hover:bg-gray-600"
+                            className="bg-gray-700 text-white p-2 lg:p-3 rounded-lg text-sm lg:text-lg font-bold hover:bg-gray-600 transition-colors duration-200"
                           >
-                            {amount} <span className="text-sm">GAL</span>
+                            {amount} <span className="text-xs lg:text-sm">GAL</span>
                           </button>
                         ))}
                       </div>
-                      <div className="flex gap-2 mt-4">
-                        <button className="bg-red-600 text-white p-3 rounded-lg text-xl font-bold flex-grow hover:bg-red-700">
+                      <div className="flex gap-2 mt-3 lg:mt-4">
+                        <button className="bg-red-600 text-white p-2 lg:p-3 rounded-lg text-lg lg:text-xl font-bold flex-grow hover:bg-red-700 transition-colors duration-200">
                           LLENAR
                         </button>
-                        <button className="bg-green-600 text-white p-3 rounded-lg text-xl font-bold flex-grow hover:bg-green-700">
+                        <button className="bg-green-600 text-white p-2 lg:p-3 rounded-lg text-lg lg:text-xl font-bold flex-grow hover:bg-green-700 transition-colors duration-200">
                           MANUAL
                         </button>
                       </div>
@@ -136,23 +136,42 @@ const GrifoReportes: React.FC = () => {
                 </div>
 
                 {/* Sección Inferior: Tabla de Cantidades */}
-                <div className="bg-slate-800 p-4 rounded-lg">
-                  <div className="grid grid-cols-3 gap-4 text-white font-bold text-lg mb-2 border-b border-gray-700 pb-2">
+                <div className="bg-slate-800 p-3 lg:p-4 rounded-lg">
+                  <div className="hidden sm:grid grid-cols-3 gap-2 lg:gap-4 text-white font-bold text-base lg:text-lg mb-2 border-b border-gray-700 pb-2">
                     <div>CANTIDAD (GAL)</div>
                     <div>FECHA</div>
                     <div>HORA</div>
                   </div>
-                  <div className="space-y-2 text-white text-base">
+                  
+                  {/* Vista móvil - tarjetas */}
+                  <div className="sm:hidden space-y-3">
                     {historialLlenado.length > 0 ? (
                       historialLlenado.map((registro, index) => (
-                        <div key={index} className="grid grid-cols-3 gap-4">
-                          <div>{registro.cantidad}</div>
-                          <div>{registro.fecha}</div>
-                          <div>{registro.hora}</div>
+                        <div key={index} className="bg-gray-700 p-3 rounded-lg">
+                          <div className="text-white font-bold text-lg mb-1">{registro.cantidad}</div>
+                          <div className="flex justify-between text-gray-300 text-sm">
+                            <span>{registro.fecha}</span>
+                            <span>{registro.hora}</span>
+                          </div>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center col-span-3 text-gray-400">No hay registros aún.</div>
+                      <div className="text-center text-gray-400 py-4">No hay registros aún.</div>
+                    )}
+                  </div>
+                  
+                  {/* Vista tablet/desktop - tabla */}
+                  <div className="hidden sm:block space-y-2 text-white text-sm lg:text-base">
+                    {historialLlenado.length > 0 ? (
+                      historialLlenado.map((registro, index) => (
+                        <div key={index} className="grid grid-cols-3 gap-2 lg:gap-4 py-2 hover:bg-gray-700 rounded transition-colors duration-200">
+                          <div className="font-medium">{registro.cantidad}</div>
+                          <div className="text-gray-300">{registro.fecha}</div>
+                          <div className="text-gray-300">{registro.hora}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center col-span-3 text-gray-400 py-4">No hay registros aún.</div>
                     )}
                   </div>
                 </div>
