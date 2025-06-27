@@ -23,7 +23,7 @@ const GrifoDashboard: React.FC = () => {
       <div className="space-y-6">
         {/* Header with user info */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">Gas Station</h1>
+          <h1 className="text-3xl font-bold text-white">Gas Estacion </h1>
           <div className="flex items-center space-x-4">
             <span className="text-slate-300">Vendedor</span>
             <span className="text-slate-400">/14.FE.LT 23:21 4/78</span>

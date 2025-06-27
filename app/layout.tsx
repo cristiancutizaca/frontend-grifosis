@@ -3,7 +3,7 @@ import ClientLayout from './clientLayout';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'INALTA ',
+  title: 'GAS STATION ',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
