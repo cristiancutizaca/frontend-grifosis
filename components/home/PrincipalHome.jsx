@@ -18,7 +18,7 @@ const tittles = [
     color: "bg-gradient-to-b from-blue-500 to-green-500",
   },
   {
-    title: "Formando líderes que transforman el mañana",
+    title: "Formando líderes que transforman el Leon",
     color: "text-from-dark",
   },
 ];

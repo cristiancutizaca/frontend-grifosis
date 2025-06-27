@@ -119,7 +119,7 @@ const GrifoTurnos: React.FC = () => {
                             selectedTurno === 'Lobo' ? 'bg-orange-600' :
                             'bg-purple-600'
                         }`}>
-                            {selectedTurno === 'Leon' ? 'MAÑANA' :
+                            {selectedTurno === 'Leon' ? 'Leon' :
                              selectedTurno === 'Lobo' ? 'Lobo' : 'Buho'}
                         </div>
                         <div className="text-xl lg:text-2xl">
@@ -131,7 +131,7 @@ const GrifoTurnos: React.FC = () => {
 
                 {/* Tarjetas de Turnos - Botones Seleccionables */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
-                    {/* Turno Mañana */}
+                    {/* Turno Leon */}
                     <button
                         onClick={() => handleTurnoSelect('Leon')}
                         className={`rounded-2xl p-4 lg:p-6 text-white relative transition-all duration-300 transform hover:scale-105 ${
@@ -143,7 +143,7 @@ const GrifoTurnos: React.FC = () => {
                         <div className="flex items-start justify-between">
                             <div>
                                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">TURNO</h3>
-                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">MAÑANA</h3>
+                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">Leon</h3>
                             </div>
                             <div className={`text-4xl sm:text-5xl lg:text-6xl transition-all duration-300 ${
                                 selectedTurno === 'Leon' ? 'animate-pulse' : ''

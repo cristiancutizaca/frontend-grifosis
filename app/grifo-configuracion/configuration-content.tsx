@@ -162,7 +162,7 @@ const GrifoConfiguracion: React.FC = () => {
                             
                             <div className="space-y-3 lg:space-y-4">
                                 <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌅 TURNO MAÑANA</label>
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌅 TURNO Leon</label>
                                     <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                                         <input
                                             type="time"
@@ -284,7 +284,7 @@ const GrifoConfiguracion: React.FC = () => {
                                 <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
                                     <label className="text-white font-bold text-sm lg:text-base mb-2 block">RESPONSABLE</label>
                                     <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base">
-                                        <option>Juan Pérez - Turno Mañana</option>
+                                        <option>Juan Pérez - Turno Leon</option>
                                         <option>María García - Turno Lobo</option>
                                         <option>Carlos López - Turno Buho</option>
                                     </select>
