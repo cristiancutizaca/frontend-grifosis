@@ -179,7 +179,7 @@ const GrifoConfiguracion: React.FC = () => {
                                 </div>
                                 
                                 <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">☀️ TURNO TARDE</label>
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">☀️ TURNO Lobo</label>
                                     <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                                         <input
                                             type="time"
@@ -196,7 +196,7 @@ const GrifoConfiguracion: React.FC = () => {
                                 </div>
                                 
                                 <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌙 TURNO NOCHE</label>
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌙 TURNO Buho</label>
                                     <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                                         <input
                                             type="time"
@@ -285,8 +285,8 @@ const GrifoConfiguracion: React.FC = () => {
                                     <label className="text-white font-bold text-sm lg:text-base mb-2 block">RESPONSABLE</label>
                                     <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base">
                                         <option>Juan Pérez - Turno Mañana</option>
-                                        <option>María García - Turno Tarde</option>
-                                        <option>Carlos López - Turno Noche</option>
+                                        <option>María García - Turno Lobo</option>
+                                        <option>Carlos López - Turno Buho</option>
                                     </select>
                                 </div>
                                 

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 
-type TurnoType = 'manana' | 'tarde' | 'noche'
+type TurnoType = 'Leon' | 'Lobo' | 'Buho'
 
 interface TurnoData {
     ventas: {
@@ -27,11 +27,11 @@ interface TurnoData {
 }
 
 const GrifoTurnos: React.FC = () => {
-    const [selectedTurno, setSelectedTurno] = useState<TurnoType>('manana')
+    const [selectedTurno, setSelectedTurno] = useState<TurnoType>('Leon')
 
     // Datos específicos para cada turno
     const turnoData: Record<TurnoType, TurnoData> = {
-        manana: {
+        Leon: {
             ventas: {
                 regular: { galones: 50, precio: 800.00, nivel: 'h-full' },
                 premium: { galones: 10, precio: 200.00, nivel: 'h-20' },
@@ -54,7 +54,7 @@ const GrifoTurnos: React.FC = () => {
                 { cantidad: '6 GALONES', fecha: '25/06/2025', hora: '11:55 AM' }
             ]
         },
-        tarde: {
+        Lobo: {
             ventas: {
                 regular: { galones: 75, precio: 1200.00, nivel: 'h-full' },
                 premium: { galones: 25, precio: 500.00, nivel: 'h-32' },
@@ -77,7 +77,7 @@ const GrifoTurnos: React.FC = () => {
                 { cantidad: '9 GALONES', fecha: '25/06/2025', hora: '18:00 PM' }
             ]
         },
-        noche: {
+        Buho: {
             ventas: {
                 regular: { galones: 35, precio: 560.00, nivel: 'h-4/5' },
                 premium: { galones: 8, precio: 160.00, nivel: 'h-16' },
@@ -115,16 +115,16 @@ const GrifoTurnos: React.FC = () => {
                     <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3">
                         <span className="text-white font-bold text-base lg:text-lg">TURNO ACTIVO:</span>
                         <div className={`px-3 lg:px-4 py-2 rounded-full font-bold text-white text-sm lg:text-base ${
-                            selectedTurno === 'manana' ? 'bg-blue-600' :
-                            selectedTurno === 'tarde' ? 'bg-orange-600' :
+                            selectedTurno === 'Leon' ? 'bg-blue-600' :
+                            selectedTurno === 'Lobo' ? 'bg-orange-600' :
                             'bg-purple-600'
                         }`}>
-                            {selectedTurno === 'manana' ? 'MAÑANA' :
-                             selectedTurno === 'tarde' ? 'TARDE' : 'NOCHE'}
+                            {selectedTurno === 'Leon' ? 'MAÑANA' :
+                             selectedTurno === 'Lobo' ? 'Lobo' : 'Buho'}
                         </div>
                         <div className="text-xl lg:text-2xl">
-                            {selectedTurno === 'manana' ? '☁️' :
-                             selectedTurno === 'tarde' ? '☀️' : '🌕'}
+                            {selectedTurno === 'Leon' ? '☁️' :
+                             selectedTurno === 'Lobo' ? '☀️' : '🌕'}
                         </div>
                     </div>
                 </div>
@@ -133,9 +133,9 @@ const GrifoTurnos: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
                     {/* Turno Mañana */}
                     <button
-                        onClick={() => handleTurnoSelect('manana')}
+                        onClick={() => handleTurnoSelect('Leon')}
                         className={`rounded-2xl p-4 lg:p-6 text-white relative transition-all duration-300 transform hover:scale-105 ${
-                            selectedTurno === 'manana'
+                            selectedTurno === 'Leon'
                                 ? 'bg-blue-600 border-4 border-blue-400 shadow-lg shadow-blue-500/50'
                                 : 'bg-slate-800 hover:bg-slate-700'
                         }`}
@@ -146,21 +146,21 @@ const GrifoTurnos: React.FC = () => {
                                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">MAÑANA</h3>
                             </div>
                             <div className={`text-4xl sm:text-5xl lg:text-6xl transition-all duration-300 ${
-                                selectedTurno === 'manana' ? 'animate-pulse' : ''
+                                selectedTurno === 'Leon' ? 'animate-pulse' : ''
                             }`}>☁️</div>
                         </div>
-                        {selectedTurno === 'manana' && (
+                        {selectedTurno === 'Leon' && (
                             <div className="absolute top-2 right-2 bg-green-500 rounded-full w-3 h-3 lg:w-4 lg:h-4 flex items-center justify-center">
                                 <div className="text-white text-xs">✓</div>
                             </div>
                         )}
                     </button>
 
-                    {/* Turno Tarde */}
+                    {/* Turno Lobo */}
                     <button
-                        onClick={() => handleTurnoSelect('tarde')}
+                        onClick={() => handleTurnoSelect('Lobo')}
                         className={`rounded-2xl p-4 lg:p-6 text-white relative transition-all duration-300 transform hover:scale-105 ${
-                            selectedTurno === 'tarde'
+                            selectedTurno === 'Lobo'
                                 ? 'bg-orange-600 border-4 border-orange-400 shadow-lg shadow-orange-500/50'
                                 : 'bg-slate-800 hover:bg-slate-700'
                         }`}
@@ -168,24 +168,24 @@ const GrifoTurnos: React.FC = () => {
                         <div className="flex items-start justify-between">
                             <div>
                                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">TURNO</h3>
-                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">TARDE</h3>
+                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">Lobo</h3>
                             </div>
                             <div className={`text-4xl sm:text-5xl lg:text-6xl transition-all duration-300 ${
-                                selectedTurno === 'tarde' ? 'animate-pulse' : ''
+                                selectedTurno === 'Lobo' ? 'animate-pulse' : ''
                             }`}>☀️</div>
                         </div>
-                        {selectedTurno === 'tarde' && (
+                        {selectedTurno === 'Lobo' && (
                             <div className="absolute top-2 right-2 bg-green-500 rounded-full w-3 h-3 lg:w-4 lg:h-4 flex items-center justify-center">
                                 <div className="text-white text-xs">✓</div>
                             </div>
                         )}
                     </button>
 
-                    {/* Turno Noche */}
+                    {/* Turno Buho */}
                     <button
-                        onClick={() => handleTurnoSelect('noche')}
+                        onClick={() => handleTurnoSelect('Buho')}
                         className={`rounded-2xl p-4 lg:p-6 text-white relative transition-all duration-300 transform hover:scale-105 ${
-                            selectedTurno === 'noche'
+                            selectedTurno === 'Buho'
                                 ? 'bg-purple-600 border-4 border-purple-400 shadow-lg shadow-purple-500/50'
                                 : 'bg-slate-800 hover:bg-slate-700'
                         }`}
@@ -193,13 +193,13 @@ const GrifoTurnos: React.FC = () => {
                         <div className="flex items-start justify-between">
                             <div>
                                 <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">TURNO</h3>
-                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">NOCHE</h3>
+                                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold leading-tight">Buho</h3>
                             </div>
                             <div className={`text-4xl sm:text-5xl lg:text-6xl transition-all duration-300 ${
-                                selectedTurno === 'noche' ? 'animate-pulse' : ''
+                                selectedTurno === 'Buho' ? 'animate-pulse' : ''
                             }`}>🌕</div>
                         </div>
-                        {selectedTurno === 'noche' && (
+                        {selectedTurno === 'Buho' && (
                             <div className="absolute top-2 right-2 bg-green-500 rounded-full w-3 h-3 lg:w-4 lg:h-4 flex items-center justify-center">
                                 <div className="text-white text-xs">✓</div>
                             </div>
