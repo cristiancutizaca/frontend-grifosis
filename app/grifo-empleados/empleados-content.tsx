@@ -6,17 +6,23 @@ const GrifoReportes: React.FC = () => {
     interface Employee {
         id: number;
         name: string;
+        paternalName: string;
+        maternalName: string;
         email: string;
         role: string;
+        telefono: string;
         status: 'Activo' | 'Inactivo';
         }
 
     // Datos de ejemplo para los empleados
     const [employees, setEmployees] = useState<Employee[]>([
-        { id: 1, name: 'Juan Perez', email: 'juan.perez@email.com', role: 'Vendedor', status: 'Activo' },
-        { id: 2, name: 'María García', email: 'maria.garcia@email.com', role: 'Administrador', status: 'Activo' },
-        { id: 3, name: 'Carlos Ruiz', email: 'carlos.ruiz@email.com', role: 'Vendedor', status: 'Inactivo' },
-        { id: 4, name: 'Laura Lopez', email: 'laura.lopez@email.com', role: 'Vendedor', status: 'Inactivo' },
+        { id: 1, name: 'Juan Perez', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'juan.perez@email.com', role: 'Vendedor', telefono: '900000000', status: 'Activo' },
+        { id: 2, name: 'María García', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'maria.garcia@email.com', role: 'Administrador', telefono: '900000000', status: 'Activo' },
+        { id: 3, name: 'María García', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'maria.garcia@email.com', role: 'Administrador', telefono: '900000000', status: 'Activo' },
+        { id: 4, name: 'María García', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'maria.garcia@email.com', role: 'Administrador', telefono: '900000000', status: 'Activo' },
+        { id: 5, name: 'María García', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'maria.garcia@email.com', role: 'Administrador', telefono: '900000000', status: 'Activo' },
+        { id: 6, name: 'Carlos Ruiz', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'carlos.ruiz@email.com', role: 'Vendedor', telefono: '900000000', status: 'Inactivo' },
+        { id: 7, name: 'Laura Lopez', paternalName: 'Alvaro', maternalName: 'Gonzales', email: 'laura.lopez@email.com', role: 'Vendedor', telefono: '900000000', status: 'Inactivo' },
     ]);
 
     // Estado para simular la edición de un empleado
@@ -51,232 +57,182 @@ const GrifoReportes: React.FC = () => {
         </svg>
     );
 
+
+
     return (
-            <div className="p-2 sm:p-4 md:p-6 bg-white min-h-screen text-white">
-                <h1 className="text-2xl sm:text-3xl text-gray-800 font-bold mb-4 sm:mb-6">Gestión de Empleados</h1>
+    <div className="p-2 sm:p-4 md:p-6 bg-white min-h-screen text-white">
+        <h1 className="text-2xl sm:text-3xl text-gray-800 font-bold mb-4 sm:mb-6">Gestión de Empleados</h1>
 
-                <div className={`flex flex-col md:flex-row gap-4 md:gap-6 transition-all duration-300 ${
-                    editingEmployee ? 'md:gap-4' : ''
-                }`}>
-                    {/* Sección Principal de la Tabla */}
-                    <div className={`bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300
-                        ${editingEmployee ? 'flex-1 md:w-3/5 lg:w-2/3' : 'flex-1'}
-                    `}>
-                        {/* Controles Superiores */}
-                        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-                            <div className="relative flex-1 w-full sm:w-auto">
-                                <input
-                                    type="text"
-                                    placeholder="Buscar empleado..."
-                                    className="w-full pl-9 pr-3 py-2 text-sm sm:text-base rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
-                                    <SearchIcon />
-                                </div>
-                            </div>
-                            <select className="w-full sm:w-auto px-3 py-2 text-sm sm:text-base rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option>Filtrar por Rol</option>
-                                <option>Administrador</option>
-                                <option>Vendedor</option>
-                            </select>
-                            <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 sm:px-4 rounded-lg text-sm sm:text-base transition duration-200">
-                                Agregar Nuevo empleado
-                            </button>
-                        </div>
-
-                        {/* Tabla de Empleados */}
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-700 text-xs sm:text-sm">
-                                <thead className="bg-gray-700">
-                                    <tr>
-                                        <th className="px-2 sm:px-6 py-2 sm:py-3 text-left font-medium text-gray-300 uppercase tracking-wider">NOMBRE COMPLETO</th>
-                                        <th className="px-2 sm:px-6 py-2 sm:py-3 text-left font-medium text-gray-300 uppercase tracking-wider">CORREO ELECTRONICO</th>
-                                        <th className="px-2 sm:px-6 py-2 sm:py-3 text-left font-medium text-gray-300 uppercase tracking-wider">ROL</th>
-                                        <th className="px-2 sm:px-6 py-2 sm:py-3 text-left font-medium text-gray-300 uppercase tracking-wider">ESTADO</th>
-                                        <th className="px-2 sm:px-6 py-2 sm:py-3 text-left font-medium text-gray-300 uppercase tracking-wider">ACCIONES</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-gray-800 divide-y divide-gray-700">
-                                    {employees.map((employee) => (
-                                        <tr key={employee.id}>
-                                            <td className="px-2 sm:px-6 py-2 whitespace-nowrap font-medium text-white">{employee.name}</td>
-                                            <td className="px-2 sm:px-6 py-2 whitespace-nowrap text-gray-300">{employee.email}</td>
-                                            <td className="px-2 sm:px-6 py-2 whitespace-nowrap text-gray-300">{employee.role}</td>
-                                            <td className="px-2 sm:px-6 py-2 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                    employee.status === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                    {employee.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-2 sm:px-6 py-2 whitespace-nowrap text-right font-medium flex items-center">
-                                                <button onClick={() => handleEditClick(employee)} className="text-blue-500 hover:text-blue-600">
-                                                    <EditIcon />
-                                                </button>
-                                                <button className="text-red-500 hover:text-red-600 ml-2">
-                                                    <DeleteIcon />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Sidebar de Edición de Empleado */}
-                    {editingEmployee && (
-                        <div className="w-full md:w-2/5 lg:w-1/3 bg-gray-800 p-2 sm:p-4 md:p-6 rounded-lg shadow-lg transition-all duration-300 mt-4 md:mt-0">
-                            <h2 className="text-lg sm:text-xl font-bold mb-4 sm:mb-6">Editar Empleado: {editingEmployee.name}</h2>
-
-                            {/* Información General */}
-                            <div className="mb-4 sm:mb-6">
-                                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Información General</h3>
-                                <div className="space-y-3 sm:space-y-4">
-                                    <div>
-                                        <label htmlFor="nombre" className="block text-xs sm:text-sm font-medium text-gray-300">Nombre</label>
-                                        <input
-                                            type="text"
-                                            id="nombre"
-                                            className="mt-1 block w-full px-2 py-1 sm:px-3 sm:py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
-                                            defaultValue={editingEmployee.name.split(' ')[0]}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="apellido" className="block text-xs sm:text-sm font-medium text-gray-300">Apellido</label>
-                                        <input
-                                            type="text"
-                                            id="apellido"
-                                            className="mt-1 block w-full px-2 py-1 sm:px-3 sm:py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
-                                            defaultValue={editingEmployee.name.split(' ')[1] || ''}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="correo" className="block text-xs sm:text-sm font-medium text-gray-300">Correo Electronico</label>
-                                        <input
-                                            type="email"
-                                            id="correo"
-                                            className="mt-1 block w-full px-2 py-1 sm:px-3 sm:py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
-                                            defaultValue={editingEmployee.email}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="telefono" className="block text-xs sm:text-sm font-medium text-gray-300">Teléfono</label>
-                                        <input
-                                            type="text"
-                                            id="telefono"
-                                            className="mt-1 block w-full px-2 py-1 sm:px-3 sm:py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
-                                            placeholder="Ej: +1234567890"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Estado de Cuenta y Permisos */}
-                            <div className="mb-4 sm:mb-6">
-                                <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Estado de Cuenta</h3>
-                                <div className="space-y-2 sm:space-y-3">
-                                    {/* Permisos por módulo */}
-                                    <div className="grid grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm items-center">
-                                        <div className="font-bold">Módulo</div>
-                                        <div className="font-bold">Lectura</div>
-                                        <div className="font-bold">Escritura</div>
-                                        <div className="font-bold">Eliminación</div>
-
-                                        {/* Configuración */}
-                                        <div>Config.</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Usuarios */}
-                                        <div>Usuarios</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Clientes */}
-                                        <div>Clientes</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Ventas */}
-                                        <div>Ventas</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Créditos */}
-                                        <div>Créditos</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Pagos */}
-                                        <div>Pagos</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Almacén */}
-                                        <div>Almacén</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Gastos */}
-                                        <div>Gastos</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-
-                                        {/* Reportes */}
-                                        <div>Reportes</div>
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                        <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 bg-gray-700 border-gray-600 rounded" />
-                                    </div>
-
-                                    {/* Toggle de Estado de Cuenta */}
-                                    <div className="flex items-center justify-between mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-gray-700">
-                                        <span className="text-xs sm:text-base font-medium text-gray-300">Estado de Cuenta</span>
-                                        <label htmlFor="toggle-status" className="flex items-center cursor-pointer">
-                                            <div className="relative">
-                                                <input
-                                                    type="checkbox"
-                                                    id="toggle-status"
-                                                    className="sr-only"
-                                                    checked={editingEmployee.status === 'Activo'}
-                                                    onChange={() => { /* Lógica para cambiar el estado */ }}
-                                                />
-                                                <div className="block bg-gray-600 w-10 h-6 sm:w-14 sm:h-8 rounded-full"></div>
-                                                <div className="dot absolute left-1 top-1 bg-white w-4 h-4 sm:w-6 sm:h-6 rounded-full transition transform"
-                                                    style={{ transform: editingEmployee.status === 'Activo' ? 'translateX(100%)' : 'translateX(0)' }}></div>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Botones de Acción */}
-                            <div className="flex justify-end gap-2 sm:gap-3 mt-4 sm:mt-6">
-                                <button
-                                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-base transition duration-200"
-                                >
-                                    Guardar Cambios
-                                </button>
-                                <button
-                                    onClick={handleCancelEdit}
-                                    className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-3 sm:px-4 rounded-lg text-xs sm:text-base transition duration-200"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    )}
+        <div className="bg-gray-800 p-4 rounded-lg shadow-lg transition-all duration-300">
+        {/* Controles superiores */}
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mb-6">
+            <div className="relative flex-1 w-full sm:w-auto">
+                <input
+                type="text"
+                placeholder="Buscar empleado..."
+                className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
+                <SearchIcon />
                 </div>
             </div>
+            <select className="w-full sm:w-auto px-3 py-2 text-sm rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option>Filtrar por Rol</option>
+                <option>Administrador</option>
+                <option>Vendedor</option>
+            </select>
+            <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                Agregar Nuevo Empleado
+            </button>
+        </div>
+
+        {/* Tabla de empleados */}
+        <div
+            className={`${
+            employees.length > 6 ? 'max-h-[420px] overflow-y-auto' : ''
+            } overflow-x-auto`}
+        >
+            <table className="min-w-full divide-y divide-gray-700 text-sm">
+                <thead className="bg-gray-700">
+                    <tr className="sticky top-0 z-10 bg-gray-700">
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Correo</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Rol</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Estado</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                    {employees.map((emp) => (
+                        <tr key={emp.id}>
+                            <td className="px-4 py-2 text-white">{emp.name} {emp.paternalName} {emp.maternalName}</td>
+                            <td className="px-4 py-2 text-gray-300">{emp.email}</td>
+                            <td className="px-4 py-2 text-gray-300">{emp.role}</td>
+                            <td className="px-4 py-2 text-gray-300">{emp.telefono}</td>
+                            <td className="px-4 py-2">
+                                <span className={`px-2 inline-flex text-xs font-semibold rounded-full ${
+                                    emp.status === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
+                                    {emp.status}
+                                </span>
+                            </td>
+                            <td className="px-4 py-2">
+                                <div className="flex items-center justify-center gap-2 h-full">
+                                    <button onClick={() => handleEditClick(emp)} className="text-blue-500 hover:text-blue-600 flex items-center"><EditIcon /></button>
+                                    <button className="text-red-500 hover:text-red-600 flex items-center"><DeleteIcon /></button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {/* Sidebar de edición */}
+    {editingEmployee && (
+    <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg transition-all duration-300">
+        <h2 className="text-xl font-bold mb-4 text-white">
+        Editar Empleado: {editingEmployee.name}
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
+            <div>
+                <label className="text-sm text-gray-300">Nombre</label>
+                <input
+                type="text"
+                defaultValue={editingEmployee.name}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                />
+            </div>
+            <div>
+                <label className="text-sm text-gray-300">Apellido Paterno</label>
+                <input
+                type="text"
+                defaultValue={editingEmployee.paternalName}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                />
+            </div>
+            <div>
+                <label className="text-sm text-gray-300">Apellido Materno</label>
+                <input
+                type="text"
+                defaultValue={editingEmployee.maternalName}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                />
+            </div>
+        </div>
+        <div className="flex flex-col gap-4">
+            <div>
+                <label className="text-sm text-gray-300">Correo</label>
+                <input
+                type="email"
+                defaultValue={editingEmployee.email}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                />
+            </div>
+            <div>
+                <label className="text-sm text-gray-300">Teléfono</label>
+                <input
+                type="text"
+                defaultValue={editingEmployee.telefono}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                />
+            </div>
+            <div>
+                <label className="text-sm text-gray-300">Rol</label>
+                <input
+                type="text"
+                defaultValue={editingEmployee.role}
+                className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
+                disabled
+                />
+            </div>
+            <div>
+                <label className="text-sm text-gray-300 mb-1 block">Estado</label>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        className={`px-4 py-2 rounded ${editingEmployee.status === 'Activo' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300 border border-gray-600'}`}
+                        onClick={() =>
+                            setEditingEmployee({ ...editingEmployee, status: 'Activo' })
+                        }
+                    >
+                        Activo
+                    </button>
+                    <button
+                        type="button"
+                        className={`px-4 py-2 rounded ${editingEmployee.status === 'Inactivo' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300 border border-gray-600'}`}
+                        onClick={() =>
+                            setEditingEmployee({ ...editingEmployee, status: 'Inactivo' })
+                        }
+                    >
+                        Inactivo
+                    </button>
+                </div>
+            </div>
+            </div>
+            </div>
+
+
+
+            {/* Botones */}
+            <div className="flex justify-end mt-6 gap-3">
+            <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
+            Guardar Cambios
+            </button>
+            <button
+            onClick={handleCancelEdit}
+            className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+            >
+            Cancelar
+            </button>
+        </div>
+    </div>
+    )}
+    </div>
+
     )
 }
 
