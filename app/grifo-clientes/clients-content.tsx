@@ -67,14 +67,9 @@ const ClientsContent: React.FC = () => {
   };
 
   return (
-      <div className="space-y-6">
+      <div className="p-3 sm:p-4 lg:p-6 lg:space-y-6 bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-            <span className="text-slate-400">→</span>
-            <span className="text-white">Clientes</span>
-          </div>
+        <div className="flex items-center justify-between ">
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">
             <Plus size={20} />
             <span>Add New Client</span>

@@ -20,7 +20,7 @@ const GrifoDashboard: React.FC = () => {
   ];
 
   return (
-      <div className="space-y-6">
+      <div className="p-3 sm:p-4 lg:p-6 space-y-4 lg:space-y-6">
         {/* Header with user info */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-white">Gas Estacion </h1>
