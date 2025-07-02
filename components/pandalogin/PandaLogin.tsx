@@ -27,7 +27,13 @@ export default function PandaLogin() {
       )
       if (response.data.token) {
         localStorage.setItem("token", response.data.token)
-        window.location.href = "/grifo"
+        // Suponiendo que el backend responde con response.data.role
+        const role = response.data.role
+        if (role === "administrador") {
+          window.location.href = "/prueba_roles/administrador"
+        } else if (role === "vendedor") {
+          window.location.href = "/prueba_roles/vendedor"
+        }
       } else {
         setWrongEntry(true)
       }
