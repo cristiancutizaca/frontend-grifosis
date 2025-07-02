@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const Login: React.FC = () => {
   const [resErrors, setResErrors] = useState<{ message: string } | null>(null);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
@@ -22,29 +22,36 @@ const Login: React.FC = () => {
   const onSubmit = async () => {
     try {
       const response = await axios.post(
-        "https://backend.inalta.edu.pe/api/v1/user/login",
+        "http://localhost:8000/auth/login",
         form
       );
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        window.location.href = "/student";
+
+      console.log("🔵 Respuesta del login:", response.data); // 👀 clave para depurar
+
+      if (response.data && response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        window.location.href = "/grifo";
+      } else {
+        console.warn("🟠 No se recibió token. Probable error en estructura.");
+        setResErrors({ message: "Credenciales incorrectas" });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error("🔴 Error en login:", error.response?.data || error.message);
       setResErrors({ message: "Credenciales incorrectas" });
       setTimeout(() => setResErrors(null), 3000);
     }
   };
 
+
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{
-        backgroundImage: "url('/image/fondE.jpeg')", // Mantener el fondo original
+        backgroundImage: "url('/image/fondE.jpeg')",
       }}
     >
-      {/* Contenedor Principal con dos secciones */}
       <div className="flex w-[900px] h-[500px] backdrop-blur-sm dark:backdrop-blur-md bg-transparent rounded-xl shadow-lg overflow-hidden">
-        {/* Sección de Bienvenida (Izquierda) - Oculto en Móviles */}
+        {/* Lado izquierdo - Bienvenida */}
         <div className="w-1/2 flex items-center justify-center bg-gradient-to-t from-black/70 to-blue-700/10 hidden md:flex">
           <div className="text-center text-white">
             <h1 className="text-4xl font-bold mb-2">BIENVENIDO DE NUEVO</h1>
@@ -55,7 +62,7 @@ const Login: React.FC = () => {
           </div>
         </div>
 
-        {/* Sección del Formulario (Derecha) */}
+        {/* Lado derecho - Formulario */}
         <div className="w-full md:w-1/2 p-8 bg-gradient-to-t from-black/50 to-blue-700/10 flex flex-col justify-center items-center">
           <div className="flex justify-center mb-6">
             <Image
@@ -78,15 +85,15 @@ const Login: React.FC = () => {
           >
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-white">
-                Correo electrónico
+                Nombre de usuario
               </label>
               <div className="flex items-center bg-white/20 border-2 border-gray-300 rounded-full pl-3 focus-within:border-blue-500">
                 <input
-                  type="email"
-                  placeholder="Email"
+                  type="text"
+                  placeholder="Usuario"
                   className="input flex-1 bg-transparent border-transparent focus:outline-none ml-3 placeholder-gray-300 text-white"
-                  value={form.email}
-                  onChange={(e) => handleFormData(e, "email")}
+                  value={form.username}
+                  onChange={(e) => handleFormData(e, "username")}
                   required
                 />
               </div>
