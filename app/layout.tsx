@@ -3,7 +3,10 @@ import ClientLayout from './clientLayout';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'GAS STATION ',
+  title: 'GAS STATION',
+  icons: {
+    icon: '/image/logo_grifosis.png', // Asegúrate de tener este archivo en /public
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
