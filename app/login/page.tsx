@@ -21,18 +21,20 @@ const Login: React.FC = () => {
 
   const onSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:8000/auth/login",
-        form
-      );
+      console.log("🟢 Enviando al backend:", form);
 
-      console.log("🔵 Respuesta del login:", response.data); // 👀 clave para depurar
+      const response = await axios.post("http://localhost:8000/auth/login", {
+        username: form.username,
+        password: form.password,
+      });
 
-      if (response.data && response.data.access_token) {
+      console.log("🔵 Respuesta del login:", response.data);
+
+      if (response.data?.access_token) {
         localStorage.setItem("token", response.data.access_token);
+        console.log("✅ Token recibido, redirigiendo...");
         window.location.href = "/grifo";
       } else {
-        console.warn("🟠 No se recibió token. Probable error en estructura.");
         setResErrors({ message: "Credenciales incorrectas" });
       }
     } catch (error: any) {
@@ -41,7 +43,6 @@ const Login: React.FC = () => {
       setTimeout(() => setResErrors(null), 3000);
     }
   };
-
 
   return (
     <div
@@ -77,12 +78,12 @@ const Login: React.FC = () => {
             Iniciar sesión
           </h2>
           <form
-            className="flex flex-col gap-3 backdrop-blur-md p-6 w-[450px] rounded-2xl shadow-lg transition"
             onSubmit={(e) => {
-              e.preventDefault();
-              onSubmit();
+              e.preventDefault(); // 🔒 evita que se envíe como GET
+              onSubmit();         // ✅ llama la función que hace POST con axios
             }}
           >
+
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-white">
                 Nombre de usuario

@@ -1,55 +1,57 @@
 'use client'
 import axios from "axios";
-import { useState } from 'react'
-import './panda-login.css'
+import { useState } from 'react';
+import './panda-login.css';
 
 export default function PandaLogin() {
-  const [focused, setFocused] = useState(false)
-  const [wrongEntry, setWrongEntry] = useState(false)
-  const [form, setForm] = useState({ username: '', password: '' })
-  const [loading, setLoading] = useState(false)
+  const [focused, setFocused] = useState(false);
+  const [wrongEntry, setWrongEntry] = useState(false);
+  const [form, setForm] = useState({ username: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setWrongEntry(false)
+    e.preventDefault();
+    setLoading(true);
+    setWrongEntry(false);
     try {
-      const response = await axios.post(
-        "https://backend.inalta.edu.pe/api/v1/user/login", // Cambia la URL si tu API es diferente
-        {
-          email: form.username, // O usa username según tu backend
-          password: form.password,
-        }
-      )
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token)
-        window.location.href = "/grifo"
+      console.log("🟢 Enviando:", form);
+      const response = await axios.post("http://localhost:8000/auth/login", {
+        username: form.username,
+        password: form.password,
+      });
+
+      console.log("🔵 Respuesta:", response.data);
+
+      if (response.data.access_token) {
+        localStorage.setItem("token", response.data.access_token);
+        window.location.href = "/grifo";
       } else {
-        setWrongEntry(true)
+        setWrongEntry(true);
       }
     } catch (error) {
-      setWrongEntry(true)
+      console.error("🔴 Error de login:", error);
+      setWrongEntry(true);
     } finally {
-      setLoading(false)
-      setTimeout(() => setWrongEntry(false), 3000)
+      setLoading(false);
+      setTimeout(() => setWrongEntry(false), 3000);
     }
-  }
+  };
 
   return (
     <div className="text-center py-12 min-h-screen bg-blue-200 font-sans flex items-center justify-center">
       <div className="grifo relative">
-        {/* Grifo */}
+        {/* Grifo visual */}
         <div className="grifo-cuerpo"></div>
         <div className="grifo-tubo"></div>
         <div className="grifo-mango"></div>
         <div className="grifo-salida"></div>
         <div className="gota-agua"></div>
 
-        {/* Formulario sobre el grifo */}
+        {/* Formulario */}
         <form
           className={`absolute left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
             focused ? 'translate-y-[-30px]' : ''
@@ -94,5 +96,5 @@ export default function PandaLogin() {
         </form>
       </div>
     </div>
-  )
+  );
 }

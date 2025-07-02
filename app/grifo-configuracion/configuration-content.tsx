@@ -92,6 +92,24 @@ const GrifoConfiguracion: React.FC = () => {
                                         className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-blue-400 focus:outline-none text-sm lg:text-base"
                                     />
                                 </div>
+
+                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">EMAIL</label>
+                                    <input
+                                        type="text"
+                                        defaultValue="gasstation@gmail.com"
+                                        className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-blue-400 focus:outline-none text-sm lg:text-base"
+                                    />
+                                </div>
+                                
+                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">DIRECCIÓN WEB</label>
+                                    <input
+                                        type="text"
+                                        defaultValue="https://gasstation.com"
+                                        className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-blue-400 focus:outline-none text-sm lg:text-base"
+                                    />
+                                </div>
                                 
                                 <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
                                     <label className="text-white font-bold text-base lg:text-lg mb-2 block">TELÉFONO</label>
@@ -99,6 +117,48 @@ const GrifoConfiguracion: React.FC = () => {
                                         type="text"
                                         defaultValue="+51 999 888 777"
                                         className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-blue-400 focus:outline-none text-sm lg:text-base"
+                                    />
+                                </div>
+
+                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">REDES SOCIALES</label>
+                                    <div className="space-y-2">
+                                        <input
+                                        type="text"
+                                        placeholder="Facebook"
+                                        className="w-full bg-slate-600 text-white p-2 rounded-lg border border-slate-500 text-sm"
+                                        />
+                                        <input
+                                        type="text"
+                                        placeholder="Instagram"
+                                        className="w-full bg-slate-600 text-white p-2 rounded-lg border border-slate-500 text-sm"
+                                        />
+                                        <input
+                                        type="text"
+                                        placeholder="TikTok"
+                                        className="w-full bg-slate-600 text-white p-2 rounded-lg border border-slate-500 text-sm"
+                                        />
+                                        <input
+                                        type="text"
+                                        placeholder="YouTube"
+                                        className="w-full bg-slate-600 text-white p-2 rounded-lg border border-slate-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                <label className="text-white font-bold text-base lg:text-lg mb-2 block">LOGO DEL GRIFO</label>
+                                <div className="flex flex-col items-center space-y-2">
+                                    <img
+                                        src="https://static.vecteezy.com/system/resources/previews/052/333/145/non_2x/red-fuel-pump-and-gasoline-can-icon-illustration-vector.jpg"
+                                        alt="Logo actual"
+                                        className="h-32 w-auto lg:h-48 rounded-md border border-slate-500 mx-auto"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="URL del logo o base64"
+                                        className="w-full bg-slate-600 text-white p-2 rounded-lg border border-slate-500 text-sm"
                                     />
                                 </div>
                             </div>
@@ -154,114 +214,89 @@ const GrifoConfiguracion: React.FC = () => {
                 )}
 
                 {activeTab === 'parametros' && (
+                <div className="space-y-6">
+                    {/* Primera fila: Turnos + Pagos */}
                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-                        {/* Configuración de Turnos */}
-                        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
-                            <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">CONFIGURACIÓN DE TURNOS</h2>
-                            <div className="h-1 bg-white mb-4 lg:mb-6"></div>
-                            
-                            <div className="space-y-3 lg:space-y-4">
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌅 TURNO Leon</label>
-                                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-                                        <input
-                                            type="time"
-                                            defaultValue="06:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                        <span className="text-white self-center font-bold text-center sm:text-left">-</span>
-                                        <input
-                                            type="time"
-                                            defaultValue="14:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">☀️ TURNO Lobo</label>
-                                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-                                        <input
-                                            type="time"
-                                            defaultValue="14:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                        <span className="text-white self-center font-bold text-center sm:text-left">-</span>
-                                        <input
-                                            type="time"
-                                            defaultValue="22:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">🌙 TURNO Buho</label>
-                                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-                                        <input
-                                            type="time"
-                                            defaultValue="22:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                        <span className="text-white self-center font-bold text-center sm:text-left">-</span>
-                                        <input
-                                            type="time"
-                                            defaultValue="06:00"
-                                            className="flex-1 bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                        />
-                                    </div>
-                                </div>
+                    {/* Turnos */}
+                    <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-6">⏰ CONFIGURACIÓN DE TURNOS</h2>
+                        <div className="space-y-4">
+                        {[
+                            { label: '🌅 TURNO León', defaultStart: '04:00', defaultEnd: '13:00' },
+                            { label: '☀️ TURNO Lobo', defaultStart: '13:00', defaultEnd: '21:00' },
+                            { label: '🌙 TURNO Búho', defaultStart: '21:00', defaultEnd: '04:00' },
+                        ].map((turno, i) => (
+                            <div key={i} className="bg-slate-700 rounded-lg p-4">
+                            <label className="text-white font-bold block mb-2">{turno.label}</label>
+                            <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                                <input type="time" defaultValue={turno.defaultStart} className="flex-1 bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm" />
+                                <span className="text-white self-center font-bold">-</span>
+                                <input type="time" defaultValue={turno.defaultEnd} className="flex-1 bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm" />
                             </div>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+
+                    {/* Métodos de pago y descuentos */}
+                    <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-6">💸 PAGOS Y DESCUENTOS</h2>
+                        <div className="space-y-4">
+                        {/* Descuentos */}
+                        <div className="bg-slate-700 rounded-lg p-4">
+                            <label className="text-white font-bold block mb-2">💵 DESCUENTO EN EFECTIVO (%)</label>
+                            <input type="number" defaultValue="5" className="w-full bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm" />
+                        </div>
+                        <div className="bg-slate-700 rounded-lg p-4">
+                            <label className="text-white font-bold block mb-2">🧑‍💼 DESCUENTO CLIENTE FRECUENTE (%)</label>
+                            <input type="number" defaultValue="10" className="w-full bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm" />
                         </div>
 
-                        {/* Descuentos y Medios de Pago */}
-                        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
-                            <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">DESCUENTOS Y PAGOS</h2>
-                            <div className="h-1 bg-slate-600 mb-4 lg:mb-6"></div>
-                            
-                            <div className="space-y-3 lg:space-y-4">
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">💳 DESCUENTO EFECTIVO (%)</label>
-                                    <input
-                                        type="number"
-                                        defaultValue="5"
-                                        className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                    />
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">💰 DESCUENTO CLIENTE FRECUENTE (%)</label>
-                                    <input
-                                        type="number"
-                                        defaultValue="10"
-                                        className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-green-400 focus:outline-none text-sm lg:text-base"
-                                    />
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <span className="text-white font-bold text-base lg:text-lg mb-3 block">MEDIOS DE PAGO ACTIVOS</span>
-                                    <div className="space-y-2">
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
-                                            <span className="text-white text-sm lg:text-base">💵 Efectivo</span>
-                                        </label>
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
-                                            <span className="text-white text-sm lg:text-base">💳 Tarjeta de Débito</span>
-                                        </label>
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
-                                            <span className="text-white text-sm lg:text-base">💎 Tarjeta de Crédito</span>
-                                        </label>
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" className="w-4 h-4 lg:w-5 lg:h-5 text-green-600" />
-                                            <span className="text-white text-sm lg:text-base">📱 Transferencia Digital</span>
-                                        </label>
-                                    </div>
-                                </div>
+                        {/* Métodos de pago */}
+                        <div className="bg-slate-700 rounded-lg p-4">
+                            <span className="text-white font-bold block mb-2">✅ MÉTODOS DE PAGO ACTIVOS</span>
+                            <div className="space-y-2">
+                            {['Efectivo', 'Yape', 'Plin', 'Crédito'].map((metodo, i) => (
+                                <label key={i} className="flex items-center space-x-3">
+                                <input type="checkbox" defaultChecked className="w-4 h-4 text-green-600" />
+                                <span className="text-white text-sm">💳 {metodo}</span>
+                                </label>
+                            ))}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    {/* Segunda fila: Moneda y Ruta de impresión */}
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+                    {/* Moneda */}
+                    <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                        <h2 className="text-2xl font-bold text-white text-center mb-6">💱 MONEDA POR DEFECTO</h2>
+                        <div className="bg-slate-700 rounded-lg p-4">
+                        <label className="text-white font-bold block mb-2">Selecciona la moneda</label>
+                        <select className="w-full bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm">
+                            <option>Soles (PEN)</option>
+                            <option>Dólares (USD)</option>
+                            <option>Euros (EUR)</option>
+                        </select>
+                        </div>
+                    </div>
+
+                    {/* Ruta impresión */}
+                    <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                        <h2 className="text-2xl font-bold text-white text-center mb-6">🧾 RUTA DE IMPRESIÓN</h2>
+                        <div className="bg-slate-700 rounded-lg p-4">
+                            <label className="text-white font-bold block mb-2">Dirección de impresión</label>
+                            <input
+                                type="text"
+                                placeholder="Ej: C:/grifo/tickets"
+                                className="w-full bg-slate-600 text-white p-2 rounded-lg border-2 border-slate-500 focus:border-green-400 text-sm"
+                            />
                             </div>
                         </div>
                     </div>
+                </div>
                 )}
 
                 {activeTab === 'caja' && (
@@ -357,88 +392,155 @@ const GrifoConfiguracion: React.FC = () => {
                 )}
 
                 {activeTab === 'backup' && (
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-                        {/* Backup Manual */}
-                        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
-                            <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">💾 BACKUP MANUAL</h2>
-                            <div className="h-1 bg-white mb-4 lg:mb-6"></div>
-                            
-                            <div className="space-y-4 lg:space-y-6">
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4 text-center">
-                                    <span className="text-slate-300 text-base lg:text-lg">ÚLTIMO BACKUP</span>
-                                    <div className="text-xl lg:text-2xl font-bold text-white mt-2">25/06/2025 - 08:30 AM</div>
-                                    <div className="text-green-400 font-bold mt-1 text-sm lg:text-base">✅ EXITOSO</div>
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
+                            {/* Backup Manual */}
+                            <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                                <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">💾 BACKUP MANUAL</h2>
+                                <div className="h-1 bg-white mb-4 lg:mb-6"></div>
+                                
+                                <div className="space-y-4 lg:space-y-6">
+                                    <div className="text-sm text-slate-400">
+                                        <p><span className="font-bold">Creado el:</span> 20/06/2025 - 10:15 AM</p>
+                                    </div>
+
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4 text-center">
+                                        <span className="text-slate-300 text-base lg:text-lg">ÚLTIMO BACKUP</span>
+                                        <div className="text-xl lg:text-2xl font-bold text-white mt-2">25/06/2025 - 08:30 AM</div>
+                                        <div className="text-green-400 font-bold mt-1 text-sm lg:text-base">✅ EXITOSO</div>
+                                    </div>
+                                    
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                        <label className="text-white font-bold text-base lg:text-lg mb-2 block">TIPO DE BACKUP</label>
+                                        <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base">
+                                            <option>Backup Completo</option>
+                                            <option>Solo Ventas</option>
+                                            <option>Solo Configuración</option>
+                                            <option>Solo Usuarios</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                        <label className="text-white font-bold text-base lg:text-lg mb-2 block">RUTA DONDE SE GUARDARÁ EL BACKUP</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ej. C:/backups/grifo - https://s3.amazonaws.com/..."
+                                            className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border border-slate-500 text-sm lg:text-base"
+                                        />
+                                    </div>
+                                    
+                                    <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 lg:py-4 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
+                                        💾 CREAR BACKUP AHORA
+                                    </button>
+                                    
+                                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 lg:py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
+                                        📥 RESTAURAR BACKUP
+                                    </button>
+
+                                    <button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 lg:py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
+                                        ⬇️ DESCARGAR ÚLTIMO BACKUP
+                                    </button>
+
                                 </div>
+                            </div>
+
+                            {/* Configuración Automática */}
+                            <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
+                                <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">⚙️ BACKUP AUTOMÁTICO</h2>
+                                <div className="h-1 bg-slate-600 mb-4 lg:mb-6"></div>
                                 
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">TIPO DE BACKUP</label>
-                                    <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base">
-                                        <option>Backup Completo</option>
-                                        <option>Solo Ventas</option>
-                                        <option>Solo Configuración</option>
-                                        <option>Solo Usuarios</option>
-                                    </select>
+                                <div className="space-y-3 lg:space-y-4">
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                        <label className="text-white font-bold text-base lg:text-lg mb-2 block">FRECUENCIA</label>
+                                        <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base">
+                                            <option>Diario</option>
+                                            <option>Semanal</option>
+                                            <option>Mensual</option>
+                                            <option>Desactivado</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                        <label className="text-white font-bold text-base lg:text-lg mb-2 block">HORA PROGRAMADA</label>
+                                        <input
+                                            type="time"
+                                            defaultValue="02:00"
+                                            className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base"
+                                        />
+                                    </div>
+                                    
+                                    <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
+                                        <span className="text-white font-bold text-base lg:text-lg mb-3 block">OPCIONES</span>
+                                        <div className="space-y-2">
+                                            <label className="flex items-center space-x-3">
+                                                <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+                                                <span className="text-white text-sm lg:text-base">Notificar por email</span>
+                                            </label>
+                                            <label className="flex items-center space-x-3">
+                                                <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+                                                <span className="text-white text-sm lg:text-base">Mantener 30 días</span>
+                                            </label>
+                                            <label className="flex items-center space-x-3">
+                                                <input type="checkbox" className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
+                                                <span className="text-white text-sm lg:text-base">Backup en la nube</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-green-800 rounded-lg p-3 lg:p-4 text-center">
+                                        <div className="text-green-400 font-bold text-base lg:text-lg">🟢 BACKUP AUTOMÁTICO ACTIVO</div>
+                                        <div className="text-white text-xs lg:text-sm mt-1">Próximo: 26/06/2025 - 02:00 AM</div>
+                                    </div>
                                 </div>
-                                
-                                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 lg:py-4 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
-                                    💾 CREAR BACKUP AHORA
-                                </button>
-                                
-                                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 lg:py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
-                                    📥 RESTAURAR BACKUP
-                                </button>
                             </div>
                         </div>
 
-                        {/* Configuración Automática */}
-                        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6">
-                            <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">⚙️ BACKUP AUTOMÁTICO</h2>
-                            <div className="h-1 bg-slate-600 mb-4 lg:mb-6"></div>
-                            
-                            <div className="space-y-3 lg:space-y-4">
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">FRECUENCIA</label>
-                                    <select className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base">
-                                        <option>Diario</option>
-                                        <option>Semanal</option>
-                                        <option>Mensual</option>
-                                        <option>Desactivado</option>
-                                    </select>
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <label className="text-white font-bold text-base lg:text-lg mb-2 block">HORA PROGRAMADA</label>
-                                    <input
-                                        type="time"
-                                        defaultValue="02:00"
-                                        className="w-full bg-slate-600 text-white p-2 lg:p-3 rounded-lg border-2 border-slate-500 focus:border-purple-400 focus:outline-none text-sm lg:text-base"
-                                    />
-                                </div>
-                                
-                                <div className="bg-slate-700 rounded-lg p-3 lg:p-4">
-                                    <span className="text-white font-bold text-base lg:text-lg mb-3 block">OPCIONES</span>
-                                    <div className="space-y-2">
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-                                            <span className="text-white text-sm lg:text-base">Notificar por email</span>
-                                        </label>
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" defaultChecked className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-                                            <span className="text-white text-sm lg:text-base">Mantener 30 días</span>
-                                        </label>
-                                        <label className="flex items-center space-x-3">
-                                            <input type="checkbox" className="w-4 h-4 lg:w-5 lg:h-5 text-purple-600" />
-                                            <span className="text-white text-sm lg:text-base">Backup en la nube</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-green-800 rounded-lg p-3 lg:p-4 text-center">
-                                    <div className="text-green-400 font-bold text-base lg:text-lg">🟢 BACKUP AUTOMÁTICO ACTIVO</div>
-                                    <div className="text-white text-xs lg:text-sm mt-1">Próximo: 26/06/2025 - 02:00 AM</div>
-                                </div>
+                        {/* Historial de Backups */}
+                        <div className="mt-10 bg-slate-800 rounded-2xl p-4 lg:p-6">
+                            <h2 className="text-2xl lg:text-3xl font-bold text-white text-center mb-4 lg:mb-6">📜 HISTORIAL DE BACKUPS</h2>
+                            <div className="h-1 bg-slate-600 mb-4"></div>
+
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full text-sm lg:text-base text-white">
+                                <thead className="bg-slate-700 text-left">
+                                    <tr>
+                                    <th className="p-3">Fecha</th>
+                                    <th className="p-3">Hora</th>
+                                    <th className="p-3">Tipo</th>
+                                    <th className="p-3">Estado</th>
+                                    <th className="p-3 text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-600">
+                                    {/* Puedes mapear esto desde un array */}
+                                    {[
+                                    { date: "25/06/2025", time: "08:30 AM", type: "Completo", status: "Exitoso" },
+                                    { date: "24/06/2025", time: "02:00 AM", type: "Automático", status: "Fallido" },
+                                    { date: "23/06/2025", time: "02:00 AM", type: "Automático", status: "Exitoso" },
+                                    ].map((bkp, idx) => (
+                                    <tr key={idx} className="hover:bg-slate-700">
+                                        <td className="p-3">{bkp.date}</td>
+                                        <td className="p-3">{bkp.time}</td>
+                                        <td className="p-3">{bkp.type}</td>
+                                        <td className="p-3">
+                                        {bkp.status === "Exitoso" ? (
+                                            <span className="text-green-400 font-bold">✅ {bkp.status}</span>
+                                        ) : (
+                                            <span className="text-red-400 font-bold">❌ {bkp.status}</span>
+                                        )}
+                                        </td>
+                                        <td className="p-3 text-center">
+                                        <button className="bg-emerald-600 hover:bg-emerald-700 text-white py-1 px-3 rounded text-xs">
+                                            Descargar
+                                        </button>
+                                        </td>
+                                    </tr>
+                                    ))}
+                                </tbody>
+                                </table>
                             </div>
                         </div>
+
                     </div>
                 )}
             </div>
