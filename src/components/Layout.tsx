@@ -27,7 +27,7 @@ interface NavItem {
   name: string;
   icon: LucideIcon;
   path: string;
-}
+} 
 
 interface LayoutProps {
   children: React.ReactNode;
