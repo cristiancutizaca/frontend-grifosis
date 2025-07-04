@@ -165,7 +165,7 @@ const ClientsContent: React.FC = () => {
 
 
   return (
-      <div className="p-3 sm:p-4 lg:p-6 lg:space-y-6 bg-white">
+      <div className="p-3 sm:p-4 lg:p-6 lg:space-y-6 bg-blue">
         {/* Header */}
         <div className="flex items-center justify-between ">
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">
@@ -287,307 +287,272 @@ const ClientsContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Client Details Panel */}
-          <div className="space-y-6">
-            {selectedClient ? (
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-12 h-12 bg-slate-600 rounded-full"></div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">{selectedClient.name}</h3>
-                    <p className="text-slate-400">Peers sadfasffaasdIElaudelens</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                    <span className="text-slate-400">Condiat Nio</span>
-                    <span className="text-slate-300">Turmidute Hiatory</span>
-                    <span className="text-slate-300">Greda Hisstory</span>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Email</span>
-                      <span className="text-slate-300">Memoe</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">23.2,20 3,06 6 31</span>
-                      <span className="text-slate-300">27.6.348997</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Demrwork</span>
-                      <span className="text-slate-300">13,6302477</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">23.2.4111784</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
             {/* Client edit Panel */}
-            <div className="space-y-6">
-            {editingClient ? (
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 shadow-xl">
-              <div className="mb-6 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-orange-400 to-orange-700 flex items-center justify-center text-2xl font-bold text-white">
-                {editingClient.client_type === 'Natural'
-                  ? `${editingClient.name?.[0] ?? ''}${editingClient.paternal_name?.[0] ?? ''}`
-                  : editingClient.company_name?.[0] ?? ''}
-                </div>
-                <div>
-                <h2 className="text-white text-xl font-semibold">
-                  Editar Cliente
-                </h2>
-                <div className="text-xs text-slate-400">
-                  <span className="mr-2">
-                  📅 <b>Creado:</b>{' '}
-                  {new Date(editingClient.created_at ?? '').toLocaleString('es-PE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                  </span>
-                  <span>
-                  🔁 <b>Actualizado:</b>{' '}
-                  {new Date(editingClient.updated_at ?? '').toLocaleString('es-PE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                  </span>
-                </div>
-                </div>
-              </div>
-                <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSaveClient(editingClient);
-                }}
-                className="space-y-4"
-                >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Tipo de Cliente */}
-                  <div>
-                  <label className="text-sm text-gray-300 font-medium">Tipo de Cliente</label>
-                  <select
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    value={editingClient.client_type}
-                    onChange={(e) =>
-                    setEditingClient({ ...editingClient, client_type: e.target.value as 'Natural' | 'Jurídico' })
-                    }
-                  >
-                    <option value="Natural">Persona Natural</option>
-                    <option value="Jurídico">Empresa (Jurídico)</option>
-                  </select>
-                  </div>
-                  {/* Categoría */}
-                  <div>
-                    <label className="text-sm text-gray-300 font-medium">Categoría</label>
-                    <div className="mt-1">
-                      <span
-                        className={`inline-block px-4 py-2 rounded text-base font-semibold ${
-                          editingClient.category === 'Frecuente' ? 'bg-orange-500 text-white'
-                          : editingClient.category === 'Corporativo' ? 'bg-blue-500 text-white'
-                          : editingClient.category === 'Ocasional' ? 'bg-green-500 text-white'
-                          : editingClient.category === 'Distribuidor' ? 'bg-yellow-500 text-white'
-                          : editingClient.category === 'Preferencial' ? 'bg-purple-500 text-white'
-                          : 'bg-gray-500 text-white'
-                        }`}
-                      >
-                        {editingClient.category}
-                      </span>
+            {editingClient && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 transition-all">
+                <div className="relative w-full max-w-lg mx-2 sm:mx-0 sm:max-w-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-0 overflow-hidden animate-fadeIn overflow-y-auto max-h-screen">
+                  {/* Modal Header */}
+                  <div className="flex items-center gap-4 px-6 pt-6 pb-4 border-b border-slate-700 bg-gradient-to-r from-orange-500/80 to-orange-700/80">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-orange-400 to-orange-700 flex items-center justify-center text-2xl font-bold text-white shadow-lg border-4 border-white/10">
+                      {editingClient.client_type === 'Natural'
+                        ? `${editingClient.name?.[0] ?? ''}${editingClient.paternal_name?.[0] ?? ''}`
+                        : editingClient.company_name?.[0] ?? ''}
                     </div>
+                    <div className="flex-1">
+                      <h2 className="text-white text-xl font-semibold">Editar Cliente</h2>
+                      <div className="text-xs text-slate-200/80 flex flex-wrap gap-2 mt-1">
+                        <span>
+                          📅 <b>Creado:</b>{' '}
+                          {new Date(editingClient.created_at ?? '').toLocaleString('es-PE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                        <span>
+                          🔁 <b>Actualizado:</b>{' '}
+                          {new Date(editingClient.updated_at ?? '').toLocaleString('es-PE', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleCancelEdit}
+                      className="ml-auto text-white/80 hover:text-white text-3xl font-bold transition-colors duration-150 focus:outline-none"
+                      aria-label="Cerrar"
+                      type="button"
+                    >
+                      ×
+                    </button>
                   </div>
-                {/* Nombre de Compañía (solo Jurídico) */}
-                {editingClient.client_type === 'Jurídico' && (
-                  <div className="md:col-span-2">
-                  <label className="text-sm text-gray-300 font-medium">Nombre de Compañía</label>
-                  <input
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    placeholder="Nombre de la Compañía"
-                    value={editingClient.company_name}
-                    onChange={(e) =>
-                    setEditingClient({ ...editingClient, company_name: e.target.value })
-                    }
-                  />
-                  </div>
-                )}
-                {/* Nombres y Apellidos (solo Natural) */}
-                {editingClient.client_type === 'Natural' && (
-                  <>
-                  <div>
-                    <label className="text-sm text-gray-300 font-medium">Nombres</label>
-                    <input
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    placeholder="Nombre"
-                    value={editingClient.name}
-                    onChange={(e) =>
-                      setEditingClient({ ...editingClient, name: e.target.value })
-                    }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-300 font-medium">Apellido Paterno</label>
-                    <input
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    placeholder="Apellido Paterno"
-                    value={editingClient.paternal_name}
-                    onChange={(e) =>
-                      setEditingClient({ ...editingClient, paternal_name: e.target.value })
-                    }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-300 font-medium">Apellido Materno</label>
-                    <input
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    placeholder="Apellido Materno"
-                    value={editingClient.maternal_name}
-                    onChange={(e) =>
-                      setEditingClient({ ...editingClient, maternal_name: e.target.value })
-                    }
-                    />
-                  </div>
-                  </>
-                )}
-                {/* Tipo y Número de Documento */}
-                <div>
-                  <label className="text-sm text-gray-300 font-medium">Tipo de Documento</label>
-                  <select
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  value={editingClient.document_type}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, document_type: e.target.value as Client['document_type'] })
-                  }
+                  {/* Modal Body */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSaveClient(editingClient);
+                    }}
+                    className="space-y-4 px-6 py-6"
                   >
-                  <option value="DNI">DNI</option>
-                  <option value="RUC">RUC</option>
-                  <option value="Otro">Otro</option>
-                  </select>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Tipo de Cliente */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Tipo de Cliente</label>
+                        <select
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          value={editingClient.client_type}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, client_type: e.target.value as 'Natural' | 'Jurídico' })
+                          }
+                        >
+                          <option value="Natural">Persona Natural</option>
+                          <option value="Jurídico">Empresa (Jurídico)</option>
+                        </select>
+                      </div>
+                      {/* Categoría */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Categoría</label>
+                        <div className="mt-1">
+                          <span
+                            className={`inline-block px-4 py-2 rounded-lg text-base font-semibold shadow-sm ${
+                              editingClient.category === 'Frecuente'
+                                ? 'bg-orange-500 text-white'
+                                : editingClient.category === 'Corporativo'
+                                ? 'bg-blue-500 text-white'
+                                : editingClient.category === 'Ocasional'
+                                ? 'bg-green-500 text-white'
+                                : editingClient.category === 'Distribuidor'
+                                ? 'bg-yellow-500 text-white'
+                                : editingClient.category === 'Preferencial'
+                                ? 'bg-purple-500 text-white'
+                                : 'bg-gray-500 text-white'
+                            }`}
+                          >
+                            {editingClient.category}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Nombre de Compañía (solo Jurídico) */}
+                      {editingClient.client_type === 'Jurídico' && (
+                        <div className="md:col-span-2">
+                          <label className="text-sm text-gray-300 font-medium">Nombre de Compañía</label>
+                          <input
+                            className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                            placeholder="Nombre de la Compañía"
+                            value={editingClient.company_name}
+                            onChange={(e) =>
+                              setEditingClient({ ...editingClient, company_name: e.target.value })
+                            }
+                          />
+                        </div>
+                      )}
+                      {/* Nombres y Apellidos (solo Natural) */}
+                      {editingClient.client_type === 'Natural' && (
+                        <>
+                          <div>
+                            <label className="text-sm text-gray-300 font-medium">Nombres</label>
+                            <input
+                              className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                              placeholder="Nombre"
+                              value={editingClient.name}
+                              onChange={(e) =>
+                                setEditingClient({ ...editingClient, name: e.target.value })
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm text-gray-300 font-medium">Apellido Paterno</label>
+                            <input
+                              className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                              placeholder="Apellido Paterno"
+                              value={editingClient.paternal_name}
+                              onChange={(e) =>
+                                setEditingClient({ ...editingClient, paternal_name: e.target.value })
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm text-gray-300 font-medium">Apellido Materno</label>
+                            <input
+                              className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                              placeholder="Apellido Materno"
+                              value={editingClient.maternal_name}
+                              onChange={(e) =>
+                                setEditingClient({ ...editingClient, maternal_name: e.target.value })
+                              }
+                            />
+                          </div>
+                        </>
+                      )}
+                      {/* Tipo y Número de Documento */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Tipo de Documento</label>
+                        <select
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          value={editingClient.document_type}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, document_type: e.target.value as Client['document_type'] })
+                          }
+                        >
+                          <option value="DNI">DNI</option>
+                          <option value="RUC">RUC</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Número de Documento</label>
+                        <input
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Número de documento"
+                          value={editingClient.document_number}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, document_number: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Dirección */}
+                      <div className="md:col-span-2">
+                        <label className="text-sm text-gray-300 font-medium">Dirección fiscal o principal</label>
+                        <input
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Dirección fiscal"
+                          value={editingClient.address}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, address: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Teléfono */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Teléfono</label>
+                        <input
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Teléfono"
+                          value={editingClient.phone}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, phone: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Correo */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Correo</label>
+                        <input
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Correo"
+                          value={editingClient.email}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, email: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Fecha de nacimiento (solo Natural) */}
+                      {editingClient.client_type === 'Natural' && (
+                        <div>
+                          <label className="text-sm text-gray-300 font-medium">Fecha de Nacimiento</label>
+                          <input
+                            type="date"
+                            className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                            placeholder="Fecha de Nacimiento"
+                            value={editingClient.birth_date}
+                            onChange={(e) =>
+                              setEditingClient({ ...editingClient, birth_date: e.target.value })
+                            }
+                          />
+                        </div>
+                      )}
+                      {/* Límite de Crédito */}
+                      <div>
+                        <label className="text-sm text-gray-300 font-medium">Límite de Crédito</label>
+                        <input
+                          type="number"
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Límite de crédito"
+                          value={editingClient.creditLimit}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, creditLimit: e.target.value })
+                          }
+                        />
+                      </div>
+                      {/* Notas */}
+                      <div className="md:col-span-2">
+                        <label className="text-sm text-gray-300 font-medium">Notas</label>
+                        <textarea
+                          className="w-full bg-slate-700/80 text-white px-3 py-2 rounded-lg mt-1 focus:ring-2 focus:ring-orange-500"
+                          placeholder="Observaciones adicionales sobre el cliente"
+                          value={editingClient.notes}
+                          onChange={(e) =>
+                            setEditingClient({ ...editingClient, notes: e.target.value })
+                          }
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                    {/* Botones */}
+                    <div className="flex flex-col sm:flex-row justify-end gap-2 pt-6">
+                      <button
+                        className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-bold py-2 px-6 rounded-lg shadow transition-all"
+                        type="submit"
+                      >
+                        Guardar Cambios
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white font-bold py-2 px-6 rounded-lg transition-all"
+                        type="button"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
                 </div>
-                <div>
-                  <label className="text-sm text-gray-300 font-medium">Número de Documento</label>
-                  <input
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Número de documento"
-                  value={editingClient.document_number}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, document_number: e.target.value })
-                  }
-                  />
-                </div>
-                {/* Dirección */}
-                <div className="md:col-span-2">
-                  <label className="text-sm text-gray-300 font-medium">Dirección fiscal o principal</label>
-                  <input
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Dirección fiscal"
-                  value={editingClient.address}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, address: e.target.value })
-                  }
-                  />
-                </div>
-                {/* Teléfono */}
-                <div>
-                  <label className="text-sm text-gray-300 font-medium">Teléfono</label>
-                  <input
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Teléfono"
-                  value={editingClient.phone}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, phone: e.target.value })
-                  }
-                  />
-                </div>
-                {/* Correo */}
-                <div>
-                  <label className="text-sm text-gray-300 font-medium">Correo</label>
-                  <input
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Correo"
-                  value={editingClient.email}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, email: e.target.value })
-                  }
-                  />
-                </div>
-                {/* Fecha de nacimiento (solo Natural) */}
-                {editingClient.client_type === 'Natural' && (
-                  <div>
-                  <label className="text-sm text-gray-300 font-medium">Fecha de Nacimiento</label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                    placeholder="Fecha de Nacimiento"
-                    value={editingClient.birth_date}
-                    onChange={(e) =>
-                    setEditingClient({ ...editingClient, birth_date: e.target.value })
-                    }
-                  />
-                  </div>
-                )}
-                {/* Límite de Crédito */}
-                <div>
-                  <label className="text-sm text-gray-300 font-medium">Límite de Crédito</label>
-                  <input
-                  type="number"
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Límite de crédito"
-                  value={editingClient.creditLimit}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, creditLimit: e.target.value })
-                  }
-                  />
-                </div>
-                {/* Notas */}
-                <div className="md:col-span-2">
-                  <label className="text-sm text-gray-300 font-medium">Notas</label>
-                  <textarea
-                  className="w-full bg-slate-700 text-white px-3 py-2 rounded mt-1"
-                  placeholder="Observaciones adicionales sobre el cliente"
-                  value={editingClient.notes}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, notes: e.target.value })
-                  }
-                  rows={2}
-                  />
-                </div>
-                </div>
-                {/* Botones */}
-                <div className="flex justify-end gap-2 pt-4">
-                <button
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow"
-                  type="submit"
-                >
-                  Guardar Cambios
-                </button>
-                <button
-                  onClick={handleCancelEdit}
-                  className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg"
-                  type="button"
-                >
-                  Cancelar
-                </button>
-                </div>
-              </form>
               </div>
-            ) : null}
-            </div>
-        </div>
-      </div>
-  );
-};
+            )}        </div>      </div>  );};
 
 export default ClientsContent;
