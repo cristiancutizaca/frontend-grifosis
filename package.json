@@ -24,6 +24,7 @@
     "emailjs-com": "^3.2.0",
     "framer-motion": "^10.18.0",
     "i": "^0.3.7",
+    "jwt-decode": "^4.0.0",
     "lottie-web": "^5.12.2",
     "lucide-react": "^0.522.0",
     "moment": "^2.30.1",

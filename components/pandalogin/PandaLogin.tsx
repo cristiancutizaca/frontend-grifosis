@@ -25,13 +25,13 @@ export default function PandaLogin() {
       });
 
       console.log("🔵 Respuesta:", response.data);
+if (response.data.access_token) {
+  localStorage.setItem("token", response.data.access_token);
+  window.location.href = "/grifo";
+} else {
+  setWrongEntry(true);
+}
 
-      if (response.data.access_token) {
-        localStorage.setItem("token", response.data.access_token);
-        window.location.href = "/grifo";
-      } else {
-        setWrongEntry(true);
-      }
     } catch (error) {
       console.error("🔴 Error de login:", error);
       setWrongEntry(true);
@@ -53,9 +53,8 @@ export default function PandaLogin() {
 
         {/* Formulario */}
         <form
-          className={`absolute left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
-            focused ? 'translate-y-[-30px]' : ''
-          } ${wrongEntry ? 'wrong-entry' : ''}`}
+          className={`absolute left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${focused ? 'translate-y-[-30px]' : ''
+            } ${wrongEntry ? 'wrong-entry' : ''}`}
           onSubmit={handleSubmit}
         >
           <h1 className="text-blue-600 font-dancing text-2xl mb-4">Grifo Login</h1>

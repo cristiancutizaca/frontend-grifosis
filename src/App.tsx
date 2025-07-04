@@ -5,19 +5,26 @@ import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import NewSale from './pages/NewSale';
 import CreditManagement from './pages/CreditManagement';
+import Login from './pages/Login';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import SellerDashboard from './pages/SellerDashboard';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Login />} /> {/* Ruta para el login */}
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/clients" element={<Clients />} />
         <Route path="/new-sale" element={<NewSale />} />
         <Route path="/credit-management" element={<CreditManagement />} />
+        <Route path="/superadmin-dashboard" element={<SuperAdminDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/seller-dashboard" element={<SellerDashboard />} />
       </Routes>
     </Router>
   );
 }
 
 export default App;
-
