@@ -67,7 +67,7 @@ const ClientsContent: React.FC = () => {
   };
 
   return (
-      <div className="p-3 sm:p-4 lg:p-6 lg:space-y-6 bg-white">
+      <div className="p-3 sm:p-4 lg:p-6 lg:space-y-6 bg-blue ">
         {/* Header */}
         <div className="flex items-center justify-between ">
           <button className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2">

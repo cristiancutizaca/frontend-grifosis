@@ -38,7 +38,7 @@ const GrifoReportes: React.FC = () => {
     }, [])
 
     return (
-            <div className="p-3 sm:p-4 lg:p-6 bg-white min-h-screen">
+            <div className="p-3 sm:p-4 lg:p-6 bg-blue min-h-screen">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-4 mb-4 lg:mb-6">
                     <div className="lg:col-span-4 flex flex-col lg:h-full space-y-3 lg:space-y-4">
                         {/* Hora */}
