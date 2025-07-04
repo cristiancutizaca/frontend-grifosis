@@ -716,12 +716,16 @@ const GrifoDashboard: React.FC = () => {
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                 </div>
                 <div className="bg-black rounded p-2 mb-2 font-mono">
-                  <div className="text-green-400 text-sm font-bold">
-                    {selectedPeriod === 'today' ? '9,176 gal' : 
-                     selectedPeriod === 'week' ? '64,468 gal' :
-                     '290,345 gal'}
+                  <div className="text-green-400 text-lg font-bold">
+                    2969.8 gal
                   </div>
-                  <div className="text-green-300 text-xs">Acumulado</div>
+                  <div className="text-green-300 text-xs">
+                    Ant: 2871.7 gal
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold text-sm">98.1 gal</div>
+                  <div className="text-slate-400 text-xs">Vendidos hoy</div>
                 </div>
               </div>
               <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
@@ -730,12 +734,16 @@ const GrifoDashboard: React.FC = () => {
                   <div className="w-2 h-2 bg-green-700 rounded-full"></div>
                 </div>
                 <div className="bg-black rounded p-2 mb-2 font-mono">
-                  <div className="text-green-400 text-sm font-bold">
-                    {selectedPeriod === 'today' ? '6,154 gal' : 
-                     selectedPeriod === 'week' ? '43,096 gal' :
-                     '193,508 gal'}
+                  <div className="text-green-400 text-lg font-bold">
+                    1794.6 gal
                   </div>
-                  <div className="text-green-300 text-xs">Acumulado</div>
+                  <div className="text-green-300 text-xs">
+                    Ant: 1747.0 gal
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold text-sm">47.6 gal</div>
+                  <div className="text-slate-400 text-xs">Vendidos hoy</div>
                 </div>
               </div>
               <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
@@ -744,12 +752,16 @@ const GrifoDashboard: React.FC = () => {
                   <div className="w-2 h-2 bg-purple-700 rounded-full"></div>
                 </div>
                 <div className="bg-black rounded p-2 mb-2 font-mono">
-                  <div className="text-green-400 text-sm font-bold">
-                    {selectedPeriod === 'today' ? '4,421 gal' : 
-                     selectedPeriod === 'week' ? '30,948 gal' :
-                     '139,008 gal'}
+                  <div className="text-green-400 text-lg font-bold">
+                    1207.3 gal
                   </div>
-                  <div className="text-green-300 text-xs">Acumulado</div>
+                  <div className="text-green-300 text-xs">
+                    Ant: 1175.6 gal
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold text-sm">31.7 gal</div>
+                  <div className="text-slate-400 text-xs">Vendidos hoy</div>
                 </div>
               </div>
               <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
@@ -758,8 +770,12 @@ const GrifoDashboard: React.FC = () => {
                   <div className="w-2 h-2 bg-purple-800 rounded-full"></div>
                 </div>
                 <div className="bg-black rounded p-2 mb-2 font-mono">
-                  <div className="text-green-400 text-sm font-bold">4,200L</div>
+                  <div className="text-green-400 text-lg font-bold">4,200L</div>
                   <div className="text-green-300 text-xs">Actual</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-white font-semibold text-sm">-</div>
+                  <div className="text-slate-400 text-xs">Vendidos hoy</div>
                 </div>
               </div>
             </div>
@@ -908,7 +924,183 @@ const GrifoDashboard: React.FC = () => {
         />
       </div>
 
-      {/* Nueva sección de tanques desplegable */}
+      {/* Sección principal con gráficos */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
+        {/* Panel de combustibles con medidores */}
+        <div className="xl:col-span-2 bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
+            <h3 className="text-xl lg:text-2xl font-bold text-white">Ventas por Combustible</h3>
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <BarChart3 size={16} />
+              <span>Tiempo real</span>
+            </div>
+          </div>
+
+          {/* Botones de dispensadores */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {[
+              { key: 'all', label: 'Todos' },
+              { key: 'dispenser1', label: 'Dispensador 1' },
+              { key: 'dispenser2', label: 'Dispensador 2' },
+              { key: 'dispenser3', label: 'Dispensador 3' }
+            ].map((dispenser) => (
+              <button
+                key={dispenser.key}
+                onClick={() => setSelectedDispenser(dispenser.key)}
+                className={`px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                  selectedDispenser === dispenser.key
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
+                }`}
+              >
+                {dispenser.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Mostrar medidores por dispensador o resumen general */}
+          {selectedDispenser === 'all' ? (
+            // Vista general con barras de progreso y medidores
+            <div className="space-y-4 lg:space-y-6">
+              {/* Medidores compactos para vista general */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400 font-medium">Total Regular</span>
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  </div>
+                  <div className="bg-black rounded p-2 mb-2 font-mono">
+                    <div className="text-green-400 text-lg font-bold">
+                      2969.8 gal
+                    </div>
+                    <div className="text-green-300 text-xs">
+                      Ant: 2871.7 gal
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-white font-semibold text-sm">98.1 gal</div>
+                    <div className="text-slate-400 text-xs">Vendidos hoy</div>
+                  </div>
+                </div>
+                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400 font-medium">Total Premium</span>
+                    <div className="w-2 h-2 bg-green-700 rounded-full"></div>
+                  </div>
+                  <div className="bg-black rounded p-2 mb-2 font-mono">
+                    <div className="text-green-400 text-lg font-bold">
+                      1794.6 gal
+                    </div>
+                    <div className="text-green-300 text-xs">
+                      Ant: 1747.0 gal
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-white font-semibold text-sm">47.6 gal</div>
+                    <div className="text-slate-400 text-xs">Vendidos hoy</div>
+                  </div>
+                </div>
+                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-slate-400 font-medium">Total Diesel</span>
+                    <div className="w-2 h-2 bg-purple-700 rounded-full"></div>
+                  </div>
+                  <div className="bg-black rounded p-2 mb-2 font-mono">
+                    <div className="text-green-400 text-lg font-bold">
+                      1207.3 gal
+                    </div>
+                    <div className="text-green-300 text-xs">
+                      Ant: 1175.6 gal
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-white font-semibold text-sm">31.7 gal</div>
+                    <div className="text-slate-400 text-xs">Vendidos hoy</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Barras de progreso existentes */}
+              {currentDispenserData && currentDispenserData.map((fuel: any, index: number) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-4 h-4 rounded-full ${fuel.color}`}></div>
+                      <span className="text-white font-medium">{fuel.type}</span>
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm">
+                      <span className="text-slate-300">{fuel.gallons} gal</span>
+                      <span className="text-green-400 font-semibold">S/ {fuel.amount}</span>
+                      <span className="text-slate-400">{fuel.level}%</span>
+                    </div>
+                  </div>
+                  
+                  {/* Barra de progreso */}
+                  <div className="w-full bg-slate-700 rounded-full h-3">
+                    <div
+                      className={`h-3 rounded-full ${fuel.color} transition-all duration-500 flex items-center justify-end pr-2`}
+                      style={{ width: `${fuel.level}%` }}
+                    >
+                      <div className="w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // Vista de medidores por dispensador específico
+            <DispenserMeterPanel dispenserId={selectedDispenser} />
+          )}
+        </div>
+
+        {/* Panel de notificaciones */}
+        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg lg:text-xl font-bold text-white">Notificaciones</h3>
+            <div className="flex items-center gap-2">
+              <Bell size={18} className="text-orange-500" />
+              <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {currentData.notifications.length}
+              </span>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {currentData.notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`p-3 rounded-lg border-l-4 ${
+                  notification.type === 'warning'
+                    ? 'bg-yellow-500/10 border-yellow-500'
+                    : notification.type === 'success'
+                    ? 'bg-green-500/10 border-green-500'
+                    : 'bg-blue-500/10 border-blue-500'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-sm text-white font-medium">{notification.message}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-slate-400">{notification.time}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        notification.priority === 'alta'
+                          ? 'bg-red-500/20 text-red-400'
+                          : notification.priority === 'media'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {notification.priority}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Nueva sección de tanques desplegable (ahora va aquí, después de ventas y notificaciones) */}
       <div className="bg-slate-800 rounded-2xl border border-slate-700">
         <div 
           className="flex justify-between items-center p-4 lg:p-6 cursor-pointer hover:bg-slate-700/30 transition-colors"
@@ -991,170 +1183,6 @@ const GrifoDashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sección principal con gráficos */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
-        {/* Panel de combustibles con medidores */}
-        <div className="xl:col-span-2 bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
-            <h3 className="text-xl lg:text-2xl font-bold text-white">Ventas por Combustible</h3>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <BarChart3 size={16} />
-              <span>Tiempo real</span>
-            </div>
-          </div>
-
-          {/* Botones de dispensadores */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              { key: 'all', label: 'Todos' },
-              { key: 'dispenser1', label: 'Dispensador 1' },
-              { key: 'dispenser2', label: 'Dispensador 2' },
-              { key: 'dispenser3', label: 'Dispensador 3' }
-            ].map((dispenser) => (
-              <button
-                key={dispenser.key}
-                onClick={() => setSelectedDispenser(dispenser.key)}
-                className={`px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
-                  selectedDispenser === dispenser.key
-                    ? 'bg-orange-500 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600 hover:text-white'
-                }`}
-              >
-                {dispenser.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Mostrar medidores por dispensador o resumen general */}
-          {selectedDispenser === 'all' ? (
-            // Vista general con barras de progreso y medidores
-            <div className="space-y-4 lg:space-y-6">
-              {/* Medidores compactos para vista general */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400 font-medium">Total Regular</span>
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  </div>
-                  <div className="bg-black rounded p-2 mb-2 font-mono">
-                    <div className="text-green-400 text-sm font-bold">
-                      {selectedPeriod === 'today' ? '9,176 gal' : 
-                       selectedPeriod === 'week' ? '64,468 gal' :
-                       '290,345 gal'}
-                    </div>
-                    <div className="text-green-300 text-xs">Acumulado</div>
-                  </div>
-                </div>
-                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400 font-medium">Total Premium</span>
-                    <div className="w-2 h-2 bg-green-700 rounded-full"></div>
-                  </div>
-                  <div className="bg-black rounded p-2 mb-2 font-mono">
-                    <div className="text-green-400 text-sm font-bold">
-                      {selectedPeriod === 'today' ? '6,154 gal' : 
-                       selectedPeriod === 'week' ? '43,096 gal' :
-                       '193,508 gal'}
-                    </div>
-                    <div className="text-green-300 text-xs">Acumulado</div>
-                  </div>
-                </div>
-                <div className="bg-slate-700 rounded-lg p-3 border border-slate-600">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-slate-400 font-medium">Total Diesel</span>
-                    <div className="w-2 h-2 bg-purple-700 rounded-full"></div>
-                  </div>
-                  <div className="bg-black rounded p-2 mb-2 font-mono">
-                    <div className="text-green-400 text-sm font-bold">
-                      {selectedPeriod === 'today' ? '4,421 gal' : 
-                       selectedPeriod === 'week' ? '30,948 gal' :
-                       '139,008 gal'}
-                    </div>
-                    <div className="text-green-300 text-xs">Acumulado</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Barras de progreso existentes */}
-              {currentDispenserData && currentDispenserData.map((fuel: any, index: number) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-4 h-4 rounded-full ${fuel.color}`}></div>
-                      <span className="text-white font-medium">{fuel.type}</span>
-                    </div>
-                    <div className="flex items-center space-x-4 text-sm">
-                      <span className="text-slate-300">{fuel.gallons} gal</span>
-                      <span className="text-green-400 font-semibold">S/ {fuel.amount}</span>
-                      <span className="text-slate-400">{fuel.level}%</span>
-                    </div>
-                  </div>
-                  
-                  {/* Barra de progreso */}
-                  <div className="w-full bg-slate-700 rounded-full h-3">
-                    <div
-                      className={`h-3 rounded-full ${fuel.color} transition-all duration-500 flex items-center justify-end pr-2`}
-                      style={{ width: `${fuel.level}%` }}
-                    >
-                      <div className="w-1.5 h-1.5 bg-white rounded-full opacity-80"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            // Vista de medidores por dispensador específico
-            <DispenserMeterPanel dispenserId={selectedDispenser} />
-          )}
-        </div>
-
-        {/* Panel de notificaciones */}
-        <div className="bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg lg:text-xl font-bold text-white">Notificaciones</h3>
-            <div className="flex items-center gap-2">
-              <Bell size={18} className="text-orange-500" />
-              <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {currentData.notifications.length}
-              </span>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            {currentData.notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-3 rounded-lg border-l-4 ${
-                  notification.type === 'warning'
-                    ? 'bg-yellow-500/10 border-yellow-500'
-                    : notification.type === 'success'
-                    ? 'bg-green-500/10 border-green-500'
-                    : 'bg-blue-500/10 border-blue-500'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <p className="text-sm text-white font-medium">{notification.message}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-slate-400">{notification.time}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        notification.priority === 'alta'
-                          ? 'bg-red-500/20 text-red-400'
-                          : notification.priority === 'media'
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {notification.priority}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
