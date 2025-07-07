@@ -1,33 +1,51 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Home,
-  Users,
-  ShoppingCart,
-  CreditCard,
-  Package,
-  BarChart3,
-  User,
-  Clock,
-  Settings,
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Fuel,
-  AmpersandIcon
+  Home, Users, ShoppingCart, CreditCard, Package, BarChart3, User, Clock,
+  Settings, Menu, ChevronLeft, ChevronRight, Fuel
 } from 'lucide-react';
-import { LucideIcon } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { AcademicCapIcon } from '@heroicons/react/solid';
+import { usePathname, useRouter } from 'next/navigation';
+
+// Definir los menús según los roles que devuelve el backend
+const MENU_ITEMS = {
+  superadmin: [
+    { name: 'Dashboard', icon: Home, path: '/grifo' },
+    { name: 'Clientes', icon: Users, path: '/grifo-clientes' },
+    { name: 'Configuración', icon: Settings, path: '/grifo-configuracion' },
+    { name: 'Créditos', icon: CreditCard, path: '/grifo-creditos' },
+    { name: 'Empleados', icon: Users, path: '/grifo-empleados' },
+    { name: 'Inventario', icon: Package, path: '/grifo-inventario' },
+    { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
+    { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
+    { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
+    { name: 'Super Admin', icon: User, path: '/super-admin' },
+  ],
+  admin: [
+    { name: 'Dashboard', icon: Home, path: '/grifo' },
+    { name: 'Clientes', icon: Users, path: '/grifo-clientes' },
+    { name: 'Configuración', icon: Settings, path: '/grifo-configuracion' },
+    { name: 'Créditos', icon: CreditCard, path: '/grifo-creditos' },
+    { name: 'Empleados', icon: Users, path: '/grifo-empleados' },
+    { name: 'Inventario', icon: Package, path: '/grifo-inventario' },
+    { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
+    { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
+    { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
+  ],
+  seller: [
+    { name: 'Dashboard', icon: Home, path: '/grifo' },
+    { name: 'Clientes', icon: Users, path: '/grifo-clientes' },
+    { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
+    { name: 'Inventario', icon: Package, path: '/grifo-inventario' },
+  ]
+};
 
 interface NavItem {
   name: string;
-  icon: LucideIcon;
+  icon: any;
   path: string;
-} 
+}
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -36,20 +54,78 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
 
-  const navItems: NavItem[] = [
-    { name: 'Dashboard', icon: Home, path: '/grifo' },
-    { name: 'Clientes', icon: Users, path: '/grifo-clientes' },
-    { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
-    { name: 'Créditos', icon: CreditCard, path: '/grifo-creditos' },
-    { name: 'Inventario', icon: Package, path: '/grifo-inventario'},
-    { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
-    { name: 'Empleados', icon: User, path: '/grifo-empleados' },
-    { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
-    { name: 'Configuración', icon: Settings, path: '/grifo-configuracion' },
-    { name: 'Super Admin', icon: User, path: '/super-admin'},
-  ];
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = typeof window !== "undefined" ? localStorage.getItem('token') : null;
+        
+        if (!token) {
+          router.push('/login');
+          return;
+        }
+
+        // Importar jwt-decode dinámicamente para evitar problemas de SSR
+        const { jwtDecode } = await import('jwt-decode');
+        const decoded: any = jwtDecode(token);
+        
+        // Obtener el rol del token decodificado
+        const role = decoded.role || decoded.rol || 'seller';
+        
+        setUserRole(role);
+        setIsLoading(false);
+        
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        localStorage.removeItem('token');
+        router.push('/login');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  // Mostrar pantalla de carga mientras se verifica la autenticación
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <span className="text-xl">Cargando...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Si no hay rol después de la carga, no renderizar nada (se redirigirá al login)
+  if (!userRole) {
+    return null;
+  }
+
+  const navItems: NavItem[] = MENU_ITEMS[userRole as keyof typeof MENU_ITEMS] || MENU_ITEMS['seller'];
+
+  // Función para obtener el nombre del rol para mostrar
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'superadmin':
+        return 'Super Admin';
+      case 'admin':
+        return 'Administrador';
+      case 'seller':
+        return 'Vendedor';
+      default:
+        return 'Usuario';
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    router.push('/login');
+  };
 
   return (
     <div className="flex h-screen bg-slate-900 text-white">
@@ -73,10 +149,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Link
                     href={item.path}
                     className={`w-full flex items-center p-2 rounded-lg hover:bg-slate-700 transition-colors
-                      ${
-                          pathname === item.path
-                          ? 'bg-orange-500 text-white'
-                          : 'text-slate-300'
+                      ${pathname === item.path
+                        ? 'bg-orange-500 text-white'
+                        : 'text-slate-300'
                       }`}
                   >
                     <item.icon size={20} className="mr-3" />
@@ -90,18 +165,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="mt-auto">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="w-full p-2 rounded-lg text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-colors"
+            className="w-full p-2 rounded-lg text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-colors mb-2"
           >
             {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             {sidebarOpen && <span className="ml-2">Colapsar</span>}
           </button>
+          {sidebarOpen && (
+            <button
+              onClick={handleLogout}
+              className="w-full p-2 rounded-lg text-slate-300 hover:bg-red-600 transition-colors text-sm"
+            >
+              Cerrar Sesión
+            </button>
+          )}
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-19 overflow-y-auto bg-slate-900">
+      <main className="flex-1 p-0 overflow-y-auto bg-slate-900">
         <header className="flex justify-between items-center p-4 bg-slate-800 border-b border-slate-700">
-          {/* Lado izquierdo - Menú hamburguesa y título */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -109,26 +191,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu size={24} />
             </button>
-            <h1 className="text-xl font-semibold text-white">Super Admin</h1>
+            <h1 className="text-xl font-semibold text-white">
+              {getRoleDisplayName(userRole)}
+            </h1>
           </div>
-
-          {/* Lado derecho - Notificaciones y usuario */}
           <div className="flex items-center space-x-4">
-            {/* Badge de notificaciones */}
             <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
               10
             </div>
-            
-            {/* Texto Vendedor */}
-            <span className="text-slate-300 text-sm">Vendedor</span>
-
-            {/* Avatar usuario */}
+            <span className="text-slate-300 text-sm">{getRoleDisplayName(userRole)}</span>
             <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
               <User size={20} className="text-white" />
             </div>
           </div>
         </header>
-        {children}
+        <div className="p-6">
+          {children}
+        </div>
       </main>
     </div>
   );
