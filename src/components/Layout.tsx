@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Home, Users, ShoppingCart, CreditCard, Package, BarChart3, User, Clock,
-  Settings, Menu, ChevronLeft, ChevronRight, Fuel
+  Settings, Menu, ChevronLeft, ChevronRight, Fuel, Wifi, WifiOff
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { APP_CONFIG, isOnlineMode, isOfflineMode, setAppMode, initializeAppMode } from '@/src/config/appConfig';
 
 // Definir los menús según los roles que devuelve el backend
 const MENU_ITEMS = {
@@ -56,32 +57,50 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [appMode, setAppModeState] = useState<string>('offline');
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem('token') : null;
+        // Inicializar el modo de la aplicación
+        initializeAppMode();
+        const currentMode = APP_CONFIG.mode;
+        setAppModeState(currentMode);
+
+        const token = typeof window !== "undefined" ? sessionStorage.getItem('token') : null;
+        const storedMode = typeof window !== "undefined" ? sessionStorage.getItem('app_mode') : currentMode;
         
         if (!token) {
           router.push('/login');
           return;
         }
 
-        // Importar jwt-decode dinámicamente para evitar problemas de SSR
-        const { jwtDecode } = await import('jwt-decode');
-        const decoded: any = jwtDecode(token);
-        
-        // Obtener el rol del token decodificado
-        const role = decoded.role || decoded.rol || 'seller';
+        let role = 'seller';
+
+        if (isOfflineMode() || storedMode === 'offline') {
+          // En modo offline, usar datos del token simulado o configuración por defecto
+          try {
+            const decoded = JSON.parse(atob(token));
+            role = decoded.role || APP_CONFIG.auth.defaultUser.role;
+          } catch {
+            role = APP_CONFIG.auth.defaultUser.role;
+          }
+        } else {
+          // En modo online, decodificar el JWT real
+          const { jwtDecode } = await import('jwt-decode');
+          const decoded: any = jwtDecode(token);
+          role = decoded.role || decoded.rol || 'seller';
+        }
         
         setUserRole(role);
         setIsLoading(false);
         
       } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        localStorage.removeItem('token');
+        console.error('Error al verificar autenticación:', error);
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('app_mode');
         router.push('/login');
       }
     };
@@ -110,21 +129,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Función para obtener el nombre del rol para mostrar
   const getRoleDisplayName = (role: string) => {
-    switch (role) {
-      case 'superadmin':
-        return 'Super Admin';
-      case 'admin':
-        return 'Administrador';
-      case 'seller':
-        return 'Vendedor';
-      default:
-        return 'Usuario';
-    }
+    const baseName = (() => {
+      switch (role) {
+        case 'superadmin':
+          return 'Super Admin';
+        case 'admin':
+          return 'Administrador';
+        case 'seller':
+          return 'Vendedor';
+        default:
+          return 'Usuario';
+      }
+    })();
+    
+    return appMode === 'offline' ? `${baseName} (Demo)` : baseName;
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('app_mode');
     router.push('/login');
+  };
+
+  const toggleAppMode = () => {
+    const newMode = appMode === 'online' ? 'offline' : 'online';
+    setAppMode(newMode);
+    setAppModeState(newMode);
   };
 
   return (
@@ -163,6 +193,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </nav>
         </div>
         <div className="mt-auto">
+          {/* Indicador de modo y botón para cambiar */}
+          {sidebarOpen && (
+            <div className="mb-4 p-3 bg-slate-700 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs text-slate-300 font-medium">Modo de operación:</span>
+                <div className={`flex items-center text-xs font-semibold ${
+                  appMode === 'online' ? 'text-green-400' : 'text-orange-400'
+                }`}>
+                  {appMode === 'online' ? <Wifi size={12} className="mr-1" /> : <WifiOff size={12} className="mr-1" />}
+                  {appMode === 'online' ? 'Online' : 'Demo'}
+                </div>
+              </div>
+              <button
+                onClick={toggleAppMode}
+                className="w-full text-xs px-3 py-2 bg-slate-600 hover:bg-slate-500 rounded transition-colors font-medium"
+              >
+                Cambiar a {appMode === 'online' ? 'Demo' : 'Online'}
+              </button>
+              {appMode === 'offline' && (
+                <p className="text-xs text-slate-400 mt-2 text-center">
+                  Usando datos de demostración
+                </p>
+              )}
+            </div>
+          )}
+          
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="w-full p-2 rounded-lg text-slate-300 hover:bg-slate-700 flex items-center justify-center transition-colors mb-2"
@@ -196,6 +252,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </h1>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Indicador de modo en el header */}
+            <div className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
+              appMode === 'online' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-orange-500 text-white'
+            }`}>
+              {appMode === 'online' ? <Wifi size={12} className="mr-1" /> : <WifiOff size={12} className="mr-1" />}
+              {appMode === 'online' ? 'ONLINE' : 'DEMO'}
+            </div>
+            
             <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
               10
             </div>
