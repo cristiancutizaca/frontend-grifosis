@@ -18,15 +18,15 @@ export interface Client {
 }
 
 export interface CreateClientData {
-  nombre: string;
-  apellido: string;
-  documento: string;
-  tipo_documento: string;
-  telefono?: string;
+  first_name: string;
+  last_name: string;
+  document_number: string;
+  tipo_documento: string; // Mantener para el frontend, mapear en el modal si es necesario
+  phone?: string;
   email?: string;
-  direccion?: string;
-  tipo_cliente: 'persona' | 'empresa';
-  limite_credito?: number;
+  address?: string;
+  client_type: 'persona' | 'empresa'; // Coincide con 'client_type' en el backend
+  limite_credito?: number; // Mantener para el frontend, mapear en el modal si es necesario
 }
 
 export interface UpdateClientData extends Partial<CreateClientData> {
@@ -34,7 +34,7 @@ export interface UpdateClientData extends Partial<CreateClientData> {
 }
 
 class ClientService {
-  private endpoint = '/clientes';
+  private endpoint = '/clients';
 
   async getAllClients(): Promise<Client[]> {
     return apiService.get<Client[]>(this.endpoint);
@@ -81,4 +81,3 @@ class ClientService {
 }
 
 export default new ClientService();
-
