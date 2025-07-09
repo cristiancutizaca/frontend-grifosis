@@ -36,7 +36,9 @@ class NozzleService {
   private endpoint = '/nozzles';
 
   async getAllNozzles(): Promise<Nozzle[]> {
-    return apiService.get<Nozzle[]>(this.endpoint);
+    const data = await apiService.get<Nozzle[]>(this.endpoint);
+    console.log('Nozzles from API:', data); // <-- Aquí pon el console.log
+    return data;
   }
 
   async getNozzleById(id: number): Promise<Nozzle> {

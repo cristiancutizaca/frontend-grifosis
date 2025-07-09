@@ -1,11 +1,13 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import FuelButton from '../../src/components/FuelButton';
-import { User } from 'lucide-react';
+import { ArrowLeft, User, Search, Plus } from 'lucide-react';
 import saleService, { CreateSaleData } from '../../src/services/saleService';
 import clientService, { Client } from '../../src/services/clientService';
 import nozzleService, { Nozzle } from '../../src/services/nozzleService';
+import CreateClientModal from './components/CreateClientModal'; // Importar el nuevo componente
 
 interface Product {
   id: number;
@@ -51,6 +53,7 @@ const VentasContent: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false); // Estado para el modal
 
   // Productos disponibles (esto debería venir de una API también)
   const [products] = useState<Product[]>([
@@ -81,7 +84,10 @@ const VentasContent: React.FC = () => {
 
   // Calcular total cuando cambian cantidad, precio o descuento
   useEffect(() => {
-    // No hace falta nada aquí, el cálculo se hace en calculateTotal()
+    if (formData.quantity > 0 && formData.unit_price > 0) {
+      const subtotal = formData.quantity * formData.unit_price;
+      // El total se calcula automáticamente en el componente
+    }
   }, [formData.quantity, formData.unit_price, formData.discount_amount]);
 
   const loadInitialData = async () => {
@@ -91,7 +97,7 @@ const VentasContent: React.FC = () => {
         clientService.getAllClients(),
         nozzleService.getAllNozzles()
       ]);
-      
+
       setClients(clientsData);
       setNozzles(nozzlesData);
       setFilteredClients(clientsData.slice(0, 10));
@@ -172,10 +178,10 @@ const VentasContent: React.FC = () => {
 
       await saleService.createSale(saleData);
       setSuccess('Venta registrada exitosamente');
-      
+
       // Limpiar formulario
       resetForm();
-      
+
     } catch (err) {
       setError('Error al registrar la venta');
       console.error('Error creating sale:', err);
@@ -207,6 +213,14 @@ const VentasContent: React.FC = () => {
     }
   };
 
+  const handleClientCreated = (newClient: Client) => {
+    setClients(prevClients => [...prevClients, newClient]);
+    setFilteredClients(prevFilteredClients => [...prevFilteredClients, newClient]);
+    setSelectedClient(newClient);
+    setClientSearchTerm(`${newClient.nombre} ${newClient.apellido}`);
+    setIsCreateClientModalOpen(false);
+  };
+
   if (loading && clients.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -221,7 +235,7 @@ const VentasContent: React.FC = () => {
       {error && (
         <div className="bg-red-500 text-white p-3 rounded-lg mb-4">
           {error}
-          <button 
+          <button
             onClick={() => setError(null)}
             className="float-right text-white hover:text-gray-200"
           >
@@ -229,11 +243,11 @@ const VentasContent: React.FC = () => {
           </button>
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-500 text-white p-3 rounded-lg mb-4">
           {success}
-          <button 
+          <button
             onClick={() => setSuccess(null)}
             className="float-right text-white hover:text-gray-200"
           >
@@ -278,7 +292,13 @@ const VentasContent: React.FC = () => {
                     </div>
                   )}
                 </div>
-                {/* Ya NO hay botón "+" aquí */}
+                <button
+                  onClick={() => setIsCreateClientModalOpen(true)}
+                  className="ml-2 p-2 bg-green-600 rounded-full text-white hover:bg-green-700 transition-colors"
+                  title="Crear nuevo cliente"
+                >
+                  <Plus size={20} />
+                </button>
               </div>
               {selectedClient && (
                 <div className="mt-2 p-2 bg-slate-700 rounded text-sm text-slate-300">
@@ -320,11 +340,14 @@ const VentasContent: React.FC = () => {
               className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
             >
               <option value="">Seleccionar boquilla...</option>
-              {nozzles.filter(n => n.estado === 'activo').map((nozzle) => (
-                <option key={nozzle.id} value={nozzle.id}>
-                  Boquilla {nozzle.numero} - Bomba {nozzle.bomba?.numero || nozzle.bomba_id}
-                </option>
-              ))}
+              {Array.isArray(nozzles) &&
+                nozzles.filter(n => n.estado === 'activo').map(nozzle => (
+                  <option key={nozzle.id} value={nozzle.id}>
+                    Boquilla {nozzle.numero} - Bomba {nozzle.bomba?.numero || nozzle.bomba_id}
+                  </option>
+                ))
+              }
+
             </select>
           </div>
 
@@ -385,11 +408,10 @@ const VentasContent: React.FC = () => {
                 <button
                   key={method.value}
                   onClick={() => handleInputChange('payment_method', method.value)}
-                  className={`py-2 px-4 rounded-lg font-medium transition-colors ${
-                    formData.payment_method === method.value
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                  }`}
+                  className={`py-2 px-4 rounded-lg font-medium transition-colors ${formData.payment_method === method.value
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                    }`}
                 >
                   {method.label}
                 </button>
@@ -433,7 +455,7 @@ const VentasContent: React.FC = () => {
             >
               Cancelar
             </button>
-            <button 
+            <button
               onClick={handleSubmit}
               disabled={loading}
               className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50"
@@ -460,18 +482,33 @@ const VentasContent: React.FC = () => {
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
             <h3 className="text-lg font-semibold text-white mb-4">Boquillas Disponibles</h3>
             <div className="space-y-3">
-              {nozzles.filter(n => n.estado === 'activo').slice(0, 5).map((nozzle) => (
-                <div key={nozzle.id} className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-slate-300">Boquilla {nozzle.numero}</span>
+
+              console.log('Nozzles en el render:', nozzles);
+
+              {
+                Array.isArray(nozzles) ? (
+                  nozzles
+                    .filter(n => n.estado === 'activo')
+                    .slice(0, 5)
+                    .map((nozzle) => (
+                      <div key={nozzle.id} className="flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="text-slate-300">Boquilla {nozzle.numero}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-green-400">Activa</div>
+                          <div className="text-slate-400 text-sm">Bomba {nozzle.bomba?.numero || nozzle.bomba_id}</div>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-red-400 text-xs">
+                    Nozzles no es un array: {JSON.stringify(nozzles)}
                   </div>
-                  <div className="text-right">
-                    <div className="text-green-400">Activa</div>
-                    <div className="text-slate-400 text-sm">Bomba {nozzle.bomba?.numero || nozzle.bomba_id}</div>
-                  </div>
-                </div>
-              ))}
+                )
+              }
+
             </div>
           </div>
 
@@ -511,6 +548,11 @@ const VentasContent: React.FC = () => {
           </div>
         </div>
       </div>
+      <CreateClientModal
+        isOpen={isCreateClientModalOpen}
+        onClose={() => setIsCreateClientModalOpen(false)}
+        onClientCreated={handleClientCreated}
+      />
     </div>
   );
 };

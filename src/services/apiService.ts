@@ -15,7 +15,7 @@ class ApiService {
   }
 
   private async request<T>(
-    endpoint: string, 
+    endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     // Si estamos en modo offline, manejar la petición localmente
@@ -25,7 +25,7 @@ class ApiService {
 
     // Modo online - comportamiento original
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -37,17 +37,28 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+
+      // Leer body SOLO UNA VEZ
+      const contentType = response.headers.get('content-type');
+      let data: any;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = await response.text();
       }
-      
-      const data = await response.json();
+
+      if (!response.ok) {
+        // Si la respuesta fue error, lanza el mensaje que venga, si existe
+        let errorText = typeof data === 'string' ? data : (data?.message || JSON.stringify(data));
+        throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      }
+
       return data;
     } catch (error) {
       console.error('API request failed:', error);
       throw error;
     }
+
   }
 
   private getAuthHeaders(): Record<string, string> {
@@ -84,7 +95,7 @@ class ApiService {
 
   private handleOfflineGet<T>(resource: string, id?: string): T {
     const data = getDemoData(resource);
-    
+
     if (id) {
       // Buscar un elemento específico por ID
       const item = data.find((item: any) => item.id.toString() === id);
@@ -93,7 +104,7 @@ class ApiService {
       }
       return item as T;
     }
-    
+
     // Retornar todos los elementos
     return data as T;
   }
@@ -294,7 +305,7 @@ class ApiService {
     const params = new URLSearchParams();
     if (fechaInicio) params.append('fechaInicio', fechaInicio);
     if (fechaFin) params.append('fechaFin', fechaFin);
-    
+
     return this.get<T>(`/reportes/${tipo}?${params.toString()}`);
   }
 
