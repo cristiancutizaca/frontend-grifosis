@@ -1,20 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import FuelButton from '../../src/components/FuelButton';
-import { ArrowLeft, User, CreditCard, DollarSign, Fuel, ClipboardList, Search, Plus } from 'lucide-react';
-import Select from 'react-select';
-// Importar servicios del backend
+// import FuelButton from '../../src/components/FuelButton'; // Comentar temporalmente
+import { User, CreditCard, DollarSign, Fuel } from 'lucide-react';
+// Importar servicios del backend - USAR LOS REALES
 import saleService, { CreateSaleData } from '../../src/services/saleService';
 import clientService, { Client } from '../../src/services/clientService';
 import nozzleService, { Nozzle } from '../../src/services/nozzleService';
 
-type FuelType = 'Diesel' | 'Premium' | 'Regular' | 'Diesel 2';
+// Eliminar imports no usados:
+// import { ArrowLeft, ClipboardList, Search, Plus } from 'lucide-react';
+// import Select from 'react-select';
 
-interface FuelPrice {
-  type: FuelType;
-  price: string;
-}
+type FuelType = 'Diesel' | 'Premium' | 'Regular';
 
 interface Product {
   id: number;
@@ -23,22 +21,12 @@ interface Product {
   tipo: string;
 }
 
-interface SaleFormData {
-  client_id: number;
-  pump_id: number;
-  product_id: number;
-  quantity: number;
-  unit_price: number;
-  discount_amount: number;
-  payment_method: string;
-  notes: string;
-}
+// Remover SaleFormData duplicada, usar CreateSaleData del servicio
 
 const GrifoNewSale: React.FC = () => {
   // Estados del formulario original
   const [selectedFuel, setSelectedFuel] = useState<FuelType>('Premium');
   const [quantity, setQuantity] = useState<string>('');
-  const [total, setTotal] = useState<string>('37.40');
   const [paymentMethod, setPaymentMethod] = useState<string>('efectivo');
   const [selectedNozzle, setSelectedNozzle] = useState<string>('1');
   const [discount, setDiscount] = useState<string>('0');
@@ -48,19 +36,7 @@ const GrifoNewSale: React.FC = () => {
   const [subtotal, setSubtotal] = useState<number>(0);
   const [showClientSearch, setShowClientSearch] = useState<boolean>(true);
 
-  // Estados para backend
-  const [formData, setFormData] = useState<SaleFormData>({
-    client_id: 0,
-    pump_id: 0,
-    product_id: 0,
-    quantity: 0,
-    unit_price: 0,
-    discount_amount: 0,
-    payment_method: 'efectivo',
-    notes: ''
-  });
-
-  // Estados para datos del servidor
+  // Estados para datos del servidor - USAR LAS INTERFACES REALES
   const [clients, setClients] = useState<Client[]>([]);
   const [nozzles, setNozzles] = useState<Nozzle[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
@@ -82,13 +58,6 @@ const GrifoNewSale: React.FC = () => {
   ]);
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  const fuelPrices: FuelPrice[] = [
-    { type: 'Diesel', price: 'S/ 3.00' },
-    { type: 'Premium', price: 'S/ 4.01' },
-    { type: 'Regular', price: 'S/ 4.00' },
-    { type: 'Diesel 2', price: 'S/ 3.20' },
-  ];
 
   const recentSales = [
     { client: 'Cahez Salurias', amount: 'S/ 33.05', status: 'completed' },
@@ -116,7 +85,7 @@ const GrifoNewSale: React.FC = () => {
   // Calcular subtotal, impuesto y total
   useEffect(() => {
     const qty = Number(quantity) || 0;
-    const price = selectedProduct?.precio || Number((fuelPrices.find(f => f.type === selectedFuel)?.price || '0').replace(/[^\d.]/g, '')) || 0;
+    const price = selectedProduct?.precio || 0;
     const desc = Number(discount) || 0;
     
     // Define la tasa según el combustible
@@ -131,18 +100,7 @@ const GrifoNewSale: React.FC = () => {
     const taxVal = sub * tax;
     setTaxAmount(taxVal);
     setSubtotal(sub + taxVal);
-    setTotal((sub + taxVal).toFixed(2));
-
-    // Actualizar formData
-    setFormData(prev => ({
-      ...prev,
-      quantity: qty,
-      unit_price: price,
-      discount_amount: desc,
-      payment_method: paymentMethod.toLowerCase(),
-      notes: observations
-    }));
-  }, [quantity, selectedFuel, discount, paymentMethod, observations, selectedProduct]);
+  }, [quantity, selectedFuel, discount, selectedProduct]);
 
   const loadInitialData = async () => {
     try {
@@ -151,6 +109,9 @@ const GrifoNewSale: React.FC = () => {
         clientService.getAllClients(),
         nozzleService.getAllNozzles()
       ]);
+
+      console.log('Clientes cargados:', clientsData);
+      console.log('Nozzles cargados:', nozzlesData);
 
       setClients(clientsData);
       setNozzles(nozzlesData);
@@ -167,17 +128,11 @@ const GrifoNewSale: React.FC = () => {
     setSelectedClient(client);
     setClientSearchTerm(`${client.nombre} ${client.apellido}`);
     setShowClientDropdown(false);
-    setFormData(prev => ({ ...prev, client_id: client.id }));
   };
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
     setSelectedFuel(product.nombre as FuelType);
-    setFormData(prev => ({
-      ...prev,
-      product_id: product.id,
-      unit_price: product.precio
-    }));
   };
 
   const handleNozzleSelect = (nozzleId: string) => {
@@ -185,7 +140,6 @@ const GrifoNewSale: React.FC = () => {
     const nozzle = nozzles.find(n => n.id === parseInt(nozzleId));
     if (nozzle) {
       setSelectedNozzleObj(nozzle);
-      setFormData(prev => ({ ...prev, pump_id: nozzle.bomba_id }));
     }
   };
 
@@ -224,8 +178,8 @@ const GrifoNewSale: React.FC = () => {
       const saleData: CreateSaleData = {
         client_id: selectedClient.id,
         employee_id: 1, // Esto debería venir del usuario logueado
-        pump_id: formData.pump_id,
-        product_id: formData.product_id,
+        pump_id: selectedNozzleObj.bomba_id,
+        product_id: selectedProduct.id,
         quantity: Number(quantity),
         unit_price: selectedProduct.precio,
         total_amount: totalAmount,
@@ -234,6 +188,7 @@ const GrifoNewSale: React.FC = () => {
         notes: observations
       };
 
+      console.log('Enviando venta:', saleData);
       await saleService.createSale(saleData);
       setSuccess('Venta registrada exitosamente');
 
@@ -249,16 +204,6 @@ const GrifoNewSale: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      client_id: 0,
-      pump_id: 0,
-      product_id: 0,
-      quantity: 0,
-      unit_price: 0,
-      discount_amount: 0,
-      payment_method: 'efectivo',
-      notes: ''
-    });
     setSelectedClient(null);
     setSelectedProduct(null);
     setSelectedNozzleObj(null);
@@ -416,12 +361,6 @@ const GrifoNewSale: React.FC = () => {
                       ? 'bg-orange-500 text-white'
                       : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                   } ${idx !== 0 ? 'ml-[-1px]' : ''}`}
-                  style={{
-                    borderTopLeftRadius: idx === 0 ? '0.375rem' : 0,
-                    borderBottomLeftRadius: idx === 0 ? '0.375rem' : 0,
-                    borderTopRightRadius: idx === 2 ? '0.375rem' : 0,
-                    borderBottomRightRadius: idx === 2 ? '0.375rem' : 0
-                  }}
                 >
                   Boquilla {nozzle.numero}
                 </button>
