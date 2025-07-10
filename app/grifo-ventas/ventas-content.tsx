@@ -11,6 +11,15 @@ import nozzleService, { Nozzle } from '../../src/services/nozzleService';
 // Eliminar imports no usados:
 // import { ArrowLeft, ClipboardList, Search, Plus } from 'lucide-react';
 // import Select from 'react-select';
+const mapClient = (c: any) => ({
+  ...c,
+  nombre: c.nombre || c.first_name || '',
+  apellido: c.apellido || c.last_name || '',
+  documento: c.documento || c.document_number || '',
+  direccion: c.direccion || c.address || '',
+  telefono: c.telefono || c.phone || '',
+  email: c.email || '',
+});
 
 type FuelType = 'Diesel' | 'Premium' | 'Regular';
 
@@ -87,7 +96,7 @@ const GrifoNewSale: React.FC = () => {
     const qty = Number(quantity) || 0;
     const price = selectedProduct?.precio || 0;
     const desc = Number(discount) || 0;
-    
+
     // Define la tasa según el combustible
     let tax = 0.18;
     if (selectedFuel === 'Diesel') tax = 0.12;
@@ -109,20 +118,17 @@ const GrifoNewSale: React.FC = () => {
         clientService.getAllClients(),
         nozzleService.getAllNozzles()
       ]);
-
-      console.log('Clientes cargados:', clientsData);
-      console.log('Nozzles cargados:', nozzlesData);
-
-      setClients(clientsData);
+      const mappedClients = clientsData.map(mapClient);
+      setClients(mappedClients);
+      setFilteredClients(mappedClients.slice(0, 10));
       setNozzles(nozzlesData);
-      setFilteredClients(clientsData.slice(0, 10));
     } catch (err) {
       setError('Error al cargar los datos iniciales');
-      console.error('Error loading initial data:', err);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
@@ -277,11 +283,10 @@ const GrifoNewSale: React.FC = () => {
           <h3 className="text-2xl font-bold text-white">Cliente</h3>
           <button
             onClick={() => setShowClientSearch((prev) => !prev)}
-            className={`px-5 py-2 rounded-lg font-semibold transition-colors text-base ${
-              showClientSearch
+            className={`px-5 py-2 rounded-lg font-semibold transition-colors text-base ${showClientSearch
                 ? 'bg-orange-500 text-white hover:bg-orange-600'
                 : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-            }`}
+              }`}
           >
             {showClientSearch ? 'Desactivar búsqueda' : 'Activar búsqueda'}
           </button>
@@ -321,7 +326,7 @@ const GrifoNewSale: React.FC = () => {
               )}
             </div>
           </div>
-          
+
           {/* Contenedor información del cliente seleccionado */}
           <div className="bg-slate-800 border border-slate-700 rounded-2xl px-6 py-6 shadow w-full md:w-1/2 flex items-center gap-8">
             <span className="text-slate-400 text-base font-semibold">
@@ -356,18 +361,17 @@ const GrifoNewSale: React.FC = () => {
                 <button
                   key={nozzle.id}
                   onClick={() => handleNozzleSelect(nozzle.id.toString())}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-sm transition-colors ${
-                    selectedNozzle === nozzle.id.toString()
+                  className={`px-3 py-1.5 rounded-md font-semibold text-sm transition-colors ${selectedNozzle === nozzle.id.toString()
                       ? 'bg-orange-500 text-white'
                       : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                  } ${idx !== 0 ? 'ml-[-1px]' : ''}`}
+                    } ${idx !== 0 ? 'ml-[-1px]' : ''}`}
                 >
                   Boquilla {nozzle.numero}
                 </button>
               ))}
             </div>
           </div>
-          
+
           {/* Botones de combustible del backend */}
           <div className="flex gap-4 mt-8 justify-center">
             {products.map((product) => {
@@ -393,7 +397,7 @@ const GrifoNewSale: React.FC = () => {
             })}
           </div>
         </div>
-        
+
         {/* Precios de combustible del backend */}
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow flex flex-col gap-5 justify-center">
           <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -428,14 +432,14 @@ const GrifoNewSale: React.FC = () => {
             Galón: <span className="font-semibold text-white">{selectedProduct?.nombre || 'No seleccionado'}</span>
           </div>
         </div>
-        
+
         <div className="bg-slate-800 border border-slate-600 rounded-xl flex flex-col items-center justify-center py-6 px-4 shadow-sm">
           <span className="text-base text-slate-400 mb-1">Precio unitario</span>
           <span className="text-xl font-bold text-green-400">
             S/ {selectedProduct?.precio.toFixed(2) || '0.00'}
           </span>
         </div>
-        
+
         <div className="bg-slate-800 border border-slate-600 rounded-xl flex flex-col items-center justify-center py-6 px-4 shadow-sm">
           <span className="text-base text-slate-400 mb-1">Impuesto</span>
           <span className="text-xl font-bold text-blue-400">
@@ -445,7 +449,7 @@ const GrifoNewSale: React.FC = () => {
             IGV ({Math.round(taxRate * 100)}%)
           </span>
         </div>
-        
+
         <div className="bg-slate-800 border border-slate-600 rounded-xl flex flex-col items-center justify-center py-6 px-4 shadow-sm">
           <span className="text-base text-slate-400 mb-1">Total</span>
           <span className="text-2xl font-bold text-orange-400 mb-1">
@@ -467,18 +471,17 @@ const GrifoNewSale: React.FC = () => {
               <button
                 key={method}
                 onClick={() => setPaymentMethod(method)}
-                className={`py-3 px-4 rounded-lg font-medium transition-colors text-sm text-center min-h-[48px] ${
-                  paymentMethod === method
+                className={`py-3 px-4 rounded-lg font-medium transition-colors text-sm text-center min-h-[48px] ${paymentMethod === method
                     ? 'bg-orange-500 text-white'
                     : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
+                  }`}
               >
                 {method}
               </button>
             ))}
           </div>
         </div>
-        
+
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow flex flex-col gap-5">
           <h3 className="text-lg font-semibold text-white mb-1">Descuento</h3>
           <input
@@ -491,7 +494,7 @@ const GrifoNewSale: React.FC = () => {
             placeholder="Ingrese descuento"
           />
         </div>
-        
+
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow flex flex-col gap-5">
           <h3 className="text-lg font-semibold text-white mb-1">Observaciones</h3>
           <input
@@ -513,7 +516,7 @@ const GrifoNewSale: React.FC = () => {
         >
           Cancelar
         </button>
-        <button 
+        <button
           onClick={handleSubmit}
           disabled={loading}
           className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-4 px-8 rounded-lg font-bold transition-colors text-lg disabled:opacity-50"
@@ -544,11 +547,10 @@ const GrifoNewSale: React.FC = () => {
                 </div>
                 <div className="text-green-400 text-lg text-center">{sale.amount}</div>
                 <div className="flex justify-end">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    sale.status === 'completed'
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${sale.status === 'completed'
                       ? 'bg-green-700 text-white'
                       : 'bg-red-700 text-white'
-                  }`}>
+                    }`}>
                     {sale.status === 'completed' ? 'Completada' : 'Cancelada'}
                   </span>
                 </div>

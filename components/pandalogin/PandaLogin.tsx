@@ -30,7 +30,7 @@ export default function PandaLogin() {
     const mockToken = btoa(JSON.stringify({
       username: form.username || APP_CONFIG.auth.defaultUser.username,
       role: APP_CONFIG.auth.defaultUser.role,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 8), // Expira en 8 horas
+      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 1), // Expira en 8 horas
       iat: Math.floor(Date.now() / 1000)
     }));
     
@@ -41,7 +41,7 @@ export default function PandaLogin() {
 
   const handleOnlineLogin = async () => {
     try {
-      const response = await axios.post(`${APP_CONFIG.backendUrl}/api/auth/login`, {
+      const response = await axios.post(`${APP_CONFIG.backendUrl}/auth/login`, {
         username: form.username,
         password: form.password,
       });

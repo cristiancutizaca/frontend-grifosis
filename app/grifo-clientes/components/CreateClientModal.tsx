@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useState } from 'react';
-import { X, User, Phone, Mail, MapPin, CreditCard, Plus } from 'lucide-react';
+import { X, User } from 'lucide-react';
 import clientService, { CreateClientData } from '../../../src/services/clientService';
 
 interface CreateClientModalProps {
@@ -11,81 +10,83 @@ interface CreateClientModalProps {
   onClientCreated: (client: any) => void;
 }
 
+// Inicializa los campos según la entidad de tu backend
+const initialForm: CreateClientData = {
+  first_name: '',
+  last_name: '',
+  company_name: '',
+  category: '',
+  document_type: 'DNI',
+  document_number: '',
+  address: '',
+  phone: '',
+  email: '',
+  birth_date: '',
+  notes: '',
+  client_type: 'persona',
+};
+
 const CreateClientModal: React.FC<CreateClientModalProps> = ({
   isOpen,
   onClose,
-  onClientCreated
+  onClientCreated,
 }) => {
-  const [formData, setFormData] = useState<CreateClientData>({
-    first_name: '',
-    last_name: '',
-    document_number: '',
-    tipo_documento: 'cedula', // Mantener para el frontend
-    phone: '',
-    email: '',
-    address: '',
-    client_type: 'persona',
-    limite_credito: 0 // Mantener para el frontend
-  });
-
+  const [formData, setFormData] = useState<CreateClientData>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (field: keyof CreateClientData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof CreateClientData,
+    value: any
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.first_name.trim()) {
+
+    // Validaciones básicas
+    if (!formData.first_name?.trim()) {
       setError('El nombre es obligatorio');
       return;
     }
-    if (!formData.last_name.trim()) {
+    if (!formData.last_name?.trim()) {
       setError('El apellido es obligatorio');
       return;
     }
-    if (!formData.document_number.trim()) {
-      setError('El documento es obligatorio');
+    if (!formData.document_number?.trim()) {
+      setError('El número de documento es obligatorio');
       return;
     }
+
 
     try {
       setLoading(true);
       setError(null);
 
-      // Mapear los datos del formulario a los nombres de campos del backend
-      const dataToSend = {
+      // Envía todos los campos según la entidad y tabla de backend
+      const dataToSend: CreateClientData = {
         first_name: formData.first_name,
         last_name: formData.last_name,
+        company_name: formData.company_name || undefined,
+        category: formData.category || undefined,
+        document_type: formData.document_type,
         document_number: formData.document_number,
+        address: formData.address || undefined,
+        phone: formData.phone || undefined,
+        email: formData.email || undefined,
+        birth_date: formData.birth_date || undefined,
+        notes: formData.notes || undefined,
         client_type: formData.client_type,
-        phone: formData.phone,
-        email: formData.email,
-        address: formData.address,
-        // No enviar tipo_documento ni limite_credito directamente si no están en el DTO del backend
-        // Si el backend los necesita, se deben añadir al DTO de NestJS
       };
 
-      const newClient = await clientService.createClient(dataToSend as CreateClientData);
+      const newClient = await clientService.createClient(dataToSend);
       onClientCreated(newClient);
-      
-      setFormData({
-        first_name: '',
-        last_name: '',
-        document_number: '',
-        tipo_documento: 'cedula',
-        phone: '',
-        email: '',
-        address: '',
-        client_type: 'persona',
-        limite_credito: 0
-      });
-      
+
+      setFormData(initialForm);
       onClose();
     } catch (err) {
-      setError('Error al crear el cliente. Verifique que el documento no esté duplicado.');
+      setError('Error al crear el cliente. Verifica los datos o que el documento no esté duplicado.');
       console.error('Error creating client:', err);
     } finally {
       setLoading(false);
@@ -121,7 +122,7 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
                 type="text"
                 value={formData.first_name}
                 onChange={(e) => handleInputChange('first_name', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Ingrese el nombre"
                 required
               />
@@ -132,7 +133,7 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
                 type="text"
                 value={formData.last_name}
                 onChange={(e) => handleInputChange('last_name', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Ingrese el apellido"
                 required
               />
@@ -141,25 +142,48 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Documento</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Nombre de la empresa</label>
+              <input
+                type="text"
+                value={formData.company_name}
+                onChange={(e) => handleInputChange('company_name', e.target.value)}
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
+                placeholder="Empresa (si aplica)"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Categoría</label>
+              <input
+                type="text"
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
+                placeholder="Categoría (opcional)"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de documento</label>
               <select
-                value={formData.tipo_documento}
-                onChange={(e) => handleInputChange('tipo_documento', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                value={formData.document_type}
+                onChange={(e) => handleInputChange('document_type', e.target.value)}
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
               >
-                <option value="cedula">Cédula</option>
-                <option value="pasaporte">Pasaporte</option>
-                <option value="ruc">RUC</option>
-                <option value="extranjeria">Carnet de Extranjería</option>
+                <option value="DNI">DNI</option>
+                <option value="RUC">RUC</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="Extranjeria">Carnet de Extranjería</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Número de Documento *</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Número de documento *</label>
               <input
                 type="text"
                 value={formData.document_number}
                 onChange={(e) => handleInputChange('document_number', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Ingrese el número de documento"
                 required
               />
@@ -168,29 +192,63 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Dirección</label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
+                placeholder="Ingrese la dirección"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Teléfono</label>
               <input
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Ingrese el teléfono"
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Ingrese el email"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Fecha de nacimiento</label>
+              <input
+                type="date"
+                value={formData.birth_date}
+                onChange={(e) => handleInputChange('birth_date', e.target.value)}
+                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
+                placeholder="Fecha de nacimiento"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de Cliente</label>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Notas</label>
+            <textarea
+              value={formData.notes}
+              onChange={(e) => handleInputChange('notes', e.target.value)}
+              className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
+              placeholder="Observaciones o notas"
+              rows={2}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Tipo de cliente</label>
             <div className="flex space-x-4">
               <label className="flex items-center">
                 <input

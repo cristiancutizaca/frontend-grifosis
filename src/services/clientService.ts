@@ -1,5 +1,6 @@
 import apiService from './apiService';
 
+// Ahora el tipo Client incluye TODO (lo tuyo y lo nuevo del backend)
 export interface Client {
   id: number;
   nombre: string;
@@ -15,23 +16,48 @@ export interface Client {
   estado: 'activo' | 'inactivo' | 'suspendido';
   fecha_registro: string;
   fecha_actualizacion: string;
+  // NUEVOS CAMPOS
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  category?: string;
+  document_type?: string;
+  document_number?: string;
+  address?: string;
+  phone?: string;
+  birth_date?: string;
+  notes?: string;
+  client_type?: 'persona' | 'empresa';
+  created_at?: string;
+  updated_at?: string;
 }
 
+// Ahora CreateClientData incluye lo viejo + lo nuevo, ¡sin romper nada!
 export interface CreateClientData {
-  first_name: string;
-  last_name: string;
-  document_number: string;
-  tipo_documento: string; // Mantener para el frontend, mapear en el modal si es necesario
+  first_name?: string;
+  last_name?: string;
+  company_name?: string;
+  category?: string;
+  document_type?: string;
+  document_number?: string;
+  address?: string;
   phone?: string;
   email?: string;
-  address?: string;
-  client_type: 'persona' | 'empresa'; // Coincide con 'client_type' en el backend
-  limite_credito?: number; // Mantener para el frontend, mapear en el modal si es necesario
+  birth_date?: string;
+  notes?: string;
+  client_type?: 'persona' | 'empresa';
+  // Tus campos antiguos siguen aquí:
+  tipo_documento?: string;
+  limite_credito?: number;
 }
 
 export interface UpdateClientData extends Partial<CreateClientData> {
   id: number;
 }
+
+// ------------------
+// NO MODIFICAMOS LOS MÉTODOS, SOLO TIPOS
+// ------------------
 
 class ClientService {
   private endpoint = '/clients';
