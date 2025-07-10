@@ -41,7 +41,7 @@ export default function PandaLogin() {
 
   const handleOnlineLogin = async () => {
     try {
-      const response = await axios.post(`${APP_CONFIG.backendUrl}/auth/login`, {
+      const response = await axios.post(`${APP_CONFIG.backendUrl}/api/auth/login`, {
         username: form.username,
         password: form.password,
       });
