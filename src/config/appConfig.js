@@ -1,10 +1,10 @@
 // Configuración global de la aplicación
 export const APP_CONFIG = {
   // Modo de operación: 'online' (con backend) o 'offline' (sin backend)
-  mode: 'offline', // Cambiar a 'online' para habilitar el backend
+  mode: 'online', // Cambiar a 'online' para habilitar el backend
   
   // URL del backend (solo se usa en modo 'online')
-  backendUrl: 'http://localhost:8000',
+  backendUrl: 'http://localhost:8000/api',
   
   // Configuración de autenticación
   auth: {

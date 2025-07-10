@@ -1,65 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Plus, Search, Filter } from 'lucide-react';
+import apiService from '../services/apiService';
 
 interface Client {
-  name: string;
-  document: string;
-  type: string;
-  complaints: string;
-  phone: string;
+  id: number;
+  nombre: string;
+  telefono: string;
+  credito: number;
   email: string;
-  creditLimit: string;
-  actions: string;
 }
 
 const Clients: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('Creditos');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("Creditos");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
 
-  const clients: Client[] = [
-    {
-      name: 'Haki Smeth',
-      document: 'Uujaoo3arn',
-      type: 'Persons',
-      complaints: 'Dualles',
-      phone: '+11,88,533 630',
-      email: 'gerber.eni.on nenseaGindir.onin',
-      creditLimit: '2,50,06,00',
-      actions: ''
-    },
-    {
-      name: 'Maral Genuta',
-      document: 'Uujaoo3arn',
-      type: 'Erguars',
-      complaints: 'Contacts',
-      phone: '+23 233,358168',
-      email: 'sus.i6.pead.on henseaGirtir.com',
-      creditLimit: '232.4, 3,5,40',
-      actions: ''
-    },
-    {
-      name: 'Michizai Johnson',
-      document: 'Uujaoo3arn',
-      type: 'Persons',
-      complaints: 'Ulciaous',
-      phone: '+7,765,078,621',
-      email: 'Securs t ifleoocn nenear',
-      creditLimit: '182 4, 6 1 67',
-      actions: ''
-    },
-    {
-      name: 'Ana Maritines',
-      document: 'Uujaoo3arn',
-      type: 'Persons',
-      complaints: 'Benare',
-      phone: '+28 947,158 261',
-      email: 'geim nener',
-      creditLimit: '',
-      actions: ''
-    }
-  ];
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const data = await apiService.get<Client[]>("/clientes");
+        setClients(data);
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      }
+    };
+    fetchClients();
+  }, []);
 
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
@@ -121,14 +89,14 @@ const Clients: React.FC = () => {
                 <table className="w-full">
                   <thead className="bg-slate-700">
                     <tr>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Nendime</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Oocumento</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Tips</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Compaints</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Tair/orvo</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Cantoe Enpariences</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Limite Credits</th>
-                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Accowes</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Nombre</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">ID</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Tipo</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Quejas</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Teléfono</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Email</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Límite de Crédito</th>
+                      <th className="text-left py-3 px-4 text-slate-300 font-medium">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -207,36 +175,31 @@ const Clients: React.FC = () => {
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-12 h-12 bg-slate-600 rounded-full"></div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{selectedClient.name}</h3>
-                    <p className="text-slate-400">Peers IElaudelens</p>
+                    <h3 className="text-lg font-semibold text-white">{selectedClient.nombre}</h3>
+                    <p className="text-slate-400">ID: {selectedClient.id}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                    <span className="text-slate-400">Condiat Nio</span>
-                    <span className="text-slate-300">Turmidute Hiatory</span>
-                    <span className="text-slate-300">Greda Hisstory</span>
+                    <span className="text-slate-400">Información de Contacto</span>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Email</span>
-                      <span className="text-slate-300">Memoe</span>
+                      <span className="text-slate-300">{selectedClient.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-300">23.2,20 3,06 6 31</span>
-                      <span className="text-slate-300">27.6.348997</span>
+                      <span className="text-slate-400">Teléfono</span>
+                      <span className="text-slate-300">{selectedClient.telefono}</span>
                     </div>
                   </div>
 
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-slate-400">Demrwork</span>
-                      <span className="text-slate-300">13,6302477</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-300">23.2.4111784</span>
+                      <span className="text-slate-400">Límite de Crédito</span>
+                      <span className="text-slate-300">{selectedClient.credito}</span>
                     </div>
                   </div>
                 </div>

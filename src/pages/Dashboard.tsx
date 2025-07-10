@@ -1,13 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import StatCard from '../components/StatCard';
 import FuelButton from '../components/FuelButton';
 import TransactionTable from '../components/TransactionTable';
 import InventoryIndicator from '../components/InventoryIndicator';
 import QuickSearch from '../components/QuickSearch';
-import { DollarSign, Users, TrendingUp, Clock } from 'lucide-react';
+import { DollarSign, Users, TrendingUp, Clock, Package } from 'lucide-react';
+import apiService from '../services/apiService';
 
 const Dashboard: React.FC = () => {
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        const data = await apiService.getDashboardStats();
+        setDashboardStats(data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <Layout currentPage="dashboard">
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!dashboardStats) {
+    return (
+      <Layout currentPage="dashboard">
+        <div className="flex items-center justify-center h-full">
+          <p className="text-white">No se pudieron cargar los datos del dashboard.</p>
+        </div>
+      </Layout>
+    );
+  }
+
   const transactions = [
     { date: '11/6 PIA', pump: 'Bomba 6', fuel: 'Regular', amount: '$55.00' },
     { date: '1/33 PIA', pump: 'Bomba 1', fuel: 'Blenal', amount: '$133.86' },
@@ -41,30 +79,30 @@ const Dashboard: React.FC = () => {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Resumen"
-            value="$1,530.25"
-            subtitle="Groc Llamni ILobinn"
+            title="Ventas Hoy"
+            value={`$${dashboardStats.ventasHoy}`}
+            subtitle="Total de ventas del día"
             icon={DollarSign}
             valueColor="text-green-400"
           />
           <StatCard
-            title="Bistada de Bemibra"
-            value="$1,962.75"
-            subtitle="Cinc Crbla"
-            icon={TrendingUp}
-            valueColor="text-green-400"
+            title="Clientes Atendidos"
+            value={dashboardStats.clientesAtendidos}
+            subtitle="Número de clientes atendidos hoy"
+            icon={Users}
+            valueColor="text-blue-400"
           />
           <StatCard
-            title="Tumo"
-            value="$1,530.25"
-            subtitle="Lom cabra"
-            icon={Clock}
-            valueColor="text-green-400"
+            title="Inventario Total"
+            value={dashboardStats.inventarioTotal}
+            subtitle="Unidades en inventario"
+            icon={Package}
+            valueColor="text-purple-400"
           />
           <StatCard
-            title="Tumo"
-            value="$1,562.25"
-            subtitle="Tlolafla Ecclos de Cue"
+            title="Empleados Activos"
+            value={dashboardStats.empleadosActivos}
+            subtitle="Empleados trabajando actualmente"
             icon={Users}
             valueColor="text-orange-400"
           />

@@ -1,69 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { Shield, AlertTriangle, Clock } from 'lucide-react';
+import apiService from '../services/apiService';
 
-interface CreditClient {
-  name: string;
-  creditLimit: string;
-  used: string;
-  available: string;
-  lastPayment: string;
-  status: 'active' | 'warning' | 'overdue';
+interface Credit {
+  id: number;
+  cliente: string;
+  monto: number;
+  fechaVencimiento: string;
+  estado: string;
 }
 
 const CreditManagement: React.FC = () => {
-  const [selectedFilter, setSelectedFilter] = useState<string>('Presarna');
+  const [selectedFilter, setSelectedFilter] = useState<string>("Presarna");
+  const [credits, setCredits] = useState<Credit[]>([]);
 
-  const creditClients: CreditClient[] = [
-    {
-      name: 'Aphe.Emes',
-      creditLimit: '$1,000',
-      used: '$300',
-      available: '$000',
-      lastPayment: '20/0164024',
-      status: 'active'
-    },
-    {
-      name: 'Merc-Bzen',
-      creditLimit: '$1,000',
-      used: '$2,090',
-      available: '$000',
-      lastPayment: '31102/20/9',
-      status: 'warning'
-    },
-    {
-      name: 'Rick-Pand',
-      creditLimit: '$8,000',
-      used: '$400',
-      available: '$000',
-      lastPayment: '1776/2021',
-      status: 'overdue'
-    },
-    {
-      name: 'Aluxu Alioxes',
-      creditLimit: '$1,000',
-      used: '$480',
-      available: '$000',
-      lastPayment: '241119/2003',
-      status: 'active'
-    },
-    {
-      name: 'Jom Cojula',
-      creditLimit: '$1,000',
-      used: '$2,000',
-      available: '$000',
-      lastPayment: '971802/021',
-      status: 'overdue'
-    },
-    {
-      name: 'Alee Santh',
-      creditLimit: '$1,000',
-      used: '$150',
-      available: '$000',
-      lastPayment: '36/027/2027',
-      status: 'active'
-    }
-  ];
+  useEffect(() => {
+    const fetchCredits = async () => {
+      try {
+        const data = await apiService.get<Credit[]>("/creditos");
+        setCredits(data);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    };
+    fetchCredits();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -195,36 +157,23 @@ const CreditManagement: React.FC = () => {
             <table className="w-full">
               <thead className="bg-slate-700">
                 <tr>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Chuma</th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Meuta de soneto</th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Regrie Regido</th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Ssalio</th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Feran de Recienturos</th>
-                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Eclitina</th>
-                </tr>
-              </thead>
-              <tbody>
-                {creditClients.map((client, index) => (
-                  <tr key={index} className="border-b border-slate-700/50 hover:bg-slate-700/30">
-                    <td className="py-3 px-4 text-white">{client.name}</td>
-                    <td className="py-3 px-4 text-white">{client.creditLimit}</td>
-                    <td className="py-3 px-4 text-white">{client.used}</td>
-                    <td className="py-3 px-4 text-white">{client.available}</td>
-                    <td className="py-3 px-4 text-slate-300">{client.lastPayment}</td>
+                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Cliente</th>
+                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Monto</th>
+                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Fecha de Vencimiento</th>
+                  <th className="text-left py-3 px-4 text-slate-300 font-medium">Estad              <tbody>
+                {credits.map((credit) => (
+                  <tr key={credit.id} className="border-b border-slate-700/50 hover:bg-slate-700/30">
+                    <td className="py-3 px-4 text-white">{credit.cliente}</td>
+                    <td className="py-3 px-4 text-white">{credit.monto}</td>
+                    <td className="py-3 px-4 text-slate-300">{credit.fechaVencimiento}</td>
                     <td className="py-3 px-4">
-                      <span className={`${getStatusColor(client.status)} text-white px-2 py-1 rounded text-xs font-medium`}>
-                        {getStatusText(client.status)}
+                      <span className={`${getStatusColor(credit.estado)} text-white px-2 py-1 rounded text-xs font-medium`}>
+                        {credit.estado}
                       </span>
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between">
+              </tbody>tify-between">
           <div className="flex items-center space-x-2">
             <button className="bg-orange-500 text-white w-8 h-8 rounded flex items-center justify-center">
               1
