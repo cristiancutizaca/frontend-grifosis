@@ -1,0 +1,58 @@
+import { Dispensador } from "../types/dispensadores";
+
+export const initialDispensadores: Dispensador[] = [
+  {
+    id: 1,
+    surtidor_id: 1,
+    producto_id: 1,
+    tank_id: 1,
+    numero_dispensador: "D-001",
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: 2,
+    surtidor_id: 1,
+    producto_id: 1,
+    tank_id: 1,
+    numero_dispensador: "D-002",
+    created_at: "2024-01-01T00:00:00Z",
+    updated_at: "2024-01-01T00:00:00Z",
+  },
+  {
+    id: 3,
+    surtidor_id: 2,
+    producto_id: 2,
+    tank_id: 2,
+    numero_dispensador: "D-003",
+    created_at: "2024-02-01T00:00:00Z",
+    updated_at: "2024-02-01T00:00:00Z",
+  },
+  {
+    id: 4,
+    surtidor_id: 2,
+    producto_id: 2,
+    tank_id: 2,
+    numero_dispensador: "D-004",
+    created_at: "2024-02-01T00:00:00Z",
+    updated_at: "2024-02-01T00:00:00Z",
+  },
+  {
+    id: 5,
+    surtidor_id: 3,
+    producto_id: 3,
+    tank_id: 3,
+    numero_dispensador: "D-005",
+    created_at: "2024-03-01T00:00:00Z",
+    updated_at: "2024-03-01T00:00:00Z",
+  },
+  {
+    id: 6,
+    surtidor_id: 3,
+    producto_id: 3,
+    tank_id: 3,
+    numero_dispensador: "D-006",
+    created_at: "2024-03-01T00:00:00Z",
+    updated_at: "2024-03-01T00:00:00Z",
+  },
+];
