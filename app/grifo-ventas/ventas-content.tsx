@@ -118,6 +118,8 @@ const GrifoNewSale: React.FC = () => {
         clientService.getAllClients(),
         nozzleService.getAllNozzles()
       ]);
+      console.log('Nozzles del backend:', nozzlesData);
+
       const mappedClients = clientsData.map(mapClient);
       setClients(mappedClients);
       setFilteredClients(mappedClients.slice(0, 10));

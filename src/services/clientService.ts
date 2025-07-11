@@ -1,6 +1,6 @@
 import apiService from './apiService';
 
-// Ahora el tipo Client incluye TODO (lo tuyo y lo nuevo del backend)
+// Interfaz principal del cliente con campos clásicos y nuevos
 export interface Client {
   id: number;
   nombre: string;
@@ -16,7 +16,7 @@ export interface Client {
   estado: 'activo' | 'inactivo' | 'suspendido';
   fecha_registro: string;
   fecha_actualizacion: string;
-  // NUEVOS CAMPOS
+  // Nuevos campos opcionales (para edición/creación avanzada)
   first_name?: string;
   last_name?: string;
   company_name?: string;
@@ -32,7 +32,7 @@ export interface Client {
   updated_at?: string;
 }
 
-// Ahora CreateClientData incluye lo viejo + lo nuevo, ¡sin romper nada!
+// Datos requeridos para crear un cliente
 export interface CreateClientData {
   first_name?: string;
   last_name?: string;
@@ -46,61 +46,67 @@ export interface CreateClientData {
   birth_date?: string;
   notes?: string;
   client_type?: 'persona' | 'empresa';
-  // Tus campos antiguos siguen aquí:
   tipo_documento?: string;
   limite_credito?: number;
 }
 
+// Datos para actualizar un cliente (id + parcial del resto)
 export interface UpdateClientData extends Partial<CreateClientData> {
   id: number;
 }
 
-// ------------------
-// NO MODIFICAMOS LOS MÉTODOS, SOLO TIPOS
-// ------------------
-
 class ClientService {
   private endpoint = '/clients';
 
+  // Obtener todos los clientes
   async getAllClients(): Promise<Client[]> {
     return apiService.get<Client[]>(this.endpoint);
   }
 
+  // Obtener cliente por ID
   async getClientById(id: number): Promise<Client> {
     return apiService.get<Client>(`${this.endpoint}/${id}`);
   }
 
+  // Crear un nuevo cliente
   async createClient(clientData: CreateClientData): Promise<Client> {
     return apiService.post<Client>(this.endpoint, clientData);
   }
 
+  // 🧠 ACTUALIZADO: Usamos PATCH para no romper tu backend
   async updateClient(clientData: UpdateClientData): Promise<Client> {
     const { id, ...data } = clientData;
-    return apiService.put<Client>(`${this.endpoint}/${id}`, data);
+    return apiService.patch<Client>(`${this.endpoint}/${id}`, data);
   }
 
+  // Eliminar cliente
   async deleteClient(id: number): Promise<void> {
     return apiService.delete<void>(`${this.endpoint}/${id}`);
   }
 
+  // Buscar clientes por texto libre
   async searchClients(query: string): Promise<Client[]> {
     return apiService.get<Client[]>(`${this.endpoint}/search?q=${encodeURIComponent(query)}`);
   }
 
+  // Obtener clientes filtrados por tipo (persona/empresa)
   async getClientsByType(tipo: 'persona' | 'empresa'): Promise<Client[]> {
     return apiService.get<Client[]>(`${this.endpoint}?tipo_cliente=${tipo}`);
   }
 
+  // Obtener clientes que tengan crédito
   async getClientsWithCredit(): Promise<Client[]> {
     return apiService.get<Client[]>(`${this.endpoint}?con_credito=true`);
   }
 
+  // Actualizar solo el crédito de un cliente
   async updateClientCredit(id: number, nuevoLimite: number): Promise<Client> {
-    return apiService.put<Client>(`${this.endpoint}/${id}/credito`, {
+    return apiService.patch<Client>(`${this.endpoint}/${id}/credito`, {
       limite_credito: nuevoLimite
     });
   }
 
+  // Obtener historial de transacciones de un cliente
   async getClientTransactions(id: number): Promise<any[]> {
     return apiService.get<any[]>(`${this.endpoint}/${id}/transacciones`);
   }
