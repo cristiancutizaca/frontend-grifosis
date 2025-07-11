@@ -126,6 +126,25 @@ const GrifoNewSale: React.FC = () => {
     setSubtotal(sub + taxVal);
   }, [quantity, selectedFuel, discount, selectedProduct]);
 
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      const [clientsData, nozzlesData] = await Promise.all([
+        clientService.getAllClients(),
+        nozzleService.getAllNozzles()
+      ]);
+      const mappedClients = clientsData.map(mapClient);
+      setClients(mappedClients);
+      setFilteredClients(mappedClients.slice(0, 10));
+      setNozzles(nozzlesData);
+    } catch (err) {
+      setError('Error al cargar los datos iniciales');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setClientSearchTerm(`${client.nombre} ${client.apellido}`);

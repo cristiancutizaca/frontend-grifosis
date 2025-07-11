@@ -35,9 +35,7 @@ class NozzleService {
   createNozzle(data: CreateNozzleData) {
     return apiService.post<Nozzle>(this.endpoint, data);
   }
-  updateNozzle({ id, ...data }: UpdateNozzleData) {
-    return apiService.put<Nozzle>(`${this.endpoint}/${id}`, data);
-  }
+  
   deleteNozzle(id: number) {
     return apiService.delete<void>(`${this.endpoint}/${id}`);
   }

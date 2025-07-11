@@ -103,11 +103,11 @@ class SaleService {
   }
 
   async updateSale(id: number, saleData: Partial<CreateSaleData>): Promise<Sale> {
-    return apiService.put<Sale>(`${this.endpoint}/${id}`, saleData);
+    return apiService.patch<Sale>(`${this.endpoint}/${id}`, saleData);
   }
 
   async cancelSale(id: number, reason: string): Promise<Sale> {
-    return apiService.put<Sale>(`${this.endpoint}/${id}/cancel`, { reason });
+    return apiService.patch<Sale>(`${this.endpoint}/${id}/cancel`, { reason });
   }
 
   async getSalesHistory(filters?: SaleFilters): Promise<{

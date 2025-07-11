@@ -76,17 +76,17 @@ class CreditService {
   }
 
   async updateCreditLimit(id: number, nuevoLimite: number): Promise<Credit> {
-    return apiService.put<Credit>(`${this.endpoint}/${id}/limite`, {
+    return apiService.patch<Credit>(`${this.endpoint}/${id}/limite`, {
       limite_credito: nuevoLimite
     });
   }
 
   async suspendCredit(id: number): Promise<Credit> {
-    return apiService.put<Credit>(`${this.endpoint}/${id}/suspender`, {});
+    return apiService.patch<Credit>(`${this.endpoint}/${id}/suspender`, {});
   }
 
   async activateCredit(id: number): Promise<Credit> {
-    return apiService.put<Credit>(`${this.endpoint}/${id}/activar`, {});
+    return apiService.patch<Credit>(`${this.endpoint}/${id}/activar`, {});
   }
 
   async deleteCredit(id: number): Promise<void> {
@@ -116,7 +116,7 @@ class CreditService {
   }
 
   async resolveAlert(alertId: number): Promise<CreditAlert> {
-    return apiService.put<CreditAlert>(`${this.endpoint}/alertas/${alertId}/resolver`, {});
+    return apiService.patch<CreditAlert>(`${this.endpoint}/alertas/${alertId}/resolver`, {});
   }
 
   // Estadísticas

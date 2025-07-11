@@ -93,9 +93,9 @@ class InventoryService {
     return apiService.post<Product>(`${this.endpoint}/productos`, productData);
   }
 
-  async updateProduct(id: number, productData: Partial<CreateProductData>): Promise<Product> {
-    return apiService.put<Product>(`${this.endpoint}/productos/${id}`, productData);
-  }
+  // async updateProduct(id: number, productData: Partial<CreateProductData>): Promise<Product> {
+  //   return apiService.put<Product>(`${this.endpoint}/productos/${id}`, productData);
+  // }
 
   async deleteProduct(id: number): Promise<void> {
     return apiService.delete<void>(`${this.endpoint}/productos/${id}`);
@@ -143,9 +143,9 @@ class InventoryService {
     return apiService.get<Tank>(`${this.endpoint}/tanques/${id}`);
   }
 
-  async updateTankLevel(id: number, tankData: UpdateTankData): Promise<Tank> {
-    return apiService.put<Tank>(`${this.endpoint}/tanques/${id}/nivel`, tankData);
-  }
+  // async updateTankLevel(id: number, tankData: UpdateTankData): Promise<Tank> {
+  //   return apiService.put<Tank>(`${this.endpoint}/tanques/${id}/nivel`, tankData);
+  // }
 
   async getTanksByProduct(productId: number): Promise<Tank[]> {
     return apiService.get<Tank[]>(`${this.endpoint}/tanques?producto_id=${productId}`);
@@ -164,9 +164,9 @@ class InventoryService {
     return apiService.get<InventoryAlert[]>(`${this.endpoint}/alertas?estado=activa`);
   }
 
-  async resolveAlert(alertId: number): Promise<InventoryAlert> {
-    return apiService.put<InventoryAlert>(`${this.endpoint}/alertas/${alertId}/resolver`, {});
-  }
+  // async resolveAlert(alertId: number): Promise<InventoryAlert> {
+  //   return apiService.put<InventoryAlert>(`${this.endpoint}/alertas/${alertId}/resolver`, {});
+  // }
 
   // Reportes y estadísticas
   async getInventoryReport(filters?: {
