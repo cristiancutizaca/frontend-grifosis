@@ -8,17 +8,8 @@ export interface Nozzle {
   estado: 'activo' | 'inactivo' | 'mantenimiento';
   fecha_creacion: string;
   fecha_actualizacion: string;
-  bomba?: {
-    id: number;
-    numero: string;
-    estado: string;
-  };
-  producto?: {
-    id: number;
-    nombre: string;
-    precio: number;
-    tipo: string;
-  };
+  bomba?: { id: number; numero: string; estado: string };
+  producto?: { id: number; nombre: string; precio: number; tipo: string };
 }
 
 export interface CreateNozzleData {
@@ -35,38 +26,28 @@ export interface UpdateNozzleData extends Partial<CreateNozzleData> {
 class NozzleService {
   private endpoint = '/nozzles';
 
-  async getAllNozzles(): Promise<Nozzle[]> {
-    const data = await apiService.get<Nozzle[]>(this.endpoint);
-    console.log('Nozzles from API:', data); // <-- Aquí pon el console.log
-    return data;
+  getAllNozzles() {
+    return apiService.get<Nozzle[]>(this.endpoint);
   }
-
-  async getNozzleById(id: number): Promise<Nozzle> {
+  getNozzleById(id: number) {
     return apiService.get<Nozzle>(`${this.endpoint}/${id}`);
   }
-
-  async createNozzle(nozzleData: CreateNozzleData): Promise<Nozzle> {
-    return apiService.post<Nozzle>(this.endpoint, nozzleData);
+  createNozzle(data: CreateNozzleData) {
+    return apiService.post<Nozzle>(this.endpoint, data);
   }
-
-  async updateNozzle(nozzleData: UpdateNozzleData): Promise<Nozzle> {
-    const { id, ...data } = nozzleData;
+  updateNozzle({ id, ...data }: UpdateNozzleData) {
     return apiService.put<Nozzle>(`${this.endpoint}/${id}`, data);
   }
-
-  async deleteNozzle(id: number): Promise<void> {
+  deleteNozzle(id: number) {
     return apiService.delete<void>(`${this.endpoint}/${id}`);
   }
-
-  async getNozzlesByPump(pumpId: number): Promise<Nozzle[]> {
+  getNozzlesByPump(pumpId: number) {
     return apiService.get<Nozzle[]>(`${this.endpoint}?bomba_id=${pumpId}`);
   }
-
-  async getActiveNozzles(): Promise<Nozzle[]> {
+  getActiveNozzles() {
     return apiService.get<Nozzle[]>(`${this.endpoint}?estado=activo`);
   }
-
-  async getNozzlesByProduct(productId: number): Promise<Nozzle[]> {
+  getNozzlesByProduct(productId: number) {
     return apiService.get<Nozzle[]>(`${this.endpoint}?producto_id=${productId}`);
   }
 }

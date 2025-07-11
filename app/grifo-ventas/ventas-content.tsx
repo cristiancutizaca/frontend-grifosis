@@ -1,16 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-// import FuelButton from '../../src/components/FuelButton'; // Comentar temporalmente
 import { User, CreditCard, DollarSign, Fuel } from 'lucide-react';
-// Importar servicios del backend - USAR LOS REALES
 import saleService, { CreateSaleData } from '../../src/services/saleService';
 import clientService, { Client } from '../../src/services/clientService';
 import nozzleService, { Nozzle } from '../../src/services/nozzleService';
 
-// Eliminar imports no usados:
-// import { ArrowLeft, ClipboardList, Search, Plus } from 'lucide-react';
-// import Select from 'react-select';
 const mapClient = (c: any) => ({
   ...c,
   nombre: c.nombre || c.first_name || '',
@@ -30,14 +25,20 @@ interface Product {
   tipo: string;
 }
 
-// Remover SaleFormData duplicada, usar CreateSaleData del servicio
+const validFuels = ['Diesel','Premium','Regular'] as const;
+
+function toFuelType(name: string): FuelType {
+  return validFuels.includes(name as any)
+    ? (name as FuelType)
+    : 'Regular';        // valor por defecto si viene inesperado
+}
 
 const GrifoNewSale: React.FC = () => {
-  // Estados del formulario original
+  // Estados principales
   const [selectedFuel, setSelectedFuel] = useState<FuelType>('Premium');
   const [quantity, setQuantity] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<string>('efectivo');
-  const [selectedNozzle, setSelectedNozzle] = useState<string>('1');
+  const [selectedNozzle, setSelectedNozzle] = useState<string>('');
   const [discount, setDiscount] = useState<string>('0');
   const [observations, setObservations] = useState<string>('');
   const [taxRate, setTaxRate] = useState<number>(0.18);
@@ -45,7 +46,7 @@ const GrifoNewSale: React.FC = () => {
   const [subtotal, setSubtotal] = useState<number>(0);
   const [showClientSearch, setShowClientSearch] = useState<boolean>(true);
 
-  // Estados para datos del servidor - USAR LAS INTERFACES REALES
+  // Datos del backend
   const [clients, setClients] = useState<Client[]>([]);
   const [nozzles, setNozzles] = useState<Nozzle[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
@@ -54,31 +55,46 @@ const GrifoNewSale: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedNozzleObj, setSelectedNozzleObj] = useState<Nozzle | null>(null);
 
-  // Estados de UI
+  // UI
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Productos disponibles (esto debería venir de una API también)
+  // Productos
   const [products] = useState<Product[]>([
     { id: 1, nombre: 'Diesel', precio: 3.00, tipo: 'diesel' },
     { id: 2, nombre: 'Premium', precio: 4.01, tipo: 'gasolina' },
     { id: 3, nombre: 'Regular', precio: 4.00, tipo: 'gasolina' },
   ]);
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const recentSales = [
-    { client: 'Cahez Salurias', amount: 'S/ 33.05', status: 'completed' },
-    { client: 'Malta Rertandez', amount: 'S/ 30.00', status: 'cancelled' },
-  ];
+  // Ventas recientes
+  const [recentSales, setRecentSales] = useState<any[]>([]);
+  const [loadingRecentSales, setLoadingRecentSales] = useState(false);
 
-  // Cargar datos iniciales del backend
+  // Cargar datos iniciales
   useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        setLoading(true);
+        const [clientsData, nozzlesData] = await Promise.all([
+          clientService.getAllClients(),
+          nozzleService.getActiveNozzles()    // <— sólo activas
+        ]);
+        const mappedClients = clientsData.map(mapClient);
+        setClients(mappedClients);
+        setFilteredClients(mappedClients.slice(0, 10));
+        setNozzles(nozzlesData);
+      } catch (err) {
+        setError('Error al cargar los datos iniciales');
+      } finally {
+        setLoading(false);
+      }
+    };
     loadInitialData();
   }, []);
 
-  // Filtrar clientes cuando cambia el término de búsqueda
+  // Filtrar clientes
   useEffect(() => {
     if (clientSearchTerm.trim() === '') {
       setFilteredClients(clients.slice(0, 10));
@@ -97,7 +113,6 @@ const GrifoNewSale: React.FC = () => {
     const price = selectedProduct?.precio || 0;
     const desc = Number(discount) || 0;
 
-    // Define la tasa según el combustible
     let tax = 0.18;
     if (selectedFuel === 'Diesel') tax = 0.12;
     else if (selectedFuel === 'Premium') tax = 0.18;
@@ -111,41 +126,35 @@ const GrifoNewSale: React.FC = () => {
     setSubtotal(sub + taxVal);
   }, [quantity, selectedFuel, discount, selectedProduct]);
 
-  const loadInitialData = async () => {
-    try {
-      setLoading(true);
-      const [clientsData, nozzlesData] = await Promise.all([
-        clientService.getAllClients(),
-        nozzleService.getAllNozzles()
-      ]);
-      const mappedClients = clientsData.map(mapClient);
-      setClients(mappedClients);
-      setFilteredClients(mappedClients.slice(0, 10));
-      setNozzles(nozzlesData);
-    } catch (err) {
-      setError('Error al cargar los datos iniciales');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setClientSearchTerm(`${client.nombre} ${client.apellido}`);
     setShowClientDropdown(false);
   };
 
-  const handleProductSelect = (product: Product) => {
-    setSelectedProduct(product);
-    setSelectedFuel(product.nombre as FuelType);
+  const handleProductSelect = (productId: string) => {
+    const product = products.find(prod => prod.id === Number(productId));
+    if (product) {
+      setSelectedProduct(product);
+      setSelectedFuel(product.nombre as FuelType);
+    }
   };
 
   const handleNozzleSelect = (nozzleId: string) => {
     setSelectedNozzle(nozzleId);
-    const nozzle = nozzles.find(n => n.id === parseInt(nozzleId));
-    if (nozzle) {
-      setSelectedNozzleObj(nozzle);
+    const nozzle = nozzles.find(n => String(n.id) === nozzleId);
+    if (!nozzle) return;
+    setSelectedNozzleObj(nozzle);
+
+    // Actualizamos el combustible y producto según la boquilla
+    if (nozzle.producto) {
+      setSelectedFuel(nozzle.producto.nombre as FuelType);
+      setSelectedProduct({
+        id: nozzle.producto.id,
+        nombre: toFuelType(nozzle.producto.nombre),
+        precio: nozzle.producto.precio,
+        tipo: nozzle.producto.tipo
+      });
     }
   };
 
@@ -194,16 +203,11 @@ const GrifoNewSale: React.FC = () => {
         notes: observations
       };
 
-      console.log('Enviando venta:', saleData);
       await saleService.createSale(saleData);
       setSuccess('Venta registrada exitosamente');
-
-      // Limpiar formulario
       resetForm();
-
     } catch (err) {
       setError('Error al registrar la venta');
-      console.error('Error creating sale:', err);
     } finally {
       setLoading(false);
     }
@@ -217,7 +221,7 @@ const GrifoNewSale: React.FC = () => {
     setQuantity('');
     setDiscount('0');
     setObservations('');
-    setSelectedNozzle('1');
+    setSelectedNozzle('');
     setPaymentMethod('efectivo');
   };
 
@@ -226,6 +230,24 @@ const GrifoNewSale: React.FC = () => {
       resetForm();
     }
   };
+
+  // Cargar ventas recientes del backend
+  useEffect(() => {
+    const fetchRecentSales = async () => {
+      setLoadingRecentSales(true);
+      try {
+        const sales = await saleService.getRecentSales(10);
+        setRecentSales(sales);
+      } catch (err) {
+        setRecentSales([]);
+      } finally {
+        setLoadingRecentSales(false);
+      }
+    };
+    fetchRecentSales();
+    const interval = setInterval(fetchRecentSales, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading && clients.length === 0) {
     return (
@@ -351,44 +373,73 @@ const GrifoNewSale: React.FC = () => {
       {/* Segunda fila: tipo de combustible con nozzles del backend */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-8 shadow flex flex-col gap-6 justify-center items-center w-full md:col-span-2">
-          <div className="w-full flex flex-row items-center justify-between gap-2 mb-2">
+          {/* Tipo de combustible */}
+          <div className="w-full flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2 m-0">
               <Fuel size={22} className="text-yellow-400" />
               Tipo de combustible
             </h3>
-            <div className="flex gap-0">
-              {nozzles.filter(n => n.estado === 'activo').slice(0, 3).map((nozzle, idx) => (
-                <button
-                  key={nozzle.id}
-                  onClick={() => handleNozzleSelect(nozzle.id.toString())}
-                  className={`px-3 py-1.5 rounded-md font-semibold text-sm transition-colors ${selectedNozzle === nozzle.id.toString()
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                    } ${idx !== 0 ? 'ml-[-1px]' : ''}`}
-                >
-                  Boquilla {nozzle.numero}
-                </button>
-              ))}
+            <div className="flex gap-2">
+              {nozzles.map((nozzle, idx) => {
+                const idStr = String(nozzle.id);
+                const label = idx + 1;                  // Surtidor 1, 2, 3…
+                return (
+                  <button
+                    key={idStr}
+                    onClick={() => handleNozzleSelect(idStr)}
+                    className={`
+                      px-4 py-2 text-sm font-bold transition-colors
+                      ${selectedNozzle === idStr
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}
+                    `}
+                  >
+                    Surtidor {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
-
-          {/* Botones de combustible del backend */}
           <div className="flex gap-4 mt-8 justify-center">
             {products.map((product) => {
+              // Buscar si el producto está conectado al surtidor seleccionado
+              const isActive =
+                selectedNozzleObj &&
+                product.nombre.toLowerCase() === (selectedNozzleObj.producto?.nombre || '').toLowerCase();
+
               let bg = '';
               if (product.nombre === 'Regular') {
-                bg = selectedProduct?.id === product.id ? 'bg-red-500 text-white' : 'bg-slate-700 text-red-300';
+                bg = isActive && selectedProduct?.id === product.id
+                  ? 'bg-red-500 text-white'
+                  : isActive
+                  ? 'bg-red-500/80 text-white'
+                  : 'bg-slate-700 text-red-300 opacity-50';
               } else if (product.nombre === 'Premium') {
-                bg = selectedProduct?.id === product.id ? 'bg-green-700 text-white' : 'bg-slate-700 text-green-300';
+                bg = isActive && selectedProduct?.id === product.id
+                  ? 'bg-green-700 text-white'
+                  : isActive
+                  ? 'bg-green-700/80 text-white'
+                  : 'bg-slate-700 text-green-300 opacity-50';
               } else if (product.nombre === 'Diesel') {
-                bg = selectedProduct?.id === product.id ? 'bg-purple-700 text-white' : 'bg-slate-700 text-purple-300';
+                bg = isActive && selectedProduct?.id === product.id
+                  ? 'bg-purple-700 text-white'
+                  : isActive
+                  ? 'bg-purple-700/80 text-white'
+                  : 'bg-slate-700 text-purple-300 opacity-50';
               }
+
               return (
                 <button
                   key={product.id}
-                  onClick={() => handleProductSelect(product)}
+                  onClick={() => {
+                    if (isActive) {
+                      setSelectedProduct(product);
+                      setSelectedFuel(product.nombre as FuelType);
+                    }
+                  }}
                   className={`flex flex-col items-center justify-center rounded-xl transition-all duration-200 font-bold text-2xl w-48 h-48 gap-4 border border-slate-600 hover:scale-105 ${bg}`}
                   style={{ minWidth: '192px', minHeight: '192px' }}
+                  disabled={!isActive}
                 >
                   <Fuel size={48} />
                   {product.nombre}
@@ -396,6 +447,20 @@ const GrifoNewSale: React.FC = () => {
               );
             })}
           </div>
+          {/* Conexiones visuales */}
+          {selectedNozzleObj && (
+            <div className="mt-8 w-full">
+              <h4 className="text-white font-bold flex items-center gap-2 mb-2">
+                <Fuel size={18} className="text-orange-500" />
+                Conexiones
+              </h4>
+              <div className="flex gap-2">
+                <span className="px-3 py-1 rounded bg-red-900/80 text-red-200 font-semibold text-sm">Regular</span>
+                <span className="px-3 py-1 rounded bg-green-900/80 text-green-200 font-semibold text-sm">Premium</span>
+                <span className="px-3 py-1 rounded bg-purple-900/80 text-purple-200 font-semibold text-sm">Diesel</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Precios de combustible del backend */}
@@ -436,7 +501,7 @@ const GrifoNewSale: React.FC = () => {
         <div className="bg-slate-800 border border-slate-600 rounded-xl flex flex-col items-center justify-center py-6 px-4 shadow-sm">
           <span className="text-base text-slate-400 mb-1">Precio unitario</span>
           <span className="text-xl font-bold text-green-400">
-            S/ {selectedProduct?.precio.toFixed(2) || '0.00'}
+            S/ {(selectedProduct?.precio ?? 0).toFixed(2)}
           </span>
         </div>
 
@@ -533,25 +598,50 @@ const GrifoNewSale: React.FC = () => {
               <DollarSign size={20} className="text-green-400" />
               Ventas recientes
             </h3>
-            <span className="text-lg font-semibold text-white">Estado</span>
+            <button
+              onClick={() => {
+                setLoadingRecentSales(true);
+                saleService.getRecentSales(10).then(setRecentSales).finally(() => setLoadingRecentSales(false));
+              }}
+              className="px-3 py-1 bg-slate-700 rounded text-xs text-white"
+              disabled={loadingRecentSales}
+            >
+              {loadingRecentSales ? 'Actualizando...' : 'Actualizar'}
+            </button>
           </div>
           <div className="space-y-4">
-            {recentSales.map((sale, index) => (
+            {recentSales.length === 0 && (
+              <div className="text-slate-400 text-center py-4">
+                {loadingRecentSales ? 'Cargando ventas...' : 'No hay ventas recientes'}
+              </div>
+            )}
+            {recentSales.map((sale: any) => (
               <div
-                key={index}
+                key={sale.id}
                 className="grid grid-cols-3 items-center py-2"
               >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-slate-600 rounded-full"></div>
-                  <span className="text-slate-300 text-base">{sale.client}</span>
+                  <div className="w-8 h-8 bg-slate-600 rounded-full flex items-center justify-center text-white font-bold">
+                    {sale.client?.charAt(0)?.toUpperCase() || 'C'}
+                  </div>
+                  <span className="text-slate-300 text-base">{sale.client || 'Sin cliente'}</span>
                 </div>
-                <div className="text-green-400 text-lg text-center">{sale.amount}</div>
+                <div className="text-green-400 text-lg text-center">
+                  S/ {sale.amount || sale.total_amount || '0.00'}
+                </div>
                 <div className="flex justify-end">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${sale.status === 'completed'
+                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    sale.status === 'completed'
                       ? 'bg-green-700 text-white'
+                      : sale.status === 'pending'
+                      ? 'bg-yellow-700 text-white'
                       : 'bg-red-700 text-white'
-                    }`}>
-                    {sale.status === 'completed' ? 'Completada' : 'Cancelada'}
+                  }`}>
+                    {sale.status === 'completed'
+                      ? 'Completada'
+                      : sale.status === 'pending'
+                      ? 'Pendiente'
+                      : 'Cancelada'}
                   </span>
                 </div>
               </div>

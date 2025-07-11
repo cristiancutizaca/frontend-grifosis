@@ -205,6 +205,11 @@ class SaleService {
     
     return apiService.get(url);
   }
+
+  async getRecentSales(limit: number): Promise<Sale[]> {
+    // Usa apiService para que respete la baseURL y el manejo de errores
+    return apiService.get<Sale[]>(`${this.endpoint}?limit=${limit}`);
+  }
 }
 
 export default new SaleService();
