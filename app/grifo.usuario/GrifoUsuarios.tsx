@@ -2,10 +2,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import AddEmployeeModal from './modal/AddEmployeeModal'
-import EditEmployeeModal from './modal/EditEmployeeModal'
+import EditUserModal from './modal/EditUserModal'
 
-const GrifoEmpleados: React.FC = () => {
+const GrifoUsuarios: React.FC = () => {
     interface Employee {
         id: number;
         dni: string;
@@ -26,7 +25,7 @@ const GrifoEmpleados: React.FC = () => {
         updatedAt?: string;
     }
 
-    // Datos de ejemplo para los empleados
+    // Datos de ejemplo para los empleados (necesarios para relacionar usuarios con empleados)
     const [employees, setEmployees] = useState<Employee[]>([
         { id: 1, dni: '12345678', name: 'Juan', paternalName: 'Pérez', maternalName: 'Gonzales', role: 'Vendedor', birthDate: '1990-05-10', address: 'Av. Siempre Viva 123', telefono: '900000001', email: 'juan.perez@email.com', hireDate: '2023-01-15', terminationDate: null, filePath: '', status: 'Activo', createdAt: '2023-01-15T08:00:00Z', updatedAt: '2023-01-15T08:00:00Z', },
         { id: 2, dni: '23456789', name: 'María', paternalName: 'García', maternalName: 'Fernández', role: 'Administrador', birthDate: '1985-09-20', address: 'Calle Falsa 456', telefono: '900000002', email: 'maria.garcia@email.com', hireDate: '2022-07-01', terminationDate: null, filePath: '', status: 'Activo', createdAt: '2022-07-01T08:00:00Z', updatedAt: '2022-07-01T08:00:00Z', },
@@ -39,48 +38,60 @@ const GrifoEmpleados: React.FC = () => {
     const [roleFilter, setRoleFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // Estado para simular la edición de un empleado 
-    const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+    // Datos de ejemplo para los usuarios
+    interface User {
+        id: number;
+        employee_id: number;
+        user_name: string;
+        password: string;
+        role: string;
+        status: 'Activo' | 'Inactivo';
+        createdAt?: string;
+        updatedAt?: string;
+        permissionsObj?: {
+            [modulo: string]: ('view' | 'create' | 'edit' | 'delete')[];
+        };
+    }
 
-    // Estado para el modal de agregar empleado
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [users, setUsers] = useState<User[]>([
+        { id: 1, employee_id: 1, user_name: 'JuanPérez', password: 'juan.perez', role: 'Administrador', status: 'Activo', createdAt: '2023-01-15T08:00:00Z', updatedAt: '2023-06-10T10:00:00Z' },
+        { id: 2, employee_id: 2, user_name: 'MaríaGarcía', password: 'maria.garcia', role: 'Vendedor', status: 'Activo', createdAt: '2023-02-20T09:30:00Z', updatedAt: '2023-05-05T14:45:00Z' },
+        { id: 3, employee_id: 3, user_name: 'CarlosRuiz', password: 'carlos.ruiz', role: 'Vendedor', status: 'Inactivo', createdAt: '2022-12-01T11:20:00Z', updatedAt: '2023-01-01T16:10:00Z' }
+    ]);
 
-    const handleEditClick = (employee: Employee) => {
-        setEditingEmployee(employee);
+    // Filtrar usuarios
+    const filteredUsers = users.filter(user => {
+        const relatedEmployee = employees.find(emp => emp.id === user.employee_id);
+        const matchesSearch =
+            user.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (relatedEmployee && (
+                relatedEmployee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                relatedEmployee.paternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                relatedEmployee.maternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                relatedEmployee.dni.includes(searchTerm) ||
+                relatedEmployee.email.toLowerCase().includes(searchTerm.toLowerCase())
+            ));
+        const matchesRole = roleFilter === '' || user.role === roleFilter;
+        const matchesStatus = statusFilter === '' || user.status === statusFilter;
+        return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+
+    const handleEditUser = (user: User) => {
+        setEditingUser(user);
     };
 
-    const handleCancelEdit = () => {
-        setEditingEmployee(null);
-    };
-
-    const handleAddEmployee = () => {
-        setShowAddModal(true);
-    };
-
-    const handleSaveEmployee = (employee: Employee) => {
-        setEmployees([...employees, employee]);
-    };
-
-    const handleUpdateEmployee = (updatedEmployee: Employee) => {
-        setEmployees(employees.map(emp =>
-            emp.id === updatedEmployee.id ? updatedEmployee : emp
+    const handleUpdateUser = (updatedUser: User) => {
+        setUsers(users.map(u => 
+            u.id === updatedUser.id ? updatedUser : u
         ));
     };
 
-    // Filtrar empleados
-    const filteredEmployees = employees.filter(emp => {
-        const matchesSearch =
-            emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            emp.paternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            emp.maternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            emp.dni.includes(searchTerm) ||
-            emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesRole = roleFilter === '' || emp.role === roleFilter;
-        const matchesStatus = statusFilter === '' || emp.status === statusFilter;
-
-        return matchesSearch && matchesRole && matchesStatus;
-    });
+    const handleDeleteUser = (userId: number) => {
+        // Implementar lógica de eliminación de usuario aquí
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+    };
 
     // Componente para el icono de búsqueda (simulado)
     const SearchIcon = () => (
@@ -118,7 +129,7 @@ const GrifoEmpleados: React.FC = () => {
 
     return (
         <div className="p-3 sm:p-4 lg:p-6 bg-slate-900 min-h-screen space-y-4 lg:space-y-6">
-            {/* Empleados */}
+            {/* Usuarios */}
             <div>
                 {/* Header */}
                 <div className="bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
@@ -127,33 +138,33 @@ const GrifoEmpleados: React.FC = () => {
                             <UsersIcon />
                         </div>
                         <div>
-                            <h1 className="text-2xl lg:text-3xl font-bold text-white">Gestión de Empleados</h1>
-                            <p className="text-sm text-slate-400">Administra el personal del grifo</p>
+                            <h1 className="text-2xl lg:text-3xl font-bold text-white">Gestión de Usuarios</h1>
+                            <p className="text-sm text-slate-400">Administra los usuarios del sistema</p>
                         </div>
                     </div>
-
+                    
                     {/* Stats Cards */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-white">{employees.length}</div>
-                            <div className="text-sm text-slate-400">Total Empleados</div>
+                            <div className="text-2xl font-bold text-white">{users.length}</div>
+                            <div className="text-sm text-slate-400">Total Usuarios</div>
                         </div>
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-green-400">{employees.filter(e => e.status === 'Activo').length}</div>
+                            <div className="text-2xl font-bold text-green-400">{users.filter(e => e.status === 'Activo').length}</div>
                             <div className="text-sm text-slate-400">Activos</div>
                         </div>
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-red-400">{employees.filter(e => e.status === 'Inactivo').length}</div>
+                            <div className="text-2xl font-bold text-red-400">{users.filter(e => e.status === 'Inactivo').length}</div>
                             <div className="text-sm text-slate-400">Inactivos</div>
                         </div>
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-blue-400">{employees.filter(e => e.role === 'Administrador').length}</div>
+                            <div className="text-2xl font-bold text-blue-400">{users.filter(e => e.role === 'Administrador').length}</div>
                             <div className="text-sm text-slate-400">Administradores</div>
                         </div>
                     </div>
-                </div>
+                </div>        
 
-                {/* Main Content */}
+                {/* Body Content */}
                 <div className="bg-slate-800 rounded-2xl p-4 lg:p-6 border border-slate-700">
                     {/* Controles superiores */}
                     <div className="flex flex-col lg:flex-row items-center gap-3 mb-6">
@@ -161,7 +172,7 @@ const GrifoEmpleados: React.FC = () => {
                         <div className="relative flex-1 w-full">
                             <input
                                 type="text"
-                                placeholder="Buscar empleado por nombre, DNI o email..."
+                                placeholder="Buscar usuario nombre"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 text-sm rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white placeholder-slate-400"
@@ -174,7 +185,7 @@ const GrifoEmpleados: React.FC = () => {
                         {/* Filtros */}
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                             <div className="relative">
-                                <select
+                                <select 
                                     value={roleFilter}
                                     onChange={(e) => setRoleFilter(e.target.value)}
                                     className="w-full sm:w-auto pl-10 pr-8 py-3 text-sm rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white appearance-none cursor-pointer min-w-[160px]"
@@ -195,7 +206,7 @@ const GrifoEmpleados: React.FC = () => {
                             </div>
 
                             <div className="relative">
-                                <select
+                                <select 
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                     className="w-full sm:w-auto pl-10 pr-8 py-3 text-sm rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white appearance-none cursor-pointer min-w-[160px]"
@@ -217,108 +228,78 @@ const GrifoEmpleados: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Botón Agregar */}
-                        <button
-                            onClick={handleAddEmployee}
-                            className="group relative w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3.5 px-8 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-orange-500/30 min-w-[200px] transform hover:scale-105 active:scale-95"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </div>
-                                <span className="text-sm font-bold tracking-wide">Agregar Empleado</span>
-                            </div>
-
-                            {/* Efecto de brillo */}
-                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300"></div>
-
-                            {/* Borde animado */}
-                            <div className="absolute inset-0 rounded-xl border border-orange-300/20 group-hover:border-orange-300/40 transition-colors"></div>
-                        </button>
                     </div>
 
-                    {/* Tabla de empleados */}
-                    <div className={`${filteredEmployees.length > 6 ? 'max-h-[500px] overflow-y-auto' : ''} overflow-x-auto rounded-lg border border-slate-600`}>
+                    {/* Tabla de usuarios */}
+                    <div className={`${filteredUsers.length > 6 ? 'max-h-[500px] overflow-y-auto' : ''} overflow-x-auto rounded-lg border border-slate-600`}>
                         <table className="min-w-full divide-y divide-slate-600">
                             <thead className="bg-slate-700/50">
                                 <tr className="sticky top-0 z-10 bg-slate-700/50 backdrop-blur">
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Empleado</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">DNI</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Contacto</th>
+                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Usuario</th>
+                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Correo</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rol</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Estado</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Fecha Ingreso</th>
                                     <th className="px-6 py-4 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-slate-800 divide-y divide-slate-700">
-                                {filteredEmployees.map((emp) => (
-                                    <tr key={emp.id} className="hover:bg-slate-700/30 transition-colors">
+                                {filteredUsers.map((user) => (
+                                    <tr key={user.id} className="hover:bg-slate-700/30 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center">
                                                 <div className="flex-shrink-0 h-10 w-10">
                                                     <div className="h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
                                                         <span className="text-sm font-medium text-white">
-                                                            {emp.name.charAt(0)}{emp.paternalName.charAt(0)}
+                                                            {user.user_name.charAt(0)}
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="ml-4">
-                                                    <div className="text-sm font-medium text-white">
-                                                        {emp.name} {emp.paternalName} {emp.maternalName}
-                                                    </div>
+                                            </div>
+                                            <div className="text-sm text-slate-400">{user.user_name}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="ml-4">
+                                                <div className="text-sm font-medium text-white">
+                                                    {(() => {
+                                                        const relatedEmployee = employees.find(emp => emp.id === user.employee_id);
+                                                        return relatedEmployee ? relatedEmployee.email : 'Correo no encontrado';
+                                                    })()}
                                                 </div>
                                             </div>
                                         </td>
-
-                                        <td>
-                                            <div className="text-sm text-slate-400">{emp.dni}</div>
-                                        </td>
-
                                         <td className="px-6 py-4">
-                                            <div className="text-sm text-white">{emp.email}</div>
-                                            <div className="text-sm text-slate-400">{emp.telefono}</div>
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${emp.role === 'Administrador'
-                                                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                                    : emp.role === 'Super Admin'
-                                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                                                        : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                                }`}>
-                                                {emp.role}
+                                            <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
+                                                user.role === 'Administrador' 
+                                                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                                                    : user.role === 'Super Admin'
+                                                    ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                                                    : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                                            }`}>
+                                                {user.role}
                                             </span>
                                         </td>
-
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${emp.status === 'Activo'
-                                                    ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                            <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
+                                                user.status === 'Activo' 
+                                                    ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
                                                     : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                                                }`}>
-                                                {emp.status}
+                                            }`}>
+                                                {user.status}
                                             </span>
                                         </td>
-
-                                        <td className="px-6 py-4 text-sm text-slate-300">
-                                            {new Date(emp.hireDate).toLocaleDateString('es-PE')}
-                                        </td>
-
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-center gap-3">
-                                                <button
-                                                    onClick={() => handleEditClick(emp)}
+                                                <button 
+                                                    onClick={() => handleEditUser(user)} 
                                                     className="p-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 transition-colors"
-                                                    title="Editar empleado"
+                                                    title="Editar usuario"
                                                 >
                                                     <EditIcon />
                                                 </button>
-                                                <button
+                                                <button 
+                                                    onClick={() => handleDeleteUser(user.id)}
                                                     className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
-                                                    title="Eliminar empleado"
+                                                    title="Eliminar usuario"
                                                 >
                                                     <DeleteIcon />
                                                 </button>
@@ -326,42 +307,31 @@ const GrifoEmpleados: React.FC = () => {
                                         </td>
                                     </tr>
                                 ))}
-
                             </tbody>
                         </table>
                     </div>
 
                     {/* Mensaje cuando no hay resultados */}
-                    {filteredEmployees.length === 0 && (
+                    {filteredUsers.length === 0 && (
                         <div className="text-center py-12">
-                            <div className="text-slate-400 text-lg mb-2">No se encontraron empleados</div>
+                            <div className="text-slate-400 text-lg mb-2">No se encontraron usuarios</div>
                             <div className="text-slate-500 text-sm">Prueba ajustando los filtros de búsqueda</div>
                         </div>
                     )}
                 </div>
 
-                {/* Modal Agregar Empleado */}
-                <AddEmployeeModal
-                    isOpen={showAddModal}
-                    onClose={() => setShowAddModal(false)}
-                    onSave={handleSaveEmployee}
-                    employees={employees}
+                {/* Modal Editar Usuario */}
+                <EditUserModal 
+                    user={editingUser}
+                    onClose={() => setEditingUser(null)}
+                    onSave={handleUpdateUser}
                 />
-
-                {/* Modal Editar Empleado */}
-                {editingEmployee && (
-                    <EditEmployeeModal
-                        employee={editingEmployee}
-                        onClose={handleCancelEdit}
-                        onSave={handleUpdateEmployee}
-                    />
-                )}
 
             </div>
         </div>
     )
 }
 
-export default GrifoEmpleados
+export default GrifoUsuarios
 
 
