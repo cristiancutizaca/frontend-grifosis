@@ -73,7 +73,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         const storedMode = typeof window !== "undefined" ? sessionStorage.getItem('app_mode') : currentMode;
         
         if (!token) {
-          router.push('/login');
+          router.push('/');
           return;
         }
 
@@ -148,7 +148,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleLogout = () => {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('app_mode');
-    router.push('/login');
+    router.push('/');
   };
 
   const toggleAppMode = () => {
