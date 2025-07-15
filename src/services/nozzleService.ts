@@ -1,52 +1,36 @@
-import apiService from './apiService';
+import api from './apiService';
 
 export interface Nozzle {
   id: number;
   numero: string;
   bomba_id: number;
-  producto_id: number;
-  estado: 'activo' | 'inactivo' | 'mantenimiento';
-  fecha_creacion: string;
-  fecha_actualizacion: string;
-  bomba?: { id: number; numero: string; estado: string };
-  producto?: { id: number; nombre: string; precio: number; tipo: string };
-}
-
-export interface CreateNozzleData {
-  numero: string;
-  bomba_id: number;
-  producto_id: number;
-  estado?: 'activo' | 'inactivo' | 'mantenimiento';
-}
-
-export interface UpdateNozzleData extends Partial<CreateNozzleData> {
-  id: number;
+  producto?: {
+    id: number;
+    nombre: string;
+    precio: number;
+    tipo: string;
+  };
 }
 
 class NozzleService {
-  private endpoint = '/nozzles';
+  getAll() {
+    return api.get<Nozzle[]>('/nozzles');
+  }
+  getByPump(pumpId: number) {
+    return api.get<Nozzle[]>(`/nozzles?bomba_id=${pumpId}`);
+  }
 
   getAllNozzles() {
-    return apiService.get<Nozzle[]>(this.endpoint);
-  }
-  getNozzleById(id: number) {
-    return apiService.get<Nozzle>(`${this.endpoint}/${id}`);
-  }
-  createNozzle(data: CreateNozzleData) {
-    return apiService.post<Nozzle>(this.endpoint, data);
-  }
-  
-  deleteNozzle(id: number) {
-    return apiService.delete<void>(`${this.endpoint}/${id}`);
+    return this.getAll();
   }
   getNozzlesByPump(pumpId: number) {
-    return apiService.get<Nozzle[]>(`${this.endpoint}?bomba_id=${pumpId}`);
+    return this.getByPump(pumpId);
   }
   getActiveNozzles() {
-    return apiService.get<Nozzle[]>(`${this.endpoint}?estado=activo`);
+    return api.get<Nozzle[]>('/nozzles?estado=activo');
   }
-  getNozzlesByProduct(productId: number) {
-    return apiService.get<Nozzle[]>(`${this.endpoint}?producto_id=${productId}`);
+  getPumps(): Promise<number[]> {
+    return api.get<number[]>('/nozzles/pumps');
   }
 }
 

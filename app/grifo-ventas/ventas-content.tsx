@@ -54,6 +54,8 @@ const GrifoNewSale: React.FC = () => {
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [selectedNozzleObj, setSelectedNozzleObj] = useState<Nozzle | null>(null);
+  const [pumpNozzles, setPumpNozzles] = useState<Nozzle[]>([]); // Boquillas de la bomba seleccionada
+  const [pumpList, setPumpList] = useState<number[]>([]);
 
   // UI
   const [loading, setLoading] = useState(false);
@@ -159,22 +161,31 @@ const GrifoNewSale: React.FC = () => {
     }
   };
 
-  const handleNozzleSelect = (nozzleId: string) => {
-    setSelectedNozzle(nozzleId);
-    const nozzle = nozzles.find(n => String(n.id) === nozzleId);
-    if (!nozzle) return;
-    setSelectedNozzleObj(nozzle);
+  const handleNozzleSelect = async (idStr: string) => {
+    setSelectedNozzle(idStr);
+    // const nozzle = nozzles.find(n => String(n.id) === nozzleId);
+    // if (!nozzle) return;
+    // setSelectedNozzleObj(nozzle);
 
-    // Actualizamos el combustible y producto según la boquilla
-    if (nozzle.producto) {
-      setSelectedFuel(nozzle.producto.nombre as FuelType);
-      setSelectedProduct({
-        id: nozzle.producto.id,
-        nombre: toFuelType(nozzle.producto.nombre),
-        precio: nozzle.producto.precio,
-        tipo: nozzle.producto.tipo
-      });
-    }
+    // // Cargar boquillas de ese surtidor (bomba_id)
+    // try {
+    //   const list = await nozzleService.getNozzlesByPump(nozzle.bomba_id);
+    //   setPumpNozzles(list);
+    // } catch {
+    //   setPumpNozzles([]);
+    // }
+
+    // // Seleccionar producto por defecto (la primera)
+    // const first = nozzle.producto;
+    // if (first) {
+    //   setSelectedFuel(first.nombre as FuelType);
+    //   setSelectedProduct({
+    //     id: first.id,
+    //     nombre: toFuelType(first.nombre),
+    //     precio: first.precio,
+    //     tipo: first.tipo
+    //   });
+    // }
   };
 
   const calculateTotal = () => {
@@ -266,6 +277,12 @@ const GrifoNewSale: React.FC = () => {
     fetchRecentSales();
     const interval = setInterval(fetchRecentSales, 15000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    nozzleService.getPumps()
+      .then(setPumpList)
+      .catch(console.error);
   }, []);
 
   if (loading && clients.length === 0) {
@@ -420,66 +437,58 @@ const GrifoNewSale: React.FC = () => {
             </div>
           </div>
           <div className="flex gap-4 mt-8 justify-center">
-            {products.map((product) => {
-              // Buscar si el producto está conectado al surtidor seleccionado
-              const isActive =
-                selectedNozzleObj &&
-                product.nombre.toLowerCase() === (selectedNozzleObj.producto?.nombre || '').toLowerCase();
+            {pumpNozzles
+              // descartamos boquillas sin producto
+              .filter(noz => noz.producto !== undefined)
+              .map((noz) => {
+                const product = noz.producto!;
 
-              let bg = '';
-              if (product.nombre === 'Regular') {
-                bg = isActive && selectedProduct?.id === product.id
-                  ? 'bg-red-500 text-white'
-                  : isActive
-                  ? 'bg-red-500/80 text-white'
-                  : 'bg-slate-700 text-red-300 opacity-50';
-              } else if (product.nombre === 'Premium') {
-                bg = isActive && selectedProduct?.id === product.id
-                  ? 'bg-green-700 text-white'
-                  : isActive
-                  ? 'bg-green-700/80 text-white'
-                  : 'bg-slate-700 text-green-300 opacity-50';
-              } else if (product.nombre === 'Diesel') {
-                bg = isActive && selectedProduct?.id === product.id
-                  ? 'bg-purple-700 text-white'
-                  : isActive
-                  ? 'bg-purple-700/80 text-white'
-                  : 'bg-slate-700 text-purple-300 opacity-50';
-              }
+                const isActive = Boolean(selectedNozzleObj);
 
-              return (
-                <button
-                  key={product.id}
-                  onClick={() => {
-                    if (isActive) {
-                      setSelectedProduct(product);
+                let bg = '';
+                if (product.nombre === 'Regular') {
+                  bg = isActive && selectedProduct?.id === product.id
+                    ? 'bg-red-500 text-white'
+                    : isActive
+                    ? 'bg-red-500/80 text-white'
+                    : 'bg-slate-700 text-red-300 opacity-50';
+                } else if (product.nombre === 'Premium') {
+                  bg = isActive && selectedProduct?.id === product.id
+                    ? 'bg-green-700 text-white'
+                    : isActive
+                    ? 'bg-green-700/80 text-white'
+                    : 'bg-slate-700 text-green-300 opacity-50';
+                } else if (product.nombre === 'Diesel') {
+                  bg = isActive && selectedProduct?.id === product.id
+                    ? 'bg-purple-700 text-white'
+                    : isActive
+                    ? 'bg-purple-700/80 text-white'
+                    : 'bg-slate-700 text-purple-300 opacity-50';
+                }
+
+                return (
+                  <button
+                    key={noz.id}
+                    onClick={() => {
+                      if (!isActive) return;
+                      setSelectedProduct({
+                        id: product.id,
+                        nombre: toFuelType(product.nombre),
+                        precio: product.precio,
+                        tipo: product.tipo
+                      });
                       setSelectedFuel(product.nombre as FuelType);
-                    }
-                  }}
-                  className={`flex flex-col items-center justify-center rounded-xl transition-all duration-200 font-bold text-2xl w-48 h-48 gap-4 border border-slate-600 hover:scale-105 ${bg}`}
-                  style={{ minWidth: '192px', minHeight: '192px' }}
-                  disabled={!isActive}
-                >
-                  <Fuel size={48} />
-                  {product.nombre}
-                </button>
-              );
-            })}
+                    }}
+                    className={`flex flex-col items-center justify-center rounded-xl transition-all duration-200 font-bold text-2xl w-48 h-48 gap-4 border border-slate-600 hover:scale-105 ${bg}`}
+                    style={{ minWidth: '192px', minHeight: '192px' }}
+                    disabled={!isActive}
+                  >
+                    <Fuel size={48} />
+                    {product.nombre}
+                  </button>
+                );
+              })}
           </div>
-          {/* Conexiones visuales */}
-          {selectedNozzleObj && (
-            <div className="mt-8 w-full">
-              <h4 className="text-white font-bold flex items-center gap-2 mb-2">
-                <Fuel size={18} className="text-orange-500" />
-                Conexiones
-              </h4>
-              <div className="flex gap-2">
-                <span className="px-3 py-1 rounded bg-red-900/80 text-red-200 font-semibold text-sm">Regular</span>
-                <span className="px-3 py-1 rounded bg-green-900/80 text-green-200 font-semibold text-sm">Premium</span>
-                <span className="px-3 py-1 rounded bg-purple-900/80 text-purple-200 font-semibold text-sm">Diesel</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Precios de combustible del backend */}
