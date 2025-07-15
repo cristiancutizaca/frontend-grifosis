@@ -1,19 +1,28 @@
-
 'use client'
+import userService from '../../src/services/userService';
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import AddEmployeeModal from './modal/AddEmployeeModal'
 import EditEmployeeModal from './modal/EditEmployeeModal'
 
 const GrifoEmpleados: React.FC = () => {
     interface Employee {
+        user_id: number;
+        employee_id?: number;
+        username: string;
+        role: string;
+        permissions?: string;
+        is_active: boolean;
+        created_at: string;
+        updated_at: string;
+        full_name?: string;
+        // Campos adicionales para compatibilidad con la UI existente
         id: number;
         dni: string;
         name: string;
         paternalName: string;
         maternalName: string;
-        role: string;
-        birthDate: string; // formato ISO o YYYY-MM-DD
+        birthDate: string;
         address: string;
         telefono: string;
         email: string;
@@ -26,17 +35,59 @@ const GrifoEmpleados: React.FC = () => {
         updatedAt?: string;
     }
 
-    // Datos de ejemplo para los empleados
-    const [employees, setEmployees] = useState<Employee[]>([
-        { id: 1, dni: '12345678', name: 'Juan', paternalName: 'Pérez', maternalName: 'Gonzales', role: 'Vendedor', birthDate: '1990-05-10', address: 'Av. Siempre Viva 123', telefono: '900000001', email: 'juan.perez@email.com', hireDate: '2023-01-15', terminationDate: null, filePath: '', status: 'Activo', createdAt: '2023-01-15T08:00:00Z', updatedAt: '2023-01-15T08:00:00Z', },
-        { id: 2, dni: '23456789', name: 'María', paternalName: 'García', maternalName: 'Fernández', role: 'Administrador', birthDate: '1985-09-20', address: 'Calle Falsa 456', telefono: '900000002', email: 'maria.garcia@email.com', hireDate: '2022-07-01', terminationDate: null, filePath: '', status: 'Activo', createdAt: '2022-07-01T08:00:00Z', updatedAt: '2022-07-01T08:00:00Z', },
-        { id: 3, dni: '34567890', name: 'Carlos', paternalName: 'Ruiz', maternalName: 'López', role: 'Vendedor', birthDate: '1992-02-12', address: 'Jr. Los Laureles 789', telefono: '900000003', email: 'carlos.ruiz@email.com', hireDate: '2021-11-20', terminationDate: null, filePath: '', status: 'Inactivo', createdAt: '2021-11-20T08:00:00Z', updatedAt: '2021-11-20T08:00:00Z', },
-        { id: 4, dni: '45678901', name: 'Laura', paternalName: 'Lopez', maternalName: 'Delgado', role: 'Vendedor', birthDate: '1993-07-18', address: 'Mz. A Lt. 12 San Pedro', telefono: '900000004', email: 'laura.lopez@email.com', hireDate: '2022-03-10', terminationDate: null, filePath: '', status: 'Inactivo', createdAt: '2022-03-10T08:00:00Z', updatedAt: '2022-03-10T08:00:00Z', }
-    ]);
+    // Estado para los empleados (solo vendedores)
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEmployees = async () => {
+            try {
+                setLoading(true);
+                // Obtener solo usuarios con rol 'seller'
+                const data = await userService.getUsersByRole('seller');
+                
+                // Mapear los datos del backend a la estructura esperada por la UI
+                const mappedEmployees = data.map(user => ({
+                    // Datos del backend
+                    user_id: user.user_id,
+                    employee_id: user.employee_id,
+                    username: user.username,
+                    role: user.role,
+                    permissions: user.permissions,
+                    is_active: user.is_active,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at,
+                    full_name: user.full_name,
+                    
+                    // Mapeo para compatibilidad con la UI existente
+                    id: user.user_id,
+                    dni: user.employee_id?.toString() || '',
+                    name: user.full_name?.split(' ')[0] || user.username,
+                    paternalName: user.full_name?.split(' ')[1] || '',
+                    maternalName: user.full_name?.split(' ')[2] || '',
+                    birthDate: '',
+                    address: '',
+                    telefono: '',
+                    email: user.username, // Asumiendo que username puede ser email
+                    hireDate: user.created_at,
+                    terminationDate: null,
+                    status: user.is_active ? 'Activo' : 'Inactivo' as 'Activo' | 'Inactivo',
+                    createdAt: user.created_at,
+                    updatedAt: user.updated_at
+                }));
+                
+                setEmployees(mappedEmployees);
+            } catch (error) {
+                console.error("Error al obtener empleados:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEmployees();
+    }, []);
 
     // Estados para filtros
     const [searchTerm, setSearchTerm] = useState('');
-    const [roleFilter, setRoleFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
     // Estado para simular la edición de un empleado 
@@ -57,29 +108,100 @@ const GrifoEmpleados: React.FC = () => {
         setShowAddModal(true);
     };
 
-    const handleSaveEmployee = (employee: Employee) => {
-        setEmployees([...employees, employee]);
+    const handleSaveEmployee = async (employee: Employee) => {
+        try {
+            // Crear nuevo usuario con rol 'seller'
+            const newUserData = {
+                username: employee.email || employee.username,
+                password: 'defaultPassword123', // Deberías manejar esto de forma más segura
+                role: 'seller',
+                full_name: `${employee.name} ${employee.paternalName} ${employee.maternalName}`.trim(),
+                employee_id: employee.employee_id
+            };
+            
+            const createdUser = await userService.create(newUserData);
+            
+            // Mapear el usuario creado a la estructura de empleado
+            const mappedEmployee = {
+                ...employee,
+                user_id: createdUser.user_id,
+                id: createdUser.user_id,
+                created_at: createdUser.created_at,
+                updated_at: createdUser.updated_at
+            };
+            
+            setEmployees([...employees, mappedEmployee]);
+        } catch (error) {
+            console.error("Error al crear empleado:", error);
+        }
     };
 
-    const handleUpdateEmployee = (updatedEmployee: Employee) => {
-        setEmployees(employees.map(emp =>
-            emp.id === updatedEmployee.id ? updatedEmployee : emp
-        ));
+    const handleUpdateEmployee = async (updatedEmployee: Employee) => {
+        try {
+            // Actualizar usuario en el backend
+            const updateData = {
+                username: updatedEmployee.email || updatedEmployee.username,
+                full_name: `${updatedEmployee.name} ${updatedEmployee.paternalName} ${updatedEmployee.maternalName}`.trim(),
+                employee_id: updatedEmployee.employee_id,
+                is_active: updatedEmployee.status === 'Activo'
+            };
+            
+            await userService.update(updatedEmployee.user_id, updateData);
+            
+            setEmployees(employees.map((emp: Employee) =>
+                emp.id === updatedEmployee.id ? updatedEmployee : emp
+            ));
+        } catch (error) {
+            console.error("Error al actualizar empleado:", error);
+        }
     };
 
-    // Filtrar empleados
-    const filteredEmployees = employees.filter(emp => {
+    const handleDeleteEmployee = async (employeeId: number) => {
+        try {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (employee) {
+                await userService.delete(employee.user_id);
+                setEmployees(employees.filter(emp => emp.id !== employeeId));
+            }
+        } catch (error) {
+            console.error("Error al eliminar empleado:", error);
+        }
+    };
+
+    const handleToggleStatus = async (employeeId: number) => {
+        try {
+            const employee = employees.find(emp => emp.id === employeeId);
+            if (employee) {
+                if (employee.status === 'Activo') {
+                    await userService.deactivate(employee.user_id);
+                } else {
+                    await userService.activate(employee.user_id);
+                }
+                
+                setEmployees(employees.map(emp => 
+                    emp.id === employeeId 
+                        ? { ...emp, status: emp.status === 'Activo' ? 'Inactivo' : 'Activo' as 'Activo' | 'Inactivo' }
+                        : emp
+                ));
+            }
+        } catch (error) {
+            console.error("Error al cambiar estado del empleado:", error);
+        }
+    };
+
+    // Filtrar empleados (solo vendedores)
+    const filteredEmployees = employees.filter((emp: Employee) => {
         const matchesSearch =
             emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             emp.paternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             emp.maternalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             emp.dni.includes(searchTerm) ||
-            emp.email.toLowerCase().includes(searchTerm.toLowerCase());
+            emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            emp.username.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesRole = roleFilter === '' || emp.role === roleFilter;
         const matchesStatus = statusFilter === '' || emp.status === statusFilter;
 
-        return matchesSearch && matchesRole && matchesStatus;
+        return matchesSearch && matchesStatus;
     });
 
     // Componente para el icono de búsqueda (simulado)
@@ -116,6 +238,14 @@ const GrifoEmpleados: React.FC = () => {
         </svg>
     );
 
+    if (loading) {
+        return (
+            <div className="p-3 sm:p-4 lg:p-6 bg-slate-900 min-h-screen flex items-center justify-center">
+                <div className="text-white text-lg">Cargando empleados...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-3 sm:p-4 lg:p-6 bg-slate-900 min-h-screen space-y-4 lg:space-y-6">
             {/* Empleados */}
@@ -128,27 +258,23 @@ const GrifoEmpleados: React.FC = () => {
                         </div>
                         <div>
                             <h1 className="text-2xl lg:text-3xl font-bold text-white">Gestión de Empleados</h1>
-                            <p className="text-sm text-slate-400">Administra el personal del grifo</p>
+                            <p className="text-sm text-slate-400">Administra los vendedores del grifo</p>
                         </div>
                     </div>
 
                     {/* Stats Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
                             <div className="text-2xl font-bold text-white">{employees.length}</div>
                             <div className="text-sm text-slate-400">Total Empleados</div>
                         </div>
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-green-400">{employees.filter(e => e.status === 'Activo').length}</div>
+                            <div className="text-2xl font-bold text-green-400">{employees.filter((e: Employee) => e.status === 'Activo').length}</div>
                             <div className="text-sm text-slate-400">Activos</div>
                         </div>
                         <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-red-400">{employees.filter(e => e.status === 'Inactivo').length}</div>
+                            <div className="text-2xl font-bold text-red-400">{employees.filter((e: Employee) => e.status === 'Inactivo').length}</div>
                             <div className="text-sm text-slate-400">Inactivos</div>
-                        </div>
-                        <div className="bg-slate-700/50 rounded-lg p-3 border border-slate-600">
-                            <div className="text-2xl font-bold text-blue-400">{employees.filter(e => e.role === 'Administrador').length}</div>
-                            <div className="text-sm text-slate-400">Administradores</div>
                         </div>
                     </div>
                 </div>
@@ -161,7 +287,7 @@ const GrifoEmpleados: React.FC = () => {
                         <div className="relative flex-1 w-full">
                             <input
                                 type="text"
-                                placeholder="Buscar empleado por nombre, DNI o email..."
+                                placeholder="Buscar empleado por nombre, DNI, email o usuario..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-3 text-sm rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white placeholder-slate-400"
@@ -173,27 +299,6 @@ const GrifoEmpleados: React.FC = () => {
 
                         {/* Filtros */}
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                            <div className="relative">
-                                <select
-                                    value={roleFilter}
-                                    onChange={(e) => setRoleFilter(e.target.value)}
-                                    className="w-full sm:w-auto pl-10 pr-8 py-3 text-sm rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white appearance-none cursor-pointer min-w-[160px]"
-                                >
-                                    <option value="">Todos los Roles</option>
-                                    <option value="Administrador">Administrador</option>
-                                    <option value="Vendedor">Vendedor</option>
-                                    <option value="Super Admin">Super Admin</option>
-                                </select>
-                                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                    <FilterIcon />
-                                </div>
-                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                                    <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-
                             <div className="relative">
                                 <select
                                     value={statusFilter}
@@ -246,9 +351,8 @@ const GrifoEmpleados: React.FC = () => {
                             <thead className="bg-slate-700/50">
                                 <tr className="sticky top-0 z-10 bg-slate-700/50 backdrop-blur">
                                     <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Empleado</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">DNI</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Contacto</th>
-                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Rol</th>
+                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Usuario</th>
+                                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">ID Empleado</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Estado</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Fecha Ingreso</th>
                                     <th className="px-6 py-4 text-center text-xs font-medium text-slate-300 uppercase tracking-wider">Acciones</th>
@@ -262,42 +366,31 @@ const GrifoEmpleados: React.FC = () => {
                                                 <div className="flex-shrink-0 h-10 w-10">
                                                     <div className="h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center">
                                                         <span className="text-sm font-medium text-white">
-                                                            {emp.name.charAt(0)}{emp.paternalName.charAt(0)}
+                                                            {emp.name.charAt(0)}{emp.paternalName.charAt(0) || emp.username.charAt(0)}
                                                         </span>
                                                     </div>
                                                 </div>
                                                 <div className="ml-4">
                                                     <div className="text-sm font-medium text-white">
-                                                        {emp.name} {emp.paternalName} {emp.maternalName}
+                                                        {emp.full_name || `${emp.name} ${emp.paternalName} ${emp.maternalName}`.trim() || emp.username}
                                                     </div>
+                                                    <div className="text-sm text-slate-400">Vendedor</div>
                                                 </div>
                                             </div>
                                         </td>
 
-                                        <td>
-                                            <div className="text-sm text-slate-400">{emp.dni}</div>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm text-white">{emp.username}</div>
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <div className="text-sm text-white">{emp.email}</div>
-                                            <div className="text-sm text-slate-400">{emp.telefono}</div>
-                                        </td>
-
-                                        <td className="px-6 py-4">
-                                            <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${emp.role === 'Administrador'
-                                                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                                    : emp.role === 'Super Admin'
-                                                        ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
-                                                        : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                                }`}>
-                                                {emp.role}
-                                            </span>
+                                            <div className="text-sm text-slate-400">{emp.employee_id || 'N/A'}</div>
                                         </td>
 
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${emp.status === 'Activo'
-                                                    ? 'bg-green-500/20 text-green-300 border border-green-500/30'
-                                                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                                ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                                                : 'bg-red-500/20 text-red-300 border border-red-500/30'
                                                 }`}>
                                                 {emp.status}
                                             </span>
@@ -317,16 +410,23 @@ const GrifoEmpleados: React.FC = () => {
                                                     <EditIcon />
                                                 </button>
                                                 <button
-                                                    className="p-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition-colors"
-                                                    title="Eliminar empleado"
+                                                    onClick={() => handleToggleStatus(emp.id)}
+                                                    className={`p-2 rounded-lg transition-colors ${emp.status === 'Activo' 
+                                                        ? 'bg-red-500/20 hover:bg-red-500/30' 
+                                                        : 'bg-green-500/20 hover:bg-green-500/30'
+                                                    }`}
+                                                    title={emp.status === 'Activo' ? 'Desactivar empleado' : 'Activar empleado'}
                                                 >
-                                                    <DeleteIcon />
+                                                    {emp.status === 'Activo' ? <DeleteIcon /> : 
+                                                        <svg className="w-5 h-5 text-green-400 hover:text-green-300 cursor-pointer" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                    }
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
-
                             </tbody>
                         </table>
                     </div>
@@ -363,5 +463,4 @@ const GrifoEmpleados: React.FC = () => {
 }
 
 export default GrifoEmpleados
-
 

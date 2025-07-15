@@ -1,14 +1,22 @@
-'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 
+// Definición de la interfaz Employee, debe coincidir con la de GrifoEmpleados_Updated.tsx
 interface Employee {
-    id: number;
-    dni: string;
+    user_id: number;
+    employee_id?: number;
+    username: string;
+    role: string;
+    permissions?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    full_name?: string;
+    id: number; // Mapeado desde user_id
+    dni: string; // Mapeado desde employee_id o un campo similar
     name: string;
     paternalName: string;
     maternalName: string;
-    role: string;
     birthDate: string;
     address: string;
     telefono: string;
@@ -25,8 +33,8 @@ interface Employee {
 interface AddEmployeeModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (employee: Employee) => void;
-    employees: Employee[];
+    onSave: (employee: Employee) => Promise<void>; // Ahora espera una Promesa
+    employees: Employee[]; // Se mantiene por si se usa para generar IDs, aunque no es ideal con un backend
 }
 
 const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, onSave, employees }) => {
@@ -35,7 +43,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
         name: '',
         paternalName: '',
         maternalName: '',
-        role: 'Vendedor',
+        role: 'seller', // Por defecto, el rol es 'seller' como se definió en GrifoEmpleados_Updated.tsx
         birthDate: '',
         address: '',
         telefono: '',
@@ -46,31 +54,70 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
         files: []
     });
 
-    const handleSave = () => {
-        const id = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
-        const now = new Date().toISOString();
-        
-        const employeeToAdd: Employee = {
-            id,
+    useEffect(() => {
+        if (!isOpen) {
+            // Resetear el formulario cuando el modal se cierra
+            setNewEmployee({
+                dni: '',
+                name: '',
+                paternalName: '',
+                maternalName: '',
+                role: 'seller',
+                birthDate: '',
+                address: '',
+                telefono: '',
+                email: '',
+                hireDate: new Date().toISOString().split('T')[0],
+                terminationDate: null,
+                status: 'Activo',
+                files: []
+            });
+        }
+    }, [isOpen]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setNewEmployee(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSave = async () => {
+        // Validaciones básicas
+        if (!newEmployee.name || !newEmployee.paternalName || !newEmployee.dni || !newEmployee.email) {
+            alert('Por favor, complete todos los campos obligatorios.');
+            return;
+        }
+
+        // Mapear a la interfaz completa de Employee para onSave
+        // user_id e id serán asignados por el backend
+        const employeeToSave: Employee = {
+            ...newEmployee as Employee,
+            id: 0, // Temporal, el backend asignará el user_id
+            user_id: 0, // Temporal, el backend asignará el user_id
+            username: newEmployee.email || '', // Usar email como username por defecto
+            is_active: newEmployee.status === 'Activo',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            role: 'seller', // Asegurar que el rol sea 'seller'
+            hireDate: newEmployee.hireDate || new Date().toISOString().split('T')[0],
+            terminationDate: newEmployee.terminationDate ?? null,
+            // Asegurar que las propiedades de string no sean undefined
             dni: newEmployee.dni || '',
             name: newEmployee.name || '',
             paternalName: newEmployee.paternalName || '',
             maternalName: newEmployee.maternalName || '',
-            role: newEmployee.role || 'Vendedor',
-            birthDate: newEmployee.birthDate || '',
             address: newEmployee.address || '',
             telefono: newEmployee.telefono || '',
             email: newEmployee.email || '',
-            hireDate: newEmployee.hireDate || new Date().toISOString().split('T')[0],
-            terminationDate: newEmployee.terminationDate ?? null,
-            status: newEmployee.status || 'Activo',
-            files: newEmployee.files || [],
-            createdAt: now,
-            updatedAt: now
+            birthDate: newEmployee.birthDate || '',
         };
 
-        onSave(employeeToAdd);
-        handleClose();
+        try {
+            await onSave(employeeToSave);
+            handleClose();
+        } catch (error) {
+            console.error('Error al guardar empleado:', error);
+            alert('Hubo un error al guardar el empleado. Intente de nuevo.');
+        }
     };
 
     const handleClose = () => {
@@ -79,7 +126,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
             name: '',
             paternalName: '',
             maternalName: '',
-            role: 'Vendedor',
+            role: 'seller',
             birthDate: '',
             address: '',
             telefono: '',
@@ -117,7 +164,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                             <PlusIcon />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-bold text-white">Agregar Nuevo Empleado</h2>
+                            <h2 className="text-2xl font-bold text-white">Agregar Nuevo Empleado (Vendedor)</h2>
                             <p className="text-sm text-slate-400">Complete la información del nuevo empleado</p>
                         </div>
                     </div>
@@ -139,8 +186,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">DNI *</label>
                                 <input
                                     type="text"
-                                    value={newEmployee.dni}
-                                    onChange={(e) => setNewEmployee({...newEmployee, dni: e.target.value})}
+                                    value={newEmployee.dni || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="Ingrese el DNI"
                                 />
@@ -149,8 +196,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Nombre *</label>
                                 <input
                                     type="text"
-                                    value={newEmployee.name}
-                                    onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                                    value={newEmployee.name || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="Ingrese el nombre"
                                 />
@@ -159,8 +206,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Apellido Paterno *</label>
                                 <input
                                     type="text"
-                                    value={newEmployee.paternalName}
-                                    onChange={(e) => setNewEmployee({...newEmployee, paternalName: e.target.value})}
+                                    value={newEmployee.paternalName || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="Ingrese el apellido paterno"
                                 />
@@ -169,8 +216,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Apellido Materno *</label>
                                 <input
                                     type="text"
-                                    value={newEmployee.maternalName}
-                                    onChange={(e) => setNewEmployee({...newEmployee, maternalName: e.target.value})}
+                                    value={newEmployee.maternalName || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="Ingrese el apellido materno"
                                 />
@@ -179,16 +226,16 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Fecha de Nacimiento *</label>
                                 <input
                                     type="date"
-                                    value={newEmployee.birthDate}
-                                    onChange={(e) => setNewEmployee({...newEmployee, birthDate: e.target.value})}
+                                    value={newEmployee.birthDate || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Dirección *</label>
                                 <textarea
-                                    value={newEmployee.address}
-                                    onChange={(e) => setNewEmployee({...newEmployee, address: e.target.value})}
+                                    value={newEmployee.address || ''}
+                                    onChange={handleChange}
                                     rows={3}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                                     placeholder="Ingrese la dirección completa"
@@ -202,8 +249,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Correo Electrónico *</label>
                                 <input
                                     type="email"
-                                    value={newEmployee.email}
-                                    onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                                    value={newEmployee.email || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="ejemplo@correo.com"
                                 />
@@ -212,8 +259,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Teléfono *</label>
                                 <input
                                     type="text"
-                                    value={newEmployee.telefono}
-                                    onChange={(e) => setNewEmployee({...newEmployee, telefono: e.target.value})}
+                                    value={newEmployee.telefono || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     placeholder="999 000 000"
                                 />
@@ -222,8 +269,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Fecha de Contratación *</label>
                                 <input
                                     type="date"
-                                    value={newEmployee.hireDate}
-                                    onChange={(e) => setNewEmployee({...newEmployee, hireDate: e.target.value})}
+                                    value={newEmployee.hireDate || ''}
+                                    onChange={handleChange}
                                     className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                 />
                             </div>
@@ -233,15 +280,15 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                     <button
                                         type="button"
                                         className={`group relative p-4 rounded-xl transition-all duration-200 border-2 ${
-                                            newEmployee.role === 'Vendedor'
+                                            newEmployee.role === 'seller'
                                                 ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25'
                                                 : 'border-slate-600 bg-slate-700/50 hover:border-blue-400 hover:bg-blue-500/10'
                                         }`}
-                                        onClick={() => setNewEmployee({...newEmployee, role: 'Vendedor'})}
+                                        onClick={() => setNewEmployee({...newEmployee, role: 'seller'})}
                                     >
                                         <div className="flex flex-col items-center gap-2">
                                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                                newEmployee.role === 'Vendedor' 
+                                                newEmployee.role === 'seller' 
                                                     ? 'bg-blue-500 text-white' 
                                                     : 'bg-slate-600 text-slate-300 group-hover:bg-blue-500 group-hover:text-white'
                                             } transition-colors`}>
@@ -251,14 +298,14 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                             </div>
                                             <div className="text-center">
                                                 <div className={`text-sm font-semibold ${
-                                                    newEmployee.role === 'Vendedor' ? 'text-blue-300' : 'text-slate-300'
+                                                    newEmployee.role === 'seller' ? 'text-blue-300' : 'text-slate-300'
                                                 }`}>
                                                     Vendedor
                                                 </div>
                                                 <div className="text-xs text-slate-400 mt-1">Ventas y atención</div>
                                             </div>
                                         </div>
-                                        {newEmployee.role === 'Vendedor' && (
+                                        {newEmployee.role === 'seller' && (
                                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                                                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
@@ -267,79 +314,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
                                         )}
                                     </button>
 
-                                    <button
-                                        type="button"
-                                        className={`group relative p-4 rounded-xl transition-all duration-200 border-2 ${
-                                            newEmployee.role === 'Administrador'
-                                                ? 'border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/25'
-                                                : 'border-slate-600 bg-slate-700/50 hover:border-purple-400 hover:bg-purple-500/10'
-                                        }`}
-                                        onClick={() => setNewEmployee({...newEmployee, role: 'Administrador'})}
-                                    >
-                                        <div className="flex flex-col items-center gap-2">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                                newEmployee.role === 'Administrador' 
-                                                    ? 'bg-purple-500 text-white' 
-                                                    : 'bg-slate-600 text-slate-300 group-hover:bg-purple-500 group-hover:text-white'
-                                            } transition-colors`}>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                                </svg>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className={`text-sm font-semibold ${
-                                                    newEmployee.role === 'Administrador' ? 'text-purple-300' : 'text-slate-300'
-                                                }`}>
-                                                    Administrador
-                                                </div>
-                                                <div className="text-xs text-slate-400 mt-1">Gestión total</div>
-                                            </div>
-                                        </div>
-                                        {newEmployee.role === 'Administrador' && (
-                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                        )}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className={`group relative p-4 rounded-xl transition-all duration-200 border-2 ${
-                                            newEmployee.role === 'Super Admin'
-                                                ? 'border-yellow-500 bg-yellow-500/20 shadow-lg shadow-yellow-500/25'
-                                                : 'border-slate-600 bg-slate-700/50 hover:border-yellow-400 hover:bg-yellow-500/10'
-                                        }`}
-                                        onClick={() => setNewEmployee({...newEmployee, role: 'Super Admin'})}
-                                    >
-                                        <div className="flex flex-col items-center gap-2">
-                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                                newEmployee.role === 'Super Admin' 
-                                                    ? 'bg-yellow-500 text-white' 
-                                                    : 'bg-slate-600 text-slate-300 group-hover:bg-yellow-500 group-hover:text-white'
-                                            } transition-colors`}>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
-                                                </svg>
-                                            </div>
-                                            <div className="text-center">
-                                                <div className={`text-sm font-semibold ${
-                                                    newEmployee.role === 'Super Admin' ? 'text-yellow-300' : 'text-slate-300'
-                                                }`}>
-                                                    Super Admin
-                                                </div>
-                                                <div className="text-xs text-slate-400 mt-1">Control total</div>
-                                            </div>
-                                        </div>
-                                        {newEmployee.role === 'Super Admin' && (
-                                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
-                                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path>
-                                                </svg>
-                                            </div>
-                                        )}
-                                    </button>
+                                    {/* Se eliminan los botones de Administrador y Super Admin ya que este modal es solo para 'seller' */}
+                                    {/* Si se necesita agregar otros roles, se pueden reincorporar y adaptar la lógica */}
                                 </div>
                             </div>
                             <div>
@@ -458,4 +434,5 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
 };
 
 export default AddEmployeeModal;
+
 
