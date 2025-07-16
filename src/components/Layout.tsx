@@ -21,7 +21,7 @@ const MENU_ITEMS = {
     { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
     { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
     { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
-    { name: 'Usuarios', icon: Clock, path: '/grifo.usuario' },
+    { name: 'Usuarios', icon: Clock, path: '/grifo-usuario' },
     { name: 'Super Admin', icon: User, path: '/super-admin' },
   ],
   admin: [
@@ -33,7 +33,7 @@ const MENU_ITEMS = {
     { name: 'Inventario', icon: Package, path: '/grifo-inventario' },
     { name: 'Reportes', icon: BarChart3, path: '/grifo-reportes' },
     { name: 'Turnos', icon: Clock, path: '/grifo-turnos' },
-    { name: 'Usuarios', icon: Clock, path: '/grifo.usuario' },
+    { name: 'Usuarios', icon: Clock, path: '/grifo-usuario' },
     { name: 'Ventas', icon: ShoppingCart, path: '/grifo-ventas' },
   ],
   seller: [
@@ -282,4 +282,3 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 };
 
 export default Layout;
-

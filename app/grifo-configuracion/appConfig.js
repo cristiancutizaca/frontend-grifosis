@@ -1,66 +1,97 @@
-// Configuración global de la aplicación
+// Configuración global de la aplicación - Solo Backend
 export const APP_CONFIG = {
-  // Modo de operación: 'online' (con backend) o 'offline' (sin backend)
-  mode: 'offline', // Cambiar a 'online' para habilitar el backend
+  // Modo de operación: solo 'online' (con backend)
+  mode: 'online',
   
-  // URL del backend (solo se usa en modo 'online')
-  backendUrl: 'http://localhost:8000',
+  // URL del backend
+  backendUrl: 'http://localhost:8000/api',
   
   // Configuración de autenticación
   auth: {
-    // En modo offline, se puede omitir la autenticación real
-    requireAuth: false, // Cambiar a true para requerir autenticación real
+    // Autenticación real requerida
+    requireAuth: true,
     
-    // Usuario por defecto para modo offline
-    defaultUser: {
-      username: 'demo',
-      role: 'admin', // Puede ser 'superadmin', 'admin', o 'seller'
-      token: 'demo-token-offline-mode'
+    // Tiempo de expiración del token en minutos
+    tokenExpirationMinutes: 60,
+    
+    // Redirección automática al login si no está autenticado
+    autoRedirectToLogin: true
+  },
+  
+  // Configuración de la aplicación
+  app: {
+    name: 'Grifosis',
+    version: '1.0.0',
+    description: 'Sistema de gestión para estaciones de servicio',
+    
+    // Configuración de paginación
+    pagination: {
+      defaultPageSize: 10,
+      maxPageSize: 100
+    },
+    
+    // Configuración de refresh automático
+    autoRefresh: {
+      enabled: true,
+      intervalMinutes: 5
     }
   },
   
-  // Datos de demostración para modo offline
-  demoData: {
-    clientes: [
-      { id: 1, nombre: 'Cliente Demo 1', telefono: '123-456-7890', credito: 500, email: 'cliente1@demo.com' },
-      { id: 2, nombre: 'Cliente Demo 2', telefono: '098-765-4321', credito: 750, email: 'cliente2@demo.com' },
-      { id: 3, nombre: 'Cliente Demo 3', telefono: '555-123-4567', credito: 300, email: 'cliente3@demo.com' },
-    ],
-    ventas: [
-      { id: 1, cliente: 'Cliente Demo 1', producto: 'Gasolina Regular', cantidad: 20, total: 400, fecha: '2024-01-15' },
-      { id: 2, cliente: 'Cliente Demo 2', producto: 'Diesel', cantidad: 15, total: 300, fecha: '2024-01-15' },
-      { id: 3, cliente: 'Cliente Demo 3', producto: 'Gasolina Premium', cantidad: 10, total: 220, fecha: '2024-01-14' },
-    ],
-    inventario: [
-      { id: 1, producto: 'Gasolina Regular', stock: 1000, precio: 20, categoria: 'Combustible' },
-      { id: 2, producto: 'Gasolina Premium', stock: 800, precio: 22, categoria: 'Combustible' },
-      { id: 3, producto: 'Diesel', stock: 600, precio: 18, categoria: 'Combustible' },
-      { id: 4, producto: 'Aceite Motor', stock: 50, precio: 25, categoria: 'Lubricantes' },
-    ],
-    empleados: [
-      { id: 1, nombre: 'Juan Pérez', puesto: 'Vendedor', turno: 'Mañana', telefono: '555-0001', email: 'juan@demo.com' },
-      { id: 2, nombre: 'María García', puesto: 'Supervisor', turno: 'Tarde', telefono: '555-0002', email: 'maria@demo.com' },
-      { id: 3, nombre: 'Carlos López', puesto: 'Vendedor', turno: 'Noche', telefono: '555-0003', email: 'carlos@demo.com' },
-    ],
-    creditos: [
-      { id: 1, cliente: 'Cliente Demo 1', monto: 500, fechaVencimiento: '2024-02-15', estado: 'Activo' },
-      { id: 2, cliente: 'Cliente Demo 2', monto: 750, fechaVencimiento: '2024-02-20', estado: 'Activo' },
-      { id: 3, cliente: 'Cliente Demo 3', monto: 300, fechaVencimiento: '2024-01-30', estado: 'Vencido' },
-    ],
-    turnos: [
-      { id: 1, empleado: 'Juan Pérez', turno: 'Mañana', fecha: '2024-01-15', horaInicio: '06:00', horaFin: '14:00' },
-      { id: 2, empleado: 'María García', turno: 'Tarde', fecha: '2024-01-15', horaInicio: '14:00', horaFin: '22:00' },
-      { id: 3, empleado: 'Carlos López', turno: 'Noche', fecha: '2024-01-15', horaInicio: '22:00', horaFin: '06:00' },
-    ],
-    configuracion: {
-      nombreEmpresa: 'Gas Station Demo',
-      direccion: '123 Calle Principal, Ciudad Demo',
-      telefono: '555-0123',
-      email: 'demo@gasstation.com',
-      moneda: 'USD',
-      impuesto: 0.16,
-      horarioApertura: '06:00',
-      horarioCierre: '22:00'
+  // Configuración de endpoints
+  endpoints: {
+    auth: {
+      login: '/auth/login',
+      logout: '/auth/logout',
+      refresh: '/auth/refresh',
+      profile: '/auth/profile'
+    },
+    users: {
+      base: '/users',
+      permissions: '/users/:id/permissions',
+      activate: '/users/:id/activate',
+      deactivate: '/users/:id/deactivate'
+    },
+    employees: {
+      base: '/employees'
+    },
+    clients: {
+      base: '/clients'
+    },
+    sales: {
+      base: '/sales'
+    },
+    products: {
+      base: '/products'
+    },
+    reports: {
+      base: '/reports'
+    }
+  },
+  
+  // Configuración de roles y permisos
+  roles: {
+    superadmin: {
+      name: 'Super Admin',
+      permissions: ['*'] // Todos los permisos
+    },
+    admin: {
+      name: 'Administrador',
+      permissions: [
+        'users.read', 'users.create', 'users.update',
+        'employees.read', 'employees.create', 'employees.update',
+        'clients.read', 'clients.create', 'clients.update',
+        'sales.read', 'sales.create', 'sales.update',
+        'products.read', 'products.create', 'products.update',
+        'reports.read'
+      ]
+    },
+    seller: {
+      name: 'Vendedor',
+      permissions: [
+        'clients.read', 'clients.update',
+        'sales.read', 'sales.create',
+        'products.read'
+      ]
     }
   }
 };
@@ -68,36 +99,123 @@ export const APP_CONFIG = {
 // Función para verificar si la aplicación está en modo online
 export const isOnlineMode = () => APP_CONFIG.mode === 'online';
 
-// Función para verificar si la aplicación está en modo offline
-export const isOfflineMode = () => APP_CONFIG.mode === 'offline';
-
-// Función para cambiar el modo de la aplicación
-export const setAppMode = (mode) => {
-  APP_CONFIG.mode = mode;
-  // Guardar en sessionStorage para persistir durante la sesión
-  if (typeof window !== 'undefined') {
-    sessionStorage.setItem('app_mode', mode);
-    window.location.reload();
-  }
-};
-
 // Función para obtener la URL del backend
 export const getBackendUrl = () => {
-  return isOnlineMode() ? APP_CONFIG.backendUrl : null;
+  return APP_CONFIG.backendUrl;
 };
 
-// Función para obtener datos demo
-export const getDemoData = (type) => {
-  return APP_CONFIG.demoData[type] || [];
+// Función para obtener la configuración de un endpoint
+export const getEndpoint = (category, action = 'base') => {
+  const endpoints = APP_CONFIG.endpoints[category];
+  return endpoints ? endpoints[action] : null;
 };
 
-// Función para inicializar el modo desde sessionStorage
-export const initializeAppMode = () => {
-  if (typeof window !== 'undefined') {
-    const storedMode = sessionStorage.getItem('app_mode');
-    if (storedMode && (storedMode === 'online' || storedMode === 'offline')) {
-      APP_CONFIG.mode = storedMode;
-    }
+// Función para verificar permisos
+export const hasPermission = (userRole, permission) => {
+  const roleConfig = APP_CONFIG.roles[userRole];
+  if (!roleConfig) return false;
+  
+  // Superadmin tiene todos los permisos
+  if (roleConfig.permissions.includes('*')) return true;
+  
+  // Verificar permiso específico
+  return roleConfig.permissions.includes(permission);
+};
+
+// Función para obtener el nombre del rol
+export const getRoleName = (role) => {
+  const roleConfig = APP_CONFIG.roles[role];
+  return roleConfig ? roleConfig.name : role;
+};
+
+// Función para validar configuración
+export const validateConfig = () => {
+  const errors = [];
+  
+  if (!APP_CONFIG.backendUrl) {
+    errors.push('Backend URL no configurada');
   }
+  
+  if (APP_CONFIG.mode !== 'online') {
+    errors.push('Modo debe ser "online"');
+  }
+  
+  if (!APP_CONFIG.auth.requireAuth) {
+    errors.push('Autenticación debe estar habilitada');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};
+
+// Función para inicializar la configuración
+export const initializeConfig = () => {
+  const validation = validateConfig();
+  
+  if (!validation.isValid) {
+    console.error('Errores de configuración:', validation.errors);
+    throw new Error('Configuración inválida: ' + validation.errors.join(', '));
+  }
+  
+  console.log('Configuración inicializada correctamente');
+  console.log('Modo:', APP_CONFIG.mode);
+  console.log('Backend URL:', APP_CONFIG.backendUrl);
+  console.log('Autenticación requerida:', APP_CONFIG.auth.requireAuth);
+};
+
+// Función para obtener configuración de headers HTTP
+export const getDefaultHeaders = () => {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  };
+};
+
+// Función para obtener configuración de timeout
+export const getRequestTimeout = () => {
+  return 30000; // 30 segundos
+};
+
+// Función para verificar si el token está próximo a expirar
+export const isTokenNearExpiration = (token) => {
+  if (!token) return true;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    const timeUntilExpiration = payload.exp - currentTime;
+    
+    // Considerar próximo a expirar si quedan menos de 5 minutos
+    return timeUntilExpiration < 300;
+  } catch {
+    return true;
+  }
+};
+
+// Función para formatear errores de API
+export const formatApiError = (error) => {
+  if (error.message.includes('403')) {
+    return 'No tiene permisos para realizar esta acción';
+  }
+  
+  if (error.message.includes('401')) {
+    return 'Su sesión ha expirado. Por favor, inicie sesión nuevamente';
+  }
+  
+  if (error.message.includes('404')) {
+    return 'El recurso solicitado no fue encontrado';
+  }
+  
+  if (error.message.includes('500')) {
+    return 'Error interno del servidor. Contacte al administrador';
+  }
+  
+  if (error.message.includes('fetch')) {
+    return 'Error de conexión. Verifique su conexión a internet y que el servidor esté funcionando';
+  }
+  
+  return error.message || 'Error desconocido';
 };
 
