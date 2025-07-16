@@ -2,7 +2,7 @@ import apiService from './apiService';
 
 // Interfaz principal del cliente con campos clásicos y nuevos
 export interface Client {
-  id: number;
+  client_id: number;
   nombre: string;
   apellido: string;
   documento: string;
@@ -19,7 +19,7 @@ export interface Client {
   // Nuevos campos opcionales (para edición/creación avanzada)
   first_name?: string;
   last_name?: string;
-  company_name?: string;
+  company_name?: string | null;
   category?: string;
   document_type?: string;
   document_number?: string;
@@ -36,14 +36,14 @@ export interface Client {
 export interface CreateClientData {
   first_name?: string;
   last_name?: string;
-  company_name?: string;
+  company_name?: string | null;
   category?: string;
   document_type?: string;
   document_number?: string;
   address?: string;
   phone?: string;
   email?: string;
-  birth_date?: string;
+  birth_date?: string | null;
   notes?: string;
   client_type?: 'persona' | 'empresa';
   tipo_documento?: string;
@@ -52,7 +52,7 @@ export interface CreateClientData {
 
 // Datos para actualizar un cliente (id + parcial del resto)
 export interface UpdateClientData extends Partial<CreateClientData> {
-  id: number;
+  client_id: number;
 }
 
 class ClientService {
@@ -75,8 +75,8 @@ class ClientService {
 
   // 🧠 ACTUALIZADO: Usamos PATCH para no romper tu backend
   async updateClient(clientData: UpdateClientData): Promise<Client> {
-    const { id, ...data } = clientData;
-    return apiService.patch<Client>(`${this.endpoint}/${id}`, data);
+    const { client_id, ...data } = clientData;
+    return apiService.patch<Client>(`${this.endpoint}/${client_id}`, data);
   }
 
   // Eliminar cliente

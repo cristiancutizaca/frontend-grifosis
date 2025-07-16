@@ -175,7 +175,7 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
                 <label className="block text-sm font-medium text-slate-300 mb-2">Razón Social *</label>
                 <input
                   type="text"
-                  value={formData.company_name}
+                  value={formData.company_name ?? ''}
                   onChange={(e) => handleInputChange('company_name', e.target.value)}
                   className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                   placeholder="Nombre de la empresa"
@@ -260,7 +260,7 @@ const CreateClientModal: React.FC<CreateClientModalProps> = ({
               <label className="block text-sm font-medium text-slate-300 mb-2">Fecha de nacimiento</label>
               <input
                 type="date"
-                value={formData.birth_date}
+                value={formData.birth_date ?? ''}
                 onChange={(e) => handleInputChange('birth_date', e.target.value)}
                 className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Fecha de nacimiento"

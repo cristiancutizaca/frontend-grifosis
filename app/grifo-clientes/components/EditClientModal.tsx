@@ -31,9 +31,9 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
 
   // Actualiza datos cuando cambia el cliente seleccionado
   useEffect(() => {
-    if (client && client.id) {
+    if (client && client.client_id) {
       setFormData({
-        id: client.id,
+        client_id: client.client_id,
         first_name: client.first_name ?? '',
         last_name: client.last_name ?? '',
         company_name: client.company_name ?? '',
@@ -43,10 +43,11 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         address: client.address ?? '',
         phone: client.phone ?? '',
         email: client.email ?? '',
-        birth_date: client.birth_date ?? '',
+        birth_date: client.birth_date
+          ? new Date(client.birth_date).toISOString().split('T')[0]
+          : null,
         notes: client.notes ?? '',
         client_type: client.client_type ?? 'persona',
-        limite_credito: client.limite_credito ?? 0,
       });
       setError(null);
     } else {
@@ -63,7 +64,7 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData || !formData.id || formData.id === 0) {
+    if (!formData || !formData.client_id || formData.client_id === 0) {
       setError('ID inválido para edición.');
       return;
     }
@@ -103,12 +104,14 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
         address: formData.address ? String(formData.address) : undefined,
         phone: formData.phone ? String(formData.phone) : undefined,
         email: formData.email ? String(formData.email) : undefined,
-        birth_date: formData.birth_date ? String(formData.birth_date) : undefined,
+        birth_date:
+          !formData.birth_date || formData.birth_date.trim() === ''
+            ? null
+            : String(formData.birth_date),
         notes: formData.notes ? String(formData.notes) : undefined,
         client_type: formData.client_type === 'persona' || formData.client_type === 'empresa'
           ? formData.client_type
           : 'persona',
-        limite_credito: Number(formData.limite_credito) || 0,
       };
 
       const updated = await clientService.updateClient(payload);
@@ -276,16 +279,6 @@ const EditClientModal: React.FC<EditClientModalProps> = ({
                 className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
                 placeholder="Observaciones o notas"
                 rows={2}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Límite de crédito</label>
-              <input
-                type="number"
-                value={formData.limite_credito ?? 0}
-                onChange={(e) => handleInputChange('limite_credito', e.target.value)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-white"
-                placeholder="Límite de crédito"
               />
             </div>
           </div>

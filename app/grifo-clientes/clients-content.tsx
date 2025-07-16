@@ -26,12 +26,7 @@ const ClientsContent: React.FC = () => {
     const fetchClients = async () => {
       try {
         const data = await clientService.getAllClients();
-        // Aquí hacemos el mapeo de client_id a id (y opcionalmente puedes quitar el client_id después)
-        const fixed = data.map((c: any) => ({
-          ...c,
-          id: c.id ?? c.client_id,  // Si ya existe id, lo deja. Si no, usa client_id.
-        }));
-        setClients(fixed);
+        setClients(data);
       } catch (error) {
         alert('Error cargando clientes');
       } finally {
@@ -43,14 +38,9 @@ const ClientsContent: React.FC = () => {
 
 
   // Crear cliente desde modal
-  const handleCreateClient = async (newClientData: Partial<Client>) => {
-    try {
-      const newClient = await clientService.createClient(newClientData);
-      setClients(prev => [...prev, newClient]);
-      setShowCreateModal(false);
-    } catch {
-      alert('Error creando cliente');
-    }
+  const handleCreateClient = (newClient: Client) => {
+    setClients(prev => [...prev, newClient]);
+    setShowCreateModal(false);
   };
 
   // Guardar edición de cliente
@@ -75,14 +65,14 @@ const ClientsContent: React.FC = () => {
         address: updatedClient.address ? String(updatedClient.address) : '',
         phone: updatedClient.phone ? String(updatedClient.phone) : '',
         email: updatedClient.email ? String(updatedClient.email) : '',
-        birth_date: updatedClient.birth_date ? String(updatedClient.birth_date) : '',
+        birth_date: updatedClient.birth_date ? String(updatedClient.birth_date) : undefined,
         notes: updatedClient.notes ? String(updatedClient.notes) : '',
       };
 
-      const updated = await clientService.updateClient({ ...dataToSend, id: updatedClient.id });
+      const updated = await clientService.updateClient({ ...dataToSend, client_id: updatedClient.client_id });
       setClients(prevClients =>
         prevClients.map(client =>
-          client.id === updated.id ? updated : client
+          client.client_id === updated.client_id ? updated : client
         )
       );
       setEditingClient(null);
@@ -96,7 +86,7 @@ const ClientsContent: React.FC = () => {
     if (!window.confirm('¿Seguro que deseas eliminar este cliente?')) return;
     try {
       await clientService.deleteClient(clientId);
-      setClients(prev => prev.filter(c => c.id !== clientId));
+      setClients(prev => prev.filter(c => c.client_id !== clientId));
     } catch {
       alert('Error eliminando cliente');
     }
@@ -168,8 +158,14 @@ const ClientsContent: React.FC = () => {
         </div>
         <div>
           <label className="block text-slate-400 text-sm mb-1">Filtro</label>
-          <select className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500">
-            <option>Frecuentes ∨</option>
+          <select
+            value={selectedFilter}
+            onChange={(e) => setSelectedFilter(e.target.value)}
+            className="w-full bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-orange-500"
+          >
+            <option value="Frecuentes">Frecuentes ∨</option>
+            <option value="Persona">Persona</option>
+            <option value="Empresa">Empresa</option>
           </select>
         </div>
       </div>
@@ -194,7 +190,7 @@ const ClientsContent: React.FC = () => {
                 </thead>
                 <tbody>
                   {filteredClients.map((client) => (
-                    <tr key={client.id} className="border-b border-slate-700/50 hover:bg-slate-700/30 cursor-pointer">
+                    <tr key={client.client_id} className="border-b border-slate-700/50 hover:bg-slate-700/30 cursor-pointer">
                       <td className="py-3 px-4">
                         <span className="text-white">
                           {getTipoCliente(client) === 'persona'
@@ -218,7 +214,7 @@ const ClientsContent: React.FC = () => {
                           <button onClick={() => setEditingClient(client)} className="text-blue-500 hover:text-blue-600 flex items-center">
                             <EditIcon />
                           </button>
-                          <button onClick={() => handleDeleteClient(client.id)} className="text-red-500 hover:text-red-600 flex items-center">
+                          <button onClick={() => handleDeleteClient(client.client_id)} className="text-red-500 hover:text-red-600 flex items-center">
                             <DeleteIcon />
                           </button>
                         </div>
