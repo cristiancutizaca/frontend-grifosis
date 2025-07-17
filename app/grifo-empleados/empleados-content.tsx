@@ -1,39 +1,30 @@
 'use client'
-import userService from '../../src/services/userService';
+import userService, { User as ApiUser } from '../../src/services/userService';
 
 import React, { useState, useEffect } from 'react';
 import AddEmployeeModal from './modal/AddEmployeeModal'
 import EditEmployeeModal from './modal/EditEmployeeModal'
 
 const GrifoEmpleados: React.FC = () => {
-    interface Employee {
-        user_id: number;
-        employee_id?: number;
-        username: string;
-        role: string;
-        permissions?: string;
-        is_active: boolean;
-        created_at: string;
-        updated_at: string;
-        full_name?: string;
-        // Campos adicionales para compatibilidad con la UI existente
-        id: number;
-        dni: string;
-        name: string;
-        paternalName: string;
-        maternalName: string;
-        birthDate: string;
-        address: string;
-        telefono: string;
-        email: string;
-        hireDate: string;
-        terminationDate: string | null;
-        filePath?: string;
-        files?: File[];
-        status: 'Activo' | 'Inactivo';
-        createdAt?: string;
-        updatedAt?: string;
-    }
+    interface Employee extends ApiUser {
+    // Campos adicionales para compatibilidad con la UI existente
+    id: number;
+    dni: string;
+    name: string;
+    paternalName: string;
+    maternalName: string;
+    birthDate: string;
+    address: string;
+    telefono: string;
+    email: string;
+    hireDate: string;
+    terminationDate: string | null;
+    filePath?: string;
+    files?: File[];
+    status: 'Activo' | 'Inactivo';
+    createdAt?: string;
+    updatedAt?: string;
+}
 
     // Estado para los empleados (solo vendedores)
     const [employees, setEmployees] = useState<Employee[]>([]);
@@ -44,34 +35,24 @@ const GrifoEmpleados: React.FC = () => {
             try {
                 setLoading(true);
                 // Obtener solo usuarios con rol 'seller'
-                const data = await userService.getUsersByRole('seller');
+                const data = await userService.getUsersByRole("seller");
                 
                 // Mapear los datos del backend a la estructura esperada por la UI
                 const mappedEmployees = data.map(user => ({
-                    // Datos del backend
-                    user_id: user.user_id,
-                    employee_id: user.employee_id,
-                    username: user.username,
-                    role: user.role,
-                    permissions: user.permissions,
-                    is_active: user.is_active,
-                    created_at: user.created_at,
-                    updated_at: user.updated_at,
-                    full_name: user.full_name,
-                    
+                    ...user, // Copiar todas las propiedades de ApiUser
                     // Mapeo para compatibilidad con la UI existente
-                    id: user.user_id,
-                    dni: user.employee_id?.toString() || '',
-                    name: user.full_name?.split(' ')[0] || user.username,
-                    paternalName: user.full_name?.split(' ')[1] || '',
-                    maternalName: user.full_name?.split(' ')[2] || '',
-                    birthDate: '',
-                    address: '',
-                    telefono: '',
+                    id: user.user_id, // Usar user_id como id
+                    dni: user.employee_id?.toString() || "",
+                    name: user.full_name?.split(" ")[0] || user.username,
+                    paternalName: user.full_name?.split(" ")[1] || "",
+                    maternalName: user.full_name?.split(" ")[2] || "",
+                    birthDate: "",
+                    address: "",
+                    telefono: "",
                     email: user.username, // Asumiendo que username puede ser email
                     hireDate: user.created_at,
                     terminationDate: null,
-                    status: user.is_active ? 'Activo' : 'Inactivo' as 'Activo' | 'Inactivo',
+                    status: user.is_active ? "Activo" : "Inactivo" as "Activo" | "Inactivo",
                     createdAt: user.created_at,
                     updatedAt: user.updated_at
                 }));
@@ -122,12 +103,16 @@ const GrifoEmpleados: React.FC = () => {
             const createdUser = await userService.create(newUserData);
             
             // Mapear el usuario creado a la estructura de empleado
-            const mappedEmployee = {
+            const mappedEmployee: Employee = {
                 ...employee,
                 user_id: createdUser.user_id,
-                id: createdUser.user_id,
+                id: createdUser.user_id, // Asegurar que 'id' también se actualice
                 created_at: createdUser.created_at,
-                updated_at: createdUser.updated_at
+                updated_at: createdUser.updated_at,
+                username: createdUser.username, // Asegurar que el username del backend se use
+                full_name: createdUser.full_name, // Asegurar que el full_name del backend se use
+                is_active: createdUser.is_active, // Asegurar que el estado del backend se use
+                role: createdUser.role // Asegurar que el rol del backend se use
             };
             
             setEmployees([...employees, mappedEmployee]);
@@ -140,16 +125,17 @@ const GrifoEmpleados: React.FC = () => {
         try {
             // Actualizar usuario en el backend
             const updateData = {
-                username: updatedEmployee.email || updatedEmployee.username,
-                full_name: `${updatedEmployee.name} ${updatedEmployee.paternalName} ${updatedEmployee.maternalName}`.trim(),
+                username: updatedEmployee.username,
+                full_name: updatedEmployee.full_name,
                 employee_id: updatedEmployee.employee_id,
-                is_active: updatedEmployee.status === 'Activo'
+                is_active: updatedEmployee.is_active,
+                role: updatedEmployee.role // Asegurarse de enviar el rol también
             };
             
-            await userService.update(updatedEmployee.user_id, updateData);
+            const updatedUser = await userService.update(updatedEmployee.user_id, updateData);
             
             setEmployees(employees.map((emp: Employee) =>
-                emp.id === updatedEmployee.id ? updatedEmployee : emp
+                emp.user_id === updatedUser.user_id ? { ...emp, ...updatedUser, status: updatedUser.is_active ? 'Activo' : 'Inactivo' } : emp
             ));
         } catch (error) {
             console.error("Error al actualizar empleado:", error);
@@ -158,9 +144,9 @@ const GrifoEmpleados: React.FC = () => {
 
     const handleDeleteEmployee = async (employeeId: number) => {
         try {
-            const employee = employees.find(emp => emp.id === employeeId);
-            if (employee) {
-                await userService.delete(employee.user_id);
+            const employeeToDelete = employees.find(emp => emp.id === employeeId);
+            if (employeeToDelete) {
+                await userService.delete(employeeToDelete.user_id);
                 setEmployees(employees.filter(emp => emp.id !== employeeId));
             }
         } catch (error) {
@@ -170,17 +156,15 @@ const GrifoEmpleados: React.FC = () => {
 
     const handleToggleStatus = async (employeeId: number) => {
         try {
-            const employee = employees.find(emp => emp.id === employeeId);
-            if (employee) {
-                if (employee.status === 'Activo') {
-                    await userService.deactivate(employee.user_id);
-                } else {
-                    await userService.activate(employee.user_id);
-                }
+            const employeeToToggle = employees.find(emp => emp.id === employeeId);
+            if (employeeToToggle) {
+                const updatedUser = employeeToToggle.is_active 
+                    ? await userService.deactivate(employeeToToggle.user_id)
+                    : await userService.activate(employeeToToggle.user_id);
                 
                 setEmployees(employees.map(emp => 
-                    emp.id === employeeId 
-                        ? { ...emp, status: emp.status === 'Activo' ? 'Inactivo' : 'Activo' as 'Activo' | 'Inactivo' }
+                    emp.user_id === updatedUser.user_id 
+                        ? { ...emp, ...updatedUser, status: updatedUser.is_active ? 'Activo' : 'Inactivo' } 
                         : emp
                 ));
             }

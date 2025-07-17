@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import EditUserModal from './modal/EditUserModal'
+import AddUserModal from './modal/AddUserModal'
 import userService, { User as ApiUser } from '../../src/services/userService'
 import { APP_CONFIG, isOnlineMode, isOfflineMode } from '@/src/config/appConfig'
 
@@ -11,6 +12,9 @@ const GrifoUsuarios: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+
+    // Estados para modales
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Estados para datos de la API
     const [users, setUsers] = useState<ApiUser[]>([]);
@@ -63,6 +67,11 @@ const GrifoUsuarios: React.FC = () => {
                 }
 
                 setCurrentUser(userInfo);
+                
+                // Sincronizar token entre sessionStorage y localStorage
+                if (typeof window !== "undefined" && token) {
+                    localStorage.setItem('authToken', token);
+                }
                 
                 // Solo cargar usuarios si está en modo online
                 if (isOnlineMode() && storedMode === 'online') {
@@ -117,9 +126,9 @@ const GrifoUsuarios: React.FC = () => {
                 return;
             }
 
-            // Configurar el token en el userService antes de hacer la petición
-            if (userService.setAuthToken) {
-                userService.setAuthToken(token);
+            // Guardar el token en localStorage para que el apiService lo use
+            if (typeof window !== "undefined") {
+                localStorage.setItem('authToken', token);
             }
 
             const usersData = await userService.getAll();
@@ -143,6 +152,14 @@ const GrifoUsuarios: React.FC = () => {
             setUsers([]);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Función para manejar cuando se crea un nuevo usuario
+    const handleUserCreated = () => {
+        // Recargar la lista de usuarios
+        if (isOnlineMode() && appMode === 'online') {
+            loadUsers();
         }
     };
 
@@ -208,10 +225,8 @@ const GrifoUsuarios: React.FC = () => {
         }
 
         try {
-            const token = typeof window !== "undefined" ? sessionStorage.getItem('token') : null;
-            if (userService.setAuthToken && token) {
-                userService.setAuthToken(token);
-            }
+            const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+            // No es necesario llamar a userService.setAuthToken aquí, ya se maneja en apiService.ts
 
             const updated = await userService.update(updatedUser.user_id, {
                 username: updatedUser.username,
@@ -249,10 +264,8 @@ const GrifoUsuarios: React.FC = () => {
             }
 
             try {
-                const token = typeof window !== "undefined" ? sessionStorage.getItem('token') : null;
-                if (userService.setAuthToken && token) {
-                    userService.setAuthToken(token);
-                }
+                const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+                // No es necesario llamar a userService.setAuthToken aquí, ya se maneja en apiService.ts
 
                 await userService.delete(userId);
                 setUsers(users.filter(u => u.user_id !== userId));
@@ -285,10 +298,8 @@ const GrifoUsuarios: React.FC = () => {
         }
 
         try {
-            const token = typeof window !== "undefined" ? sessionStorage.getItem('token') : null;
-            if (userService.setAuthToken && token) {
-                userService.setAuthToken(token);
-            }
+            const token = typeof window !== "undefined" ? sessionStorage.getItem("token") : null;
+            // No es necesario llamar a userService.setAuthToken aquí, ya se maneja en apiService.ts
 
             const updated = user.is_active 
                 ? await userService.deactivate(user.user_id)
@@ -433,7 +444,19 @@ const GrifoUsuarios: React.FC = () => {
                                 {appMode === 'offline' && <span className="text-yellow-400"> (Modo Demo)</span>}
                             </p>
                         </div>
-                        <div className="ml-auto">
+                        <div className="ml-auto flex items-center gap-2">
+                            {/* Botón Agregar Usuario */}
+                            <button 
+                                onClick={() => setIsAddModalOpen(true)}
+                                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg font-medium transition-all transform hover:scale-105 flex items-center gap-2"
+                                title="Agregar nuevo usuario"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span className="hidden sm:inline">Agregar Usuario</span>
+                            </button>
+                            
                             {appMode === 'online' && (
                                 <button 
                                     onClick={handleRetry}
@@ -660,8 +683,16 @@ const GrifoUsuarios: React.FC = () => {
                 {/* Modal Editar Usuario */}
                 <EditUserModal 
                     user={editingUser}
+                    isOpen={editingUser !== null}
                     onClose={() => setEditingUser(null)}
-                    onSave={handleUpdateUser}
+                    onUserUpdated={handleUserCreated}
+                />
+
+                {/* Modal Agregar Usuario */}
+                <AddUserModal 
+                    isOpen={isAddModalOpen}
+                    onClose={() => setIsAddModalOpen(false)}
+                    onUserCreated={handleUserCreated}
                 />
             </div>
         </div>

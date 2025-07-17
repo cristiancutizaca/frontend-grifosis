@@ -2,16 +2,9 @@
 import React, { useState, useEffect } from 'react';
 
 // Definición de la interfaz Employee, debe coincidir con la de GrifoEmpleados_Updated.tsx
-interface Employee {
-    user_id: number;
-    employee_id?: number;
-    username: string;
-    role: string;
-    permissions?: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-    full_name?: string;
+import { User as ApiUser } from '../../../src/services/userService';
+
+interface Employee extends ApiUser {
     id: number; // Mapeado desde user_id
     dni: string; // Mapeado desde employee_id o un campo similar
     name: string;
@@ -57,31 +50,24 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({ employee, onClose
         if (!editingEmployee) return;
         
         // Asegurar que los campos necesarios estén presentes y mapeados correctamente
-        const employeeToSave: Employee = {
-            ...editingEmployee,
-            updatedAt: new Date().toISOString(),
-            // Asegurar que las propiedades de string no sean undefined
-            dni: editingEmployee.dni || '',
-            name: editingEmployee.name || '',
-            paternalName: editingEmployee.paternalName || '',
-            maternalName: editingEmployee.maternalName || '',
-            address: editingEmployee.address || '',
-            telefono: editingEmployee.telefono || '',
-            email: editingEmployee.email || '',
-            birthDate: editingEmployee.birthDate || '',
-            hireDate: editingEmployee.hireDate || new Date().toISOString().split('T')[0],
+        const userDataToUpdate = {
             username: editingEmployee.email || editingEmployee.username, // Usar email como username por defecto
-            full_name: editingEmployee.full_name || `${editingEmployee.name} ${editingEmployee.paternalName} ${editingEmployee.maternalName}`.trim(),
-            is_active: editingEmployee.status === 'Activo',
-            role: 'seller', // Asegurar que el rol sea 'seller' para este modal
+            full_name: editingEmployee.full_name || `${editingEmployee.name} ${editingEmployee.paternalName} ${editingEmployee.maternalName || ""}`.trim(),
+            employee_id: editingEmployee.dni ? parseInt(editingEmployee.dni) : undefined, // Usar DNI como employee_id
+            is_active: editingEmployee.status === "Activo",
+            role: "seller", // Asegurar que el rol sea 'seller' para este modal
         };
 
         try {
-            await onSave(employeeToSave);
+            await onSave({
+                ...editingEmployee,
+                ...userDataToUpdate,
+                updatedAt: new Date().toISOString(),
+            });
             onClose();
         } catch (error) {
-            console.error('Error al guardar cambios del empleado:', error);
-            alert('Hubo un error al guardar los cambios. Intente de nuevo.');
+            console.error("Error al guardar cambios del empleado:", error);
+            alert("Hubo un error al guardar los cambios. Intente de nuevo.");
         }
     };
 

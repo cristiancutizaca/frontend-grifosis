@@ -1,17 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
+import { User as ApiUser } from '../../../src/services/userService';
 
-// Definición de la interfaz Employee, debe coincidir con la de GrifoEmpleados_Updated.tsx
-interface Employee {
-    user_id: number;
-    employee_id?: number;
-    username: string;
-    role: string;
-    permissions?: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-    full_name?: string;
+interface Employee extends ApiUser {
     id: number; // Mapeado desde user_id
     dni: string; // Mapeado desde employee_id o un campo similar
     name: string;
@@ -29,7 +20,6 @@ interface Employee {
     createdAt?: string;
     updatedAt?: string;
 }
-
 interface AddEmployeeModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -83,40 +73,40 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose, on
     const handleSave = async () => {
         // Validaciones básicas
         if (!newEmployee.name || !newEmployee.paternalName || !newEmployee.dni || !newEmployee.email) {
-            alert('Por favor, complete todos los campos obligatorios.');
+            alert("Por favor, complete todos los campos obligatorios.");
             return;
         }
 
-        // Mapear a la interfaz completa de Employee para onSave
-        // user_id e id serán asignados por el backend
-        const employeeToSave: Employee = {
-            ...newEmployee as Employee,
-            id: 0, // Temporal, el backend asignará el user_id
-            user_id: 0, // Temporal, el backend asignará el user_id
-            username: newEmployee.email || '', // Usar email como username por defecto
-            is_active: newEmployee.status === 'Activo',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            role: 'seller', // Asegurar que el rol sea 'seller'
-            hireDate: newEmployee.hireDate || new Date().toISOString().split('T')[0],
-            terminationDate: newEmployee.terminationDate ?? null,
-            // Asegurar que las propiedades de string no sean undefined
-            dni: newEmployee.dni || '',
-            name: newEmployee.name || '',
-            paternalName: newEmployee.paternalName || '',
-            maternalName: newEmployee.maternalName || '',
-            address: newEmployee.address || '',
-            telefono: newEmployee.telefono || '',
-            email: newEmployee.email || '',
-            birthDate: newEmployee.birthDate || '',
+        // Mapear a CreateUserDto para el backend
+        const userDataToCreate = {
+            username: newEmployee.email || 
+            `${newEmployee.name}.${newEmployee.paternalName}`.toLowerCase(), // Generar username si no hay email
+            password: newEmployee.dni || "default_password", // Usar DNI como contraseña inicial o una por defecto
+            role: "seller", // Asegurar que el rol sea 'seller'
+            full_name: `${newEmployee.name} ${newEmployee.paternalName} ${newEmployee.maternalName || ""}`.trim(),
+            employee_id: newEmployee.dni ? parseInt(newEmployee.dni) : undefined, // Usar DNI como employee_id
+            is_active: newEmployee.status === "Activo",
         };
 
         try {
-            await onSave(employeeToSave);
+            // Llamar a onSave con los datos mapeados
+            await onSave({
+                ...newEmployee as Employee,
+                username: userDataToCreate.username,
+                full_name: userDataToCreate.full_name,
+                employee_id: userDataToCreate.employee_id,
+                is_active: userDataToCreate.is_active,
+                role: userDataToCreate.role,
+                // Las propiedades user_id, id, created_at, updated_at serán asignadas por el backend
+                id: 0, // Temporal
+                user_id: 0, // Temporal
+                created_at: new Date().toISOString(), // Temporal
+                updated_at: new Date().toISOString(), // Temporal
+            });
             handleClose();
         } catch (error) {
-            console.error('Error al guardar empleado:', error);
-            alert('Hubo un error al guardar el empleado. Intente de nuevo.');
+            console.error("Error al guardar empleado:", error);
+            alert("Hubo un error al guardar el empleado. Intente de nuevo.");
         }
     };
 
