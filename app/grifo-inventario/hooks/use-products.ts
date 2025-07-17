@@ -1,15 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Product } from "../types/productos";
-import { initialProducts } from "../data/initial-products";
 import { categories, fuelTypes, units } from "../data/initial-data";
+import productService from "../../../src/services/productService";
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  // Estado para la lista de productos
+  const [products, setProducts] = useState<Product[]>([]);
 
+  // Estado para el indicador de carga
+  const [loading, setLoading] = useState(true);
+
+  // Estado para errores
+  const [error, setError] = useState<string | null>(null);
+
+  // Estado para controlar si el modal de producto está abierto
   const [showModal, setShowModal] = useState(false);
 
+  // Producto que se está editando
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  // Estado del formulario del producto para crear o editar
   const [form, setForm] = useState<Partial<Product>>({
     name: "",
     description: "",
@@ -23,6 +33,10 @@ export function useProducts() {
     is_active: true,
   });
 
+  /**
+   * Abre el modal para crear o editar un producto.
+   * Si se pasa un producto, se llena el formulario con sus datos.
+   */
   const handleOpenModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
@@ -45,11 +59,13 @@ export function useProducts() {
     setShowModal(true);
   };
 
+  /* Cierra el modal y limpia el estado de edición. */
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingProduct(null);
   };
 
+  /* Maneja los cambios en los inputs del formulario. */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -62,36 +78,66 @@ export function useProducts() {
     }));
   };
 
-  const handleSave = () => {
+  // Cargar productos desde la API cuando el hook se monta
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const data = await productService.getAllProducts();
+        setProducts(data);
+      } catch (err: any) {
+        console.error("Error cargando productos:", err);
+        setError(err.message || "Error al cargar productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  /* Guarda el producto: crea uno nuevo o actualiza uno existente. */
+  const handleSave = async () => {
     if (!form.name || !form.unit_price) return;
-    if (editingProduct) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editingProduct.id
-            ? ({
-                ...p,
-                ...form,
-                updated_at: new Date().toISOString(),
-              } as Product)
-            : p
-        )
-      );
-    } else {
-      setProducts((prev) => [
-        ...prev,
-        {
-          ...(form as Product),
-          id: prev.length ? Math.max(...prev.map((p) => p.id)) + 1 : 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
+
+    try {
+      if (editingProduct) {
+        // Actualizar producto existente
+        const updated = await productService.updateProduct({
+          ...form,
+          id: editingProduct.product_id,
+        });
+        setProducts((prev) =>
+          prev.map((p) => (p.product_id === updated.product_id ? updated : p))
+        );
+      } else {
+        // Crear nuevo producto
+        const payload = {
+          ...form,
+          unit_price: Number(form.unit_price),
+          fuel_type: form.category !== "Combustible" ? "otro" : form.fuel_type
+        };
+        const created = await productService.createProduct(payload as any);
+        setProducts((prev) => [...prev, created]);
+      }
+      handleCloseModal();
+    } catch (err: any) {
+      console.error("Error guardando producto:", err);
+      setError(err.message || "Error al guardar el producto");
     }
-    handleCloseModal();
   };
 
-  const handleDelete = (id: number) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+  /* Elimina un producto por su ID. */
+  const handleDelete = async (id: number) => {
+    if (window.confirm("¿Está seguro de que desea eliminar este producto?")) {
+      try {
+        await productService.deleteProduct(id);
+        setProducts((prev) => prev.filter((p) => p.product_id !== id));
+      } catch (err: any) {
+        console.error("Error eliminando producto:", err);
+        setError(err.message || "Error al eliminar el producto");
+      }
+    }
   };
 
   return {
@@ -99,6 +145,8 @@ export function useProducts() {
     form,
     showModal,
     editingProduct,
+    loading,
+    error,
     handleOpenModal,
     handleCloseModal,
     handleChange,

@@ -42,9 +42,12 @@ const ProductsContent: React.FC = () => {
           "Acciones",
         ]}
         rows={products.map((prod) => (
-          <tr key={prod.id} className="hover:bg-slate-700/30 transition-colors">
+          <tr key={prod.product_id} className="hover:bg-slate-700/30 transition-colors">
             <td className="px-4 py-3 text-white font-medium">{prod.name}</td>
-            <td className="px-4 py-3 text-slate-300">{prod.description}</td>
+            <td className="px-4 py-3 text-slate-300">
+              {prod.description?.split(" ").slice(0, 4).join(" ")}
+              {prod.description && prod.description.split(" ").length > 15 ? "..." : ""}
+            </td>
             <td className="px-4 py-3">
               <span
                 className="px-2 py-1 rounded-full text-xs font-semibold border"
@@ -83,7 +86,7 @@ const ProductsContent: React.FC = () => {
             </td>
             <td className="px-4 py-3 text-slate-300">{prod.unit}</td>
             <td className="px-4 py-3 text-slate-300">
-              S/ {prod.unit_price.toFixed(2)}
+            S/ {(Number(prod.unit_price) || 0).toFixed(2)}
             </td>
             <td className="px-4 py-3">
               <span
@@ -105,7 +108,7 @@ const ProductsContent: React.FC = () => {
                 ✏️
               </button>
               <button
-                onClick={() => handleDelete(prod.id)}
+                onClick={() => { handleDelete(prod.product_id); }}
                 className="text-red-400 hover:text-red-300 font-bold"
                 title="Eliminar"
               >

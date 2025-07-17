@@ -2,7 +2,7 @@ import { Product } from "../types/productos";
 
 export const initialProducts: Product[] = [
   {
-    id: 1,
+    product_id: 1,
     name: "Regular",
     description: "Combustible regular para vehículos",
     category: "combustible",
@@ -14,7 +14,7 @@ export const initialProducts: Product[] = [
     updated_at: "2024-06-01T10:00:00Z",
   },
   {
-    id: 2,
+    product_id: 2,
     name: "Premium",
     description: "Combustible premium para vehículos",
     category: "combustible",
@@ -26,7 +26,7 @@ export const initialProducts: Product[] = [
     updated_at: "2024-06-01T10:00:00Z",
   },
   {
-    id: 3,
+    product_id: 3,
     name: "Diesel",
     description: "Combustible diesel para vehículos",
     category: "combustible",
@@ -38,7 +38,7 @@ export const initialProducts: Product[] = [
     updated_at: "2024-06-01T10:00:00Z",
   },
   {
-    id: 4,
+    product_id: 4,
     name: "Aceite",
     description: "Aceite sintético para motor",
     category: "accesorio",

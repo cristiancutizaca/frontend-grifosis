@@ -1,21 +1,22 @@
 export const categories = [
     "combustible", 
-    "activo", 
+    "aditivo", 
     "accesorio", 
-    "Otros"
+    "otro"
 ];
 
-export const fuelTypes = ["diesel", 
+export const fuelTypes = [
+    "diesel", 
     "premium", 
     "regular", 
-    "Ninguno"
+    "otro"
 ];
 
 export const units = ["galón", 
     "litro", 
     "unidad", 
     "kg", 
-    "Otro"
+    "otro"
 ];
 
 // Para la sección de Inventario

@@ -1,12 +1,9 @@
 import apiService from './apiService';
+import { Product } from "../../app/grifo-inventario/types/productos";
 
-// Define la interfaz Product según lo que retorna tu backend
-export interface Product {
+export interface CreateProductDto extends Omit<Product, 'id' | 'created_at' | 'updated_at'> {}
+export interface UpdateProductDto extends Partial<CreateProductDto> {
   id: number;
-  nombre: string;
-  precio: number;
-  tipo: string; // Ej: 'diesel', 'gasolina', etc.
-  // Puedes agregar más campos si tu backend retorna más info
 }
 
 class ProductService {
@@ -20,7 +17,18 @@ class ProductService {
     return apiService.get<Product>(`${this.endpoint}/${id}`);
   }
 
-  // Puedes agregar más métodos si necesitas crear, editar, etc.
+  async createProduct(product: CreateProductDto): Promise<Product> {
+    return apiService.post<Product>(this.endpoint, product);
+  }
+
+  async updateProduct(product: UpdateProductDto): Promise<Product> {
+    return apiService.patch<Product>(`${this.endpoint}/${product.id}`, product);
+  }
+
+  async deleteProduct(id: number): Promise<void> {
+    console.log("Llamando a DELETE con ID:", id);
+    return apiService.delete<void>(`${this.endpoint}/${id}`);
+  }
 }
 
 export default new ProductService();
