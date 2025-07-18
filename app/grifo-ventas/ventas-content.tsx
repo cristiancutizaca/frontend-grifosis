@@ -3,11 +3,17 @@
 import React, { useState, useEffect } from 'react';
 import { User, CreditCard, DollarSign, Fuel } from 'lucide-react';
 import saleService, { CreateSaleData } from '../../src/services/saleService';
-import clientService, { Client } from '../../src/services/clientService';
+import clientService, { Client as BaseClient } from '../../src/services/clientService';
 import nozzleService, { Nozzle } from '../../src/services/nozzleService';
+
+// Extender la interfaz Client para incluir el campo id
+interface Client extends BaseClient {
+  id: number;
+}
 
 const mapClient = (c: any) => ({
   ...c,
+  id: c.client_id || c.id,
   nombre: c.nombre || c.first_name || '',
   apellido: c.apellido || c.last_name || '',
   documento: c.documento || c.document_number || '',
@@ -128,25 +134,6 @@ const GrifoNewSale: React.FC = () => {
     setSubtotal(sub + taxVal);
   }, [quantity, selectedFuel, discount, selectedProduct]);
 
-  const loadInitialData = async () => {
-    try {
-      setLoading(true);
-      const [clientsData, nozzlesData] = await Promise.all([
-        clientService.getAllClients(),
-        nozzleService.getAllNozzles()
-      ]);
-      const mappedClients = clientsData.map(mapClient);
-      setClients(mappedClients);
-      setFilteredClients(mappedClients.slice(0, 10));
-      setNozzles(nozzlesData);
-    } catch (err) {
-      setError('Error al cargar los datos iniciales');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
   const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setClientSearchTerm(`${client.nombre} ${client.apellido}`);
@@ -163,29 +150,32 @@ const GrifoNewSale: React.FC = () => {
 
   const handleNozzleSelect = async (idStr: string) => {
     setSelectedNozzle(idStr);
-    // const nozzle = nozzles.find(n => String(n.id) === nozzleId);
-    // if (!nozzle) return;
-    // setSelectedNozzleObj(nozzle);
+    const nozzle = nozzles.find(n => String(n.id) === idStr);
+    if (!nozzle) return;
+    
+    setSelectedNozzleObj(nozzle);
 
-    // // Cargar boquillas de ese surtidor (bomba_id)
-    // try {
-    //   const list = await nozzleService.getNozzlesByPump(nozzle.bomba_id);
-    //   setPumpNozzles(list);
-    // } catch {
-    //   setPumpNozzles([]);
-    // }
-
-    // // Seleccionar producto por defecto (la primera)
-    // const first = nozzle.producto;
-    // if (first) {
-    //   setSelectedFuel(first.nombre as FuelType);
-    //   setSelectedProduct({
-    //     id: first.id,
-    //     nombre: toFuelType(first.nombre),
-    //     precio: first.precio,
-    //     tipo: first.tipo
-    //   });
-    // }
+    // Cargar boquillas de ese surtidor (bomba_id)
+    try {
+      const list = await nozzleService.getNozzlesByPump(nozzle.bomba_id);
+      setPumpNozzles(list);
+      
+      // Si hay productos disponibles, seleccionar el primero por defecto
+      const firstNozzleWithProduct = list.find(n => n.producto);
+      if (firstNozzleWithProduct && firstNozzleWithProduct.producto) {
+        const product = firstNozzleWithProduct.producto;
+        setSelectedFuel(product.nombre as FuelType);
+        setSelectedProduct({
+          id: product.id,
+          nombre: toFuelType(product.nombre),
+          precio: product.precio,
+          tipo: product.tipo
+        });
+      }
+    } catch (error) {
+      console.error('Error cargando boquillas del surtidor:', error);
+      setPumpNozzles([]);
+    }
   };
 
   const calculateTotal = () => {
@@ -437,57 +427,55 @@ const GrifoNewSale: React.FC = () => {
             </div>
           </div>
           <div className="flex gap-4 mt-8 justify-center">
-            {pumpNozzles
-              // descartamos boquillas sin producto
-              .filter(noz => noz.producto !== undefined)
-              .map((noz) => {
-                const product = noz.producto!;
+            {pumpNozzles.length > 0 ? (
+              pumpNozzles
+                .filter(noz => noz.producto !== undefined)
+                .map((noz) => {
+                  const product = noz.producto!;
+                  const isSelected = selectedProduct?.id === product.id;
 
-                const isActive = Boolean(selectedNozzleObj);
+                  let bg = '';
+                  if (product.nombre === 'Regular') {
+                    bg = isSelected
+                      ? 'bg-red-500 text-white'
+                      : 'bg-red-500/80 text-white hover:bg-red-500';
+                  } else if (product.nombre === 'Premium') {
+                    bg = isSelected
+                      ? 'bg-green-700 text-white'
+                      : 'bg-green-700/80 text-white hover:bg-green-700';
+                  } else if (product.nombre === 'Diesel') {
+                    bg = isSelected
+                      ? 'bg-purple-700 text-white'
+                      : 'bg-purple-700/80 text-white hover:bg-purple-700';
+                  }
 
-                let bg = '';
-                if (product.nombre === 'Regular') {
-                  bg = isActive && selectedProduct?.id === product.id
-                    ? 'bg-red-500 text-white'
-                    : isActive
-                    ? 'bg-red-500/80 text-white'
-                    : 'bg-slate-700 text-red-300 opacity-50';
-                } else if (product.nombre === 'Premium') {
-                  bg = isActive && selectedProduct?.id === product.id
-                    ? 'bg-green-700 text-white'
-                    : isActive
-                    ? 'bg-green-700/80 text-white'
-                    : 'bg-slate-700 text-green-300 opacity-50';
-                } else if (product.nombre === 'Diesel') {
-                  bg = isActive && selectedProduct?.id === product.id
-                    ? 'bg-purple-700 text-white'
-                    : isActive
-                    ? 'bg-purple-700/80 text-white'
-                    : 'bg-slate-700 text-purple-300 opacity-50';
-                }
-
-                return (
-                  <button
-                    key={noz.id}
-                    onClick={() => {
-                      if (!isActive) return;
-                      setSelectedProduct({
-                        id: product.id,
-                        nombre: toFuelType(product.nombre),
-                        precio: product.precio,
-                        tipo: product.tipo
-                      });
-                      setSelectedFuel(product.nombre as FuelType);
-                    }}
-                    className={`flex flex-col items-center justify-center rounded-xl transition-all duration-200 font-bold text-2xl w-48 h-48 gap-4 border border-slate-600 hover:scale-105 ${bg}`}
-                    style={{ minWidth: '192px', minHeight: '192px' }}
-                    disabled={!isActive}
-                  >
-                    <Fuel size={48} />
-                    {product.nombre}
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={noz.id}
+                      onClick={() => {
+                        setSelectedProduct({
+                          id: product.id,
+                          nombre: toFuelType(product.nombre),
+                          precio: product.precio,
+                          tipo: product.tipo
+                        });
+                        setSelectedFuel(product.nombre as FuelType);
+                      }}
+                      className={`flex flex-col items-center justify-center rounded-xl transition-all duration-200 font-bold text-2xl w-48 h-48 gap-4 border border-slate-600 hover:scale-105 ${bg}`}
+                      style={{ minWidth: '192px', minHeight: '192px' }}
+                    >
+                      <Fuel size={48} />
+                      {product.nombre}
+                      <span className="text-sm font-normal">S/ {product.precio.toFixed(2)}</span>
+                    </button>
+                  );
+                })
+            ) : (
+              // Mostrar mensaje cuando no hay surtidor seleccionado
+              <div className="text-slate-400 text-center py-8">
+                {selectedNozzle ? 'Cargando productos del surtidor...' : 'Seleccione un surtidor para ver los productos disponibles'}
+              </div>
+            )}
           </div>
         </div>
 
