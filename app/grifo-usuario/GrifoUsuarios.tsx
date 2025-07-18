@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import EditUserModal from './modal/EditUserModal'
 import AddUserModal from './modal/AddUserModal'
 import userService, { User as ApiUser } from '../../src/services/userService'
-import { APP_CONFIG, isOnlineMode, isOfflineMode } from '@/src/config/appConfig'
+import { APP_CONFIG, isOnlineMode, isOfflineMode } from '../../src/config/appConfig'
 
 const GrifoUsuarios: React.FC = () => {
     // Estados para filtros

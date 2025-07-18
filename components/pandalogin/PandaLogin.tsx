@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import { Wifi, WifiOff } from 'lucide-react';
 import { APP_CONFIG, isOnlineMode, isOfflineMode, setAppMode, initializeAppMode } from '@/src/config/appConfig';
+import { turnoAutoStart } from '../../src/utils/turnoAutoStart';
 import './panda-login.css';
 
 export default function PandaLogin() {
@@ -37,6 +38,20 @@ export default function PandaLogin() {
     sessionStorage.setItem("token", mockToken);
     sessionStorage.setItem("app_mode", "offline");
     router.push('/grifo');
+    
+    // Procesar auto-inicio de turno para modo offline también
+    setTimeout(() => {
+      turnoAutoStart.procesarAutoInicio({
+        montoInicialDefault: 0,
+        showModal: false,
+        onTurnoIniciado: (turno) => {
+          console.log('✅ Turno iniciado automáticamente (modo offline):', turno);
+        },
+        onError: (error) => {
+          console.error('❌ Error en auto-inicio de turno (modo offline):', error);
+        }
+      });
+    }, 1000);
   };
 
   const handleOnlineLogin = async () => {
@@ -61,6 +76,20 @@ export default function PandaLogin() {
           
           // Usar router.push en lugar de window.location.href para mejor manejo de Next.js
           router.push('/grifo');
+          
+          // Procesar auto-inicio de turno después de un breve delay
+          setTimeout(() => {
+            turnoAutoStart.procesarAutoInicio({
+              montoInicialDefault: 0,
+              showModal: false,
+              onTurnoIniciado: (turno) => {
+                console.log('✅ Turno iniciado automáticamente:', turno);
+              },
+              onError: (error) => {
+                console.error('❌ Error en auto-inicio de turno:', error);
+              }
+            });
+          }, 1000);
           
         } catch (decodeError) {
           console.error('Error al decodificar el token:', decodeError);
