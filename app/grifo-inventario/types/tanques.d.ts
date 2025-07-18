@@ -1,10 +1,10 @@
 export interface Tanks {
-  id: number;
+  tank_id: number;
   tank_name: string;
   product_id: number;
   total_capacity: string;
-  location: string;
-  description: string;
+  location: string | null;
+  description: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,9 +1,13 @@
-import React, { useState } from "react";
-import { initialTanks } from "../data/initial-tanks";
+import { useState, useEffect } from "react";
+import TanksService from "../../../src/services/tanksService";
 import { Tanks } from "../types/tanques";
 
 export function useTanques() {
-  const [tanks, setTanks] = useState<Tanks[]>(initialTanks);
+  const [tanks, setTanks] = useState<Tanks[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -45,48 +49,105 @@ export function useTanques() {
     >
   ) => {
     const { name, value, type } = e.target;
+    let processedValue = value;
+
+    if (name === "product_id") {
+      const numValue = Number(value);
+      if (isNaN(numValue) || !Number.isInteger(numValue)) {
+        setError("product_id debe ser un número entero válido");
+        return;
+      }
+      processedValue = numValue.toString();
+    } else if (type === "number") {
+      processedValue = value;
+    } else if (name === "total_capacity") {
+      const decimalValue = parseFloat(value);
+      if (isNaN(decimalValue) || !/^\d*\.?\d+$/.test(value)) {
+        setError("total_capacity debe ser un número decimal válido");
+        return;
+      }
+      processedValue = value;
+    }
+
+    setError(null);
     setForm((prev) => ({
       ...prev,
-      [name]: type === "number" ? Number(value) : value,
+      [name]: processedValue,
     }));
   };
 
-  const handleSave = () => {
-    if (
-      !form.tank_name ||
-      !form.total_capacity ||
-      !form.location ||
-      !form.description
-    )
+  // Cargar tanques desde la API cuando el hook se monta
+  useEffect(() => {
+    const fetchTanks = async () => {
+      try {
+        setLoading(true);
+        const data = await TanksService.getAllTanks();
+        setTanks(data);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar los tanques");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTanks();
+  }, []);
+
+  /* Guarda el tanque: crea uno nuevo o actualiza uno existente. */
+  const handleSave = async () => {
+    if (!form.tank_name || !form.total_capacity) {
+      setError("El nombre y la capacidad son obligatorios");
       return;
-    if (editingTank) {
-      setTanks((prev) =>
-        prev.map((t) =>
-          t.id === editingTank.id
-            ? ({
-                ...t,
-                ...form,
-                updated_at: new Date().toISOString(),
-              } as Tanks)
-            : t
-        )
-      );
-    } else {
-      setTanks((prev) => [
-        ...prev,
-        {
-          ...(form as Tanks),
-          id: prev.length ? Math.max(...prev.map((t) => t.id)) + 1 : 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
     }
-    handleCloseModal();
+
+    const payload = {
+      ...form,
+      product_id: Number(form.product_id),
+      total_capacity: form.total_capacity,
+    };
+
+    try {
+      setLoading(true);
+      if (editingTank) {
+        // Actualizar tanque existente
+        const updatedTank = await TanksService.updateTank(
+          editingTank.tank_id,
+          payload
+        );
+        setTanks((prev) =>
+          prev.map((t) =>
+            t.tank_id === updatedTank.tank_id ? updatedTank : t
+          )
+        );
+      } else {
+        // Crear nuevo tanque
+        const newTank = await TanksService.createTank(payload);
+        const formattedTank = {
+          ...newTank,
+          total_capacity: parseFloat(newTank.total_capacity).toFixed(3),
+        };
+        setTanks((prev) => [...prev, formattedTank]);
+      }
+      handleCloseModal();
+    } catch (err: any) {
+      setError(err.message || "Error al guardar el tanque");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    setTanks((prev) => prev.filter((t) => t.id !== id));
+  /* Elimina un tanque por su ID. */
+  const handleDelete = async (id: number) => {
+    if (window.confirm("¿Está seguro de que desea eliminar este tanque?")) {
+      try {
+        setLoading(true);
+        await TanksService.deleteTank(id);
+        setTanks((prev) => prev.filter((t) => t.tank_id !== id));
+      } catch (err: any) {
+        setError(err.message || "Error al eliminar el tanque");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return {
@@ -94,6 +155,8 @@ export function useTanques() {
     form,
     showModal,
     editingTank,
+    loading,
+    error,
     handleOpenModal,
     handleCloseModal,
     handleChange,

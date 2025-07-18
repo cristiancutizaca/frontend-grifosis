@@ -1,7 +1,7 @@
 import React from "react";
 import { TangentIcon } from "lucide-react";
 import { useTanques } from "./hooks/use-tanks";
-import { initialProducts } from "./data/initial-products";
+import { useProducts } from "./hooks/use-products";
 import SectionHeader from "./components/sectionHeader";
 import SectionDataTable from "./components/sectionDataTable";
 
@@ -18,6 +18,10 @@ const TanksContent: React.FC = () => {
     handleDelete,
   } = useTanques();
 
+  const {
+    products
+  } = useProducts();
+
   return (
     <div>
       <SectionHeader
@@ -32,19 +36,23 @@ const TanksContent: React.FC = () => {
       <SectionDataTable
         headers={[
           "Nombre",
-          "Capacidad",
+          "Capacidad(gal)",
           "Ubicación",
-          "Descripción",
+          "Producto",
           "Acciones",
         ]}
         rows={tanks.map((tank) => (
-          <tr key={tank.id} className="hover:bg-slate-700/30 transition-colors">
+          <tr key={tank.tank_id} className="hover:bg-slate-700/30 transition-colors">
             <td className="px-4 py-3 text-white font-medium">
               {tank.tank_name}
             </td>
             <td className="px-4 py-3 text-slate-300">{tank.total_capacity}</td>
             <td className="px-4 py-3 text-slate-300">{tank.location}</td>
-            <td className="px-4 py-3 text-slate-300">{tank.description}</td>
+            <td className="px-4 py-3 text-slate-300">
+              {
+                products.find((product) => product.product_id === tank.product_id)?.name || "Producto desconocido"
+              }
+            </td>
             <td className="px-4 py-3 text-center">
               <button
                 onClick={() => handleOpenModal(tank)}
@@ -54,7 +62,7 @@ const TanksContent: React.FC = () => {
                 ✏️
               </button>
               <button
-                onClick={() => handleDelete(tank.id)}
+                onClick={() => handleDelete(tank.tank_id)}
                 className="text-red-400 hover:text-red-300 font-bold"
                 title="Eliminar"
               >
@@ -132,8 +140,8 @@ const TanksContent: React.FC = () => {
                   className="w-full px-4 py-3 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">Seleccione un producto</option>
-                  {initialProducts.map((product) => (
-                    <option key={product.id} value={product.id}>
+                  {products.map((product) => (
+                    <option key={product.product_id} value={product.product_id}>
                       {product.name}
                     </option>
                   ))}
@@ -141,7 +149,7 @@ const TanksContent: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Capacidad Total
+                  Capacidad Total (Galones)
                 </label>
                 <input
                   type="text"

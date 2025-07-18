@@ -2,7 +2,7 @@ import { Tanks } from "../types/tanques";
 
 export const initialTanks: Tanks[] = [
   {
-    id: 1,
+    tank_id: 1,
     tank_name: "Tanque 1",
     product_id: 1,
     total_capacity: "1000 litros",
@@ -12,7 +12,7 @@ export const initialTanks: Tanks[] = [
     updated_at: "2022-01-01",
   },
   {
-    id: 2,
+    tank_id: 2,
     tank_name: "Tanque 2",
     product_id: 2,
     total_capacity: "2000 litros",
@@ -22,7 +22,7 @@ export const initialTanks: Tanks[] = [
     updated_at: "2022-02-01",
   },
   {
-    id: 3,
+    tank_id: 3,
     tank_name: "Tanque 3",
     product_id: 3,
     total_capacity: "3000 litros",
