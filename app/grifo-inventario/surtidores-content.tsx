@@ -40,7 +40,7 @@ const SurtidoresContent: React.FC = () => {
             <td className="px-4 py-3 text-slate-300">{surtidor.pump_name}</td>
             <td className="px-4 py-3 text-slate-300">{surtidor.pump_number}</td>
             <td className="px-4 py-3 text-slate-300">
-              {surtidor.location_descripcion}
+              {surtidor.location_description}
             </td>
             <td className="px-4 py-3 text-center">
               <button
@@ -164,8 +164,8 @@ const SurtidoresContent: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    name="location_descripcion"
-                    value={form.location_descripcion || ""}
+                    name="location_description"
+                    value={form.location_description || ""}
                     onChange={handleChange}
                     className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 text-white rounded"
                   />

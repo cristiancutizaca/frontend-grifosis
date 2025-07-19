@@ -1,35 +1,44 @@
 import { useState, useEffect } from "react";
 import { Surtidores } from "../types/surtidores";
-import { initialSurtidores } from "../data/initial-surtidores";
+import PumpService from "../../../src/services/pumpService";
 
 export function useSurtidores() {
-  const [surtidores, setSurtidores] = useState<Surtidores[]>(initialSurtidores);
+  const [surtidores, setSurtidores] = useState<Surtidores[]>([]);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
 
   const [showModal, setShowModal] = useState(false);
 
-  const [editingSurtidor, setEditingSurtidor] = useState<Surtidores | null>(
-    null
-  );
+  const [editingSurtidor, setEditingSurtidor] = useState<Surtidores | null>(null);
 
   const [form, setForm] = useState<Partial<Surtidores>>({
     pump_id: 0,
     pump_number: "",
     pump_name: "",
-    location_descripcion: "",
+    location_description: "",
     created_at: "",
     updated_at: "",
   });
 
+  // Cargar surtidores desde la API cuando el hook se monta
   useEffect(() => {
-    // Aquí podrías agregar lógica para obtener los surtidores de una API o base de datos
+    const fetchSurtidores = async () => {
+      try {
+        setLoading(true);
+        const data = await PumpService.getAllPumps();
+        setSurtidores(data);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar los surtidores");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSurtidores();
   }, []);
 
-  const handleDelete = (pump_id: number) => {
-    setSurtidores(
-      surtidores.filter((surtidor) => surtidor.pump_id !== pump_id)
-    );
-  };
-
+  /* Abre el modal: permite agregar un nuevo surtidor o editar uno existente. */
   const handleOpenModal = (surtidor?: Surtidores) => {
     if (surtidor) {
       setEditingSurtidor(surtidor);
@@ -40,7 +49,7 @@ export function useSurtidores() {
         pump_id: 0,
         pump_number: "",
         pump_name: "",
-        location_descripcion: "",
+        location_description: "",
         created_at: "",
         updated_at: "",
       });
@@ -63,46 +72,72 @@ export function useSurtidores() {
     }));
   };
 
-  const handleSave = () => {
-    if (!form.pump_name || !form.pump_number || !form.location_descripcion)
+  /* Guarda el surtidor: crea uno nuevo o actualiza uno existente. */
+  const handleSave = async () => {
+    if (!form.pump_name || !form.pump_number) {
+      setError("El nombre y número son obligatorios");
       return;
-    if (editingSurtidor) {
-      setSurtidores((prev) =>
-        prev.map((s) =>
-          s.pump_id === editingSurtidor.pump_id
-            ? {
-                ...s,
-                ...form,
-                updated_at: new Date().toISOString(),
-              }
-            : s
-        )
-      );
-    } else {
-      setSurtidores((prev) => [
-        ...prev,
-        {
-          ...(form as Surtidores),
-          pump_id: prev.length
-            ? Math.max(...prev.map((s) => s.pump_id)) + 1
-            : 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
     }
-    handleCloseModal();
+
+    const payload = {
+      ...form,
+      pump_id: undefined,
+      created_at: undefined,
+      updated_at: undefined,
+      location_description: form.location_description?.trim() || null,
+    };
+
+    try {
+      setLoading(true);
+      if (editingSurtidor) {
+        const updatedSurtidor = await PumpService.updatePump(
+          editingSurtidor.pump_id,
+          payload
+        );
+        setSurtidores((prev) =>
+          prev.map((s) =>
+            s.pump_id === updatedSurtidor.pump_id ? updatedSurtidor : s
+          )
+        );
+      } else {
+        const newSurtidor = await PumpService.createPump(payload);
+        setSurtidores((prev) => [...prev, newSurtidor]);
+      }
+      handleCloseModal();
+    } catch (err: any) {
+      setError(err.message || "Error al guardar el surtidor");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* Elimina un surtidor por su ID. */
+  const handleDelete = async (pump_id: number) => {
+    if (window.confirm("¿Está seguro de que desea eliminar este surtidor?")) {
+      try {
+        setLoading(true);
+        await PumpService.deletePump(pump_id);
+        setSurtidores((prev) => prev.filter((s) => s.pump_id !== pump_id));
+      } catch (err: any) {
+        setError(err.message || "Error al eliminar el surtidor");
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return {
     surtidores,
-    editingSurtidor,
     form,
     showModal,
+    editingSurtidor,
+    loading,
+    error,
     handleOpenModal,
     handleCloseModal,
     handleChange,
     handleSave,
     handleDelete,
+    setForm,
   };
 }
